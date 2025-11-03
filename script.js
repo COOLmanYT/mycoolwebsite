@@ -1,10 +1,7 @@
-document.getElementById("btn").addEventListener("click", () => {
-  alert("the button is buttoning, how cool!");
-});
-
-const subscribeBtn = document.getElementById("YouTube Button");
-if (subscribeBtn)
-  subscribeBtn.addEventListener("click", () => {
+const youtubeBtn = document.getElementById("youtube-btn");
+if (youtubeBtn) {
+  youtubeBtn.addEventListener("click", () => {
     window.location.href = "https://www.youtube.com/@COOLmanGamer?sub_confirmation=1";
   });
+}
 
