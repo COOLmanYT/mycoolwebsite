@@ -15,15 +15,17 @@ body {
 }
 
 h1 {
-  font-size: 7rem;
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 1rem;
+  color: #222;
 }
 
 p {
     max-width: 700px;
-    font-size: clamp(1.25rem, 5vw, 2rem);
-    color: #000000;
-    margin: 1rem auto 3.5rem;
-    line-height: 1.5;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: #333;
+    margin: 1rem auto 2.5rem;
+    line-height: 1.6;
     padding: 0 1rem;
 }
 
@@ -34,18 +36,30 @@ p {
 .button, button {
   background-color: #ff0000;
   color: white;
-  padding: 10px 20px;
+  padding: 12px 24px;
   border: none;
   border-radius: 8px;
   text-decoration: none;
   display: inline-block;
-  margin: 10px;
-  font-size: 16px;
+  margin: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .button:hover, button:hover {
   background-color: #b10000;
   cursor: pointer;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.nav-links {
+  margin: 1.5rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
 }
 
 .button-container {
@@ -69,6 +83,26 @@ p {
 
 .social-button img:hover {
   transform: scale(1.1);
+}
+
+.contact-links {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.contact-links .social-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: #333;
+}
+
+.contact-links .social-button span {
+  font-size: 0.9rem;
 }
 
 footer {
