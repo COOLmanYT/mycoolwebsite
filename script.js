@@ -7,3 +7,9 @@ if (subscribeBtn)
   subscribeBtn.addEventListener("click", () => {
     window.location.href = "https://www.youtube.com/@COOLmanGamer?sub_confirmation=1";
   });
+
+const subscribeBtn = document.getElementById("YouTube Button");
+if (subscribeBtn)
+  subscribeBtn.addEventListener("click", () => {
+    window.location.href = "projects.html";
+  });
