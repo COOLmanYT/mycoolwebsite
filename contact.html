@@ -12,15 +12,27 @@
         <h1>Contact Me</h1>
         <p>Want to get in touch? Here's how you can reach me!</p>
         
+        <div class="contact-links">
+            <a href="mailto:your-email@example.com" class="social-button">
+                <img src="images/email.svg" alt="Email">
+                <span>Email</span>
+            </a>
+            <a href="https://t.me/YOUR_TELEGRAM" target="_blank" class="social-button">
+                <img src="images/telegram.svg" alt="Telegram">
+                <span>Telegram</span>
+            </a>
+        </div>
+        
 <section class="contact-section">
   <h1>Contact Me</h1>
   <p>Have a question or just want to say hi? Fill out the form below!</p>
   
-  <form class="contact-form" action="#" method="post">
+  <form class="contact-form" action="https://formspree.io/f/xanykkvy" method="post" id="contactForm">
     <input type="text" name="name" placeholder="Your Name" required>
     <input type="email" name="email" placeholder="Your Email" required>
     <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
     <button type="submit">Send Message</button>
+    <div id="formStatus"></div>
   </form>
 </section>
 
@@ -31,5 +43,44 @@
             <a href="projects.html" class="button">Projects</a>
         </div>
     </main>
+    
+    <footer>
+        Made with ♥️ by <strong>COOLmanYT</strong><br>
+        Website <a id="github-repo" href="https://github.com/RandomInternetUser3000/mycoolwebsite">Open Source Github Repo</a> <br>
+        Credits to <a href="https://zinheere.vercel.app">Zinheere</a> <br>
+    </footer>
+    
+    <script>
+      // Form submission handling with feedback
+      document.addEventListener('DOMContentLoaded', function() {
+        const contactForm = document.getElementById('contactForm');
+        
+        if (contactForm) {
+          contactForm.addEventListener('submit', function(e) {
+            const formStatus = document.getElementById('formStatus');
+            const submitButton = contactForm.querySelector('button[type="submit"]');
+            
+            // Show loading state
+            submitButton.disabled = true;
+            submitButton.textContent = 'Sending...';
+            formStatus.textContent = '';
+            formStatus.className = '';
+            
+            // The form will submit naturally to Formspree
+            // We'll use a timeout to show feedback after submission
+            setTimeout(function() {
+              // Check if we're still on the same page (form didn't redirect)
+              if (window.location.hash !== '#success') {
+                formStatus.textContent = 'Message sent successfully! I\'ll get back to you soon.';
+                formStatus.className = 'success';
+                contactForm.reset();
+              }
+              submitButton.disabled = false;
+              submitButton.textContent = 'Send Message';
+            }, 2000);
+          });
+        }
+      });
+    </script>
 </body>
 </html>
