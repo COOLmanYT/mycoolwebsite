@@ -117,6 +117,7 @@ function enableContactForm() {
 	const statusElement = document.getElementById('formStatus');
 	const submitButton = contactForm.querySelector('button[type="submit"]');
 	const endpoint = contactForm.getAttribute('action');
+	const MAX_ERROR_TEXT_LENGTH = 200;
 
 	contactForm.addEventListener('submit', async (event) => {
 		event.preventDefault();
@@ -152,6 +153,9 @@ function enableContactForm() {
 				let errorMessage = 'Something went wrong. Please try again later.';
 				let parsedMessage = false;
 				
+				// Clone response to allow multiple reads of the body
+				const responseClone = response.clone();
+				
 				try {
 					const data = await response.json();
 					if (data?.errors?.[0]?.message) {
@@ -165,11 +169,11 @@ function enableContactForm() {
 						parsedMessage = true;
 					}
 				} catch (parseError) {
-					// If JSON parsing fails, try to get text response
+					// If JSON parsing fails, try to get text response from cloned response
 					try {
-						const text = await response.text();
+						const text = await responseClone.text();
 						// Limit text length to avoid displaying large HTML error pages
-						if (text && text.length < 200) {
+						if (text && text.length < MAX_ERROR_TEXT_LENGTH) {
 							errorMessage = text;
 							parsedMessage = true;
 						}
