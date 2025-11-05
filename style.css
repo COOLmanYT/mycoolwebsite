@@ -23,7 +23,42 @@
 }
 
 body.theme-light {
-  color-scheme: light;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background-gradient);
+  background-attachment: fixed;
+  min-height: 100vh;
+  margin: 0;
+  color: var(--text-primary);
+  text-align: center;
+  font-family: "Funnel Sans", system-ui, -apple-system, sans-serif;
+  padding: 1.75rem 1rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  transition: background 0.4s ease, color 0.3s ease;
+}
+
+.home-page {
+  justify-content: flex-start;
+}
+
+.home-page main {
+  justify-content: center;
+  text-align: center;
+}
+
+.social-links .social-button {
   --background-gradient: linear-gradient(180deg, #ffffff 0%, #ffe6e6 48%, #f7f7f7 100%);
   --surface: rgba(255, 255, 255, 0.86);
   --surface-strong: rgba(255, 255, 255, 0.96);
