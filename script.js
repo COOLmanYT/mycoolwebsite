@@ -1,14 +1,13 @@
-const ver = "Version 0.8.18 Public Beta"
+const ver = "Version 0.8.15 Public Beta"
 
 document.addEventListener('DOMContentLoaded', () => {
 	applyInitialTheme();
 	setupThemeToggle();
 	fadeInPage();
 	enableContactForm();
-	updatever();
-	syncSocialButtonLabels();
 	enhanceSocialButtons();
-	setupNavHoverGlow();
+    updatever();
+    addSocialTooltips();
 });
 
 const THEME_STORAGE_KEY = 'coolman-theme';
@@ -102,7 +101,7 @@ function fadeInPage() {
 }
 
 function enhanceSocialButtons() {
-	const socialButtons = document.querySelectorAll('.social-links .social-button');
+	const socialButtons = document.querySelectorAll('.social-button');
 	socialButtons.forEach((button) => {
 		button.addEventListener('mouseenter', () => button.classList.add('tilt'));
 		button.addEventListener('mouseleave', () => button.classList.remove('tilt'));
@@ -119,29 +118,14 @@ function enableContactForm() {
 	const submitButton = contactForm.querySelector('button[type="submit"]');
 	const endpoint = contactForm.getAttribute('action');
 
-	if (!endpoint || !submitButton) {
-		return;
-	}
-
-	const handleSubmit = async (event) => {
+	contactForm.addEventListener('submit', async (event) => {
 		event.preventDefault();
 
+		if (!endpoint) {
+			return;
+		}
+
 		const formData = new FormData(contactForm);
-		const urlEncoded = new URLSearchParams();
-		formData.forEach((value, key) => {
-			urlEncoded.append(key, String(value));
-		});
-
-		const resetStatus = () => {
-			submitButton.disabled = false;
-			submitButton.textContent = 'Send Message';
-		};
-
-		const fallbackSubmit = () => {
-			resetStatus();
-			contactForm.removeEventListener('submit', handleSubmit);
-			contactForm.submit();
-		};
 
 		submitButton.disabled = true;
 		submitButton.textContent = 'Sending...';
@@ -153,11 +137,8 @@ function enableContactForm() {
 		try {
 			const response = await fetch(endpoint, {
 				method: 'POST',
-				headers: {
-					Accept: 'application/json',
-					'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-				},
-				body: urlEncoded.toString(),
+				headers: { Accept: 'application/json' },
+				body: formData,
 			});
 
 			if (response.ok) {
@@ -168,17 +149,10 @@ function enableContactForm() {
 				contactForm.reset();
 			} else {
 				const data = await response.json().catch(() => null);
-				const errorList = Array.isArray(data?.errors)
-					? data.errors.map((item) => item?.message).filter(Boolean)
-					: [];
-				const errorMessage = errorList.join('\n') || data?.message || 'Something went wrong. Please try again later.';
+				const errorMessage = data?.errors?.[0]?.message || 'Something went wrong. Please try again later.';
 				if (statusElement) {
 					statusElement.textContent = errorMessage;
 					statusElement.classList.add('error');
-				}
-				if (response.status >= 500) {
-					fallbackSubmit();
-					return;
 				}
 			}
 		} catch (error) {
@@ -186,14 +160,11 @@ function enableContactForm() {
 				statusElement.textContent = 'Network error. Please check your connection and try again.';
 				statusElement.classList.add('error');
 			}
-			fallbackSubmit();
-			return;
 		} finally {
-			resetStatus();
+			submitButton.disabled = false;
+			submitButton.textContent = 'Send Message';
 		}
-	};
-
-	contactForm.addEventListener('submit', handleSubmit);
+	});
 }
 
 function updatever() {
@@ -207,38 +178,26 @@ function updatever() {
  * Ensure social links show the platform name on hover.
  * Uses the nested <img alt="..."> when available, otherwise infers from the href.
  */
-function syncSocialButtonLabels() {
-	const buttons = document.querySelectorAll('.social-links .social-button');
+function addSocialTooltips() {
+	const buttons = document.querySelectorAll('.social-button');
 	buttons.forEach((btn) => {
-		const explicitLabel = btn.dataset.label;
-		const imgAlt = btn.querySelector('img')?.alt?.trim();
-		const fallback = (() => {
+		// Don't override an explicit title the author may have set
+		if (btn.getAttribute('title')) return;
+
+		const img = btn.querySelector('img');
+		let label = img && img.alt ? img.alt.trim() : '';
+
+		if (!label) {
 			const href = (btn.getAttribute('href') || '').toLowerCase();
-			if (/github/.test(href)) return 'GitHub';
-			if (/youtube|youtu\.be/.test(href)) return 'YouTube';
-			if (/discord/.test(href)) return 'Discord';
-			if (/roblox/.test(href)) return 'Roblox';
-			return imgAlt || 'External link';
-		})();
+			if (/github/.test(href)) label = 'GitHub';
+			else if (/youtube|youtu\.be/.test(href)) label = 'YouTube';
+			else if (/discord/.test(href)) label = 'Discord';
+			else if (/roblox/.test(href)) label = 'Roblox';
+			else if (href) label = href.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+			else label = 'External link';
+		}
 
-		const label = explicitLabel || fallback;
+		btn.setAttribute('title', label);
 		btn.setAttribute('aria-label', label);
-	});
-}
-
-function setupNavHoverGlow() {
-	const navBars = document.querySelectorAll('.nav-links');
-	navBars.forEach((nav) => {
-		nav.addEventListener('pointermove', (event) => {
-			const rect = nav.getBoundingClientRect();
-			const x = ((event.clientX - rect.left) / rect.width) * 100;
-			const y = ((event.clientY - rect.top) / rect.height) * 100;
-			nav.style.setProperty('--nav-hover-x', `${x}%`);
-			nav.style.setProperty('--nav-hover-y', `${y}%`);
-		});
-		nav.addEventListener('pointerleave', () => {
-			nav.style.removeProperty('--nav-hover-x');
-			nav.style.removeProperty('--nav-hover-y');
-		});
 	});
 }
