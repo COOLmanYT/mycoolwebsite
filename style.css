@@ -1,4 +1,44 @@
 @import url('https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+:root {
+  color-scheme: dark;
+  --background-gradient: linear-gradient(180deg, #080808 0%, #2a0303 48%, #050505 100%);
+  --surface: rgba(48, 12, 12, 0.85);
+  --surface-strong: rgba(64, 18, 18, 0.95);
+  --surface-soft: rgba(36, 9, 9, 0.68);
+  --text-primary: #f8f8f8;
+  --text-secondary: #d9d9d9;
+  --text-muted: #9a9a9a;
+  --accent: #ff3044;
+  --accent-hover: #ff5766;
+  --outline: rgba(255, 255, 255, 0.08);
+  --shadow-strong: 0 26px 55px rgba(0, 0, 0, 0.45);
+  --shadow-soft: 0 18px 42px rgba(0, 0, 0, 0.32);
+  --banner-bg: rgba(20, 20, 20, 0.88);
+  --banner-text: #f8f8f8;
+  --tooltip-bg: rgba(0,0,0,0.8);
+  --tooltip-text: #ffffff;
+  --status-error-bg: rgba(231, 76, 60, 0.2);
+  --status-error-border: rgba(231, 76, 60, 0.35);
+  --status-error-text: #ffb3b3;
+}
+
+body.theme-light {
+  color-scheme: light;
+  --background-gradient: linear-gradient(180deg, #ffffff 0%, #ffe6e6 48%, #f7f7f7 100%);
+  --surface: rgba(255, 255, 255, 0.86);
+  --surface-strong: rgba(255, 255, 255, 0.96);
+  --surface-soft: rgba(255, 255, 255, 0.72);
+  --text-primary: #111;
+  --text-secondary: #2e2e2e;
+  --text-muted: #555;
+  --accent: #d7263d;
+  --accent-hover: #b71d31;
+  --outline: rgba(0, 0, 0, 0.08);
+  --shadow-strong: 0 22px 48px rgba(215, 38, 61, 0.28);
+  --shadow-soft: 0 16px 34px rgba(0, 0, 0, 0.12);
+  --banner-bg: rgba(255, 255, 255, 0.95);
+  --banner-text: #111;
+}
 
 .social-links .social-button {
   position: relative;
