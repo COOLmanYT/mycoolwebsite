@@ -19,7 +19,9 @@ body {
 }
 
 body {
-  --background: #070b16;
+  --background: radial-gradient(circle at 20% 10%, rgba(118, 87, 255, 0.28) 0%, transparent 50%), 
+                radial-gradient(circle at 80% 90%, rgba(255, 68, 126, 0.24) 0%, transparent 50%), 
+                linear-gradient(180deg, #020408 0%, #050812 30%, #060914 60%, #04060c 100%);
   --surface: rgba(12, 18, 34, 0.78);
   --surface-strong: rgba(16, 22, 38, 0.9);
   --outline: rgba(255, 255, 255, 0.08);
@@ -45,6 +47,10 @@ body {
   padding: 0;
   font-family: "Funnel Sans", "Segoe UI", Tahoma, sans-serif;
   background: var(--background);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: center;
+  background-attachment: fixed;
   color: var(--text-primary);
   line-height: 1.6;
   transition: background 0.35s ease, color 0.35s ease;
@@ -52,7 +58,9 @@ body {
 
 body.theme-light {
   color-scheme: light;
-  --background: #f5f7ff;
+  --background: radial-gradient(circle at 20% 15%, rgba(255, 126, 190, 0.22) 0%, transparent 45%), 
+                radial-gradient(circle at 85% 85%, rgba(140, 168, 255, 0.26) 0%, transparent 45%), 
+                linear-gradient(180deg, #f4f7ff 0%, #eef3ff 40%, #e8eeff 70%, #e0e8ff 100%);
   --surface: rgba(255, 255, 255, 0.86);
   --surface-strong: rgba(255, 255, 255, 0.98);
   --outline: rgba(9, 20, 50, 0.12);
@@ -89,13 +97,6 @@ img {
   display: block;
 }
 
-body:not(.theme-light) .social-button img[src*="github"] {
-  filter: brightness(0) invert(1);
-}
-
-.social-button.tilt {
-  transform: translateY(-3px) scale(1.05) rotate(2deg);
-}
 .home-page main {
   justify-content: center;
   text-align: center;
@@ -194,14 +195,14 @@ body:not(.theme-light) .social-button img[src*="github"] {
   position: absolute;
   inset: -120%;
   background: radial-gradient(
-    circle at var(--nav-glow-x) var(--nav-glow-y),
-    var(--nav-glow-color-1) 0%,
-    var(--nav-glow-color-2) var(--nav-glow-strength),
-    transparent calc(var(--nav-glow-strength) + 24%)
+    circle at var(--nav-glow-x, 50%) var(--nav-glow-y, 50%),
+    var(--nav-glow-color-1, hsla(330, 88%, 60%, 0.42)) 0%,
+    var(--nav-glow-color-2, hsla(255, 82%, 56%, 0.28)) var(--nav-glow-strength, 45%),
+    transparent calc(var(--nav-glow-strength, 45%) + 24%)
   );
-  opacity: clamp(var(--nav-glow-opacity), 0.15, 0.85);
+  opacity: var(--nav-glow-opacity, 0.32);
   pointer-events: none;
-  filter: saturate(1.35) blur(0.0px);
+  filter: saturate(1.35) blur(0px);
   transition: opacity 0.4s ease;
   z-index: 0;
 }
@@ -372,52 +373,85 @@ ul {
   background: var(--surface-strong);
   border: 1px solid var(--outline);
   box-shadow: var(--shadow-soft);
-  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, padding 0.2s ease;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   text-decoration: none;
   color: var(--text-primary);
-  overflow: hidden;
-  gap: 0.65rem;
-  padding: 0.65rem;
+  overflow: visible;
 }
 
 .social-button img {
   width: clamp(30px, 5vw, 34px);
   height: clamp(30px, 5vw, 34px);
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, filter 0.2s ease;
   filter: none;
   flex-shrink: 0;
 }
 
-.social-label {
-  opacity: 0;
-  transform: translateX(-10px);
-  max-width: 0;
-  transition: opacity 0.18s ease, transform 0.18s ease, max-width 0.25s ease;
+.social-button::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  background: var(--tooltip-bg);
+  color: var(--tooltip-text);
   font-size: 0.85rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   white-space: nowrap;
-  color: inherit;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 8px 20px rgba(5, 8, 20, 0.5);
+  backdrop-filter: blur(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 100;
+}
+
+.social-button::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: var(--tooltip-bg);
+  transform: translate(-50%, 5px) rotate(45deg);
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  z-index: 99;
+}
+
+.social-label {
+  display: none;
 }
 
 .social-button:hover,
 .social-button:focus-visible {
-  transform: translateY(-3px) scale(1.05);
+  transform: translateY(-3px);
   background: var(--accent);
   box-shadow: var(--shadow-strong);
-  padding-right: 1.6rem;
+  color: #fff;
 }
 
 .social-button:hover img,
 .social-button:focus-visible img {
   transform: scale(1.08);
+  filter: brightness(1.15);
 }
 
-.social-button:hover .social-label,
-.social-button:focus-visible .social-label {
+.social-button:hover::after,
+.social-button:focus-visible::after {
   opacity: 1;
-  transform: translateX(0);
-  max-width: 160px;
+  transform: translateX(-50%) translateY(0);
+}
+
+.social-button:hover::before,
+.social-button:focus-visible::before {
+  opacity: 1;
+  transform: translate(-50%, 1px) rotate(45deg);
 }
 
 /* Compact social buttons inside headers retain square footprint */
@@ -425,14 +459,6 @@ ul {
 .hero-socials .social-button {
   width: 48px;
   height: 48px;
-  padding: 0.55rem;
-}
-
-.site-header .social-button:hover,
-.site-header .social-button:focus-visible,
-.hero-socials .social-button:hover,
-.hero-socials .social-button:focus-visible {
-  padding-right: 1.3rem;
 }
 
 .nav-pill.active {
@@ -512,10 +538,6 @@ body:not(.theme-light) .social-button img[src*="github"] {
   filter: brightness(0) invert(1);
 }
 
-.social-button.tilt {
-  transform: scale(1.1) rotate(4deg);
-}
-
 .contact-links {
   display: flex;
   justify-content: center;
@@ -528,10 +550,15 @@ body:not(.theme-light) .social-button img[src*="github"] {
   justify-content: flex-start;
   width: auto;
   min-width: clamp(180px, 40vw, 220px);
-  height: 56px;
+  min-height: 56px;
   padding: 0.75rem 1.2rem;
   border-radius: 16px;
   gap: 0.75rem;
+}
+
+.contact-links .social-button::after,
+.contact-links .social-button::before {
+  display: none;
 }
 
 .contact-links .social-button:hover {
@@ -542,26 +569,25 @@ body:not(.theme-light) .social-button img[src*="github"] {
 }
 
 .contact-links .social-button .social-label {
-  opacity: 1;
-  transform: none;
-  max-width: none;
+  display: inline;
   font-size: clamp(0.9rem, 2vw, 1rem);
   font-weight: 600;
+  color: inherit;
 }
 
 footer {
-  margin: 3rem auto 2.5rem;
-  padding: 2rem 1rem;
+  margin: 1.5rem auto 0.75rem;
+  padding: 1rem 0.85rem 0.75rem;
   color: var(--text-muted);
   font-size: clamp(0.85rem, 2vw, 0.95rem);
-  line-height: 1.6;
+  line-height: 1.5;
   width: 100%;
   max-width: 1200px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.15rem;
   border-top: 1px solid var(--outline);
 }
 
@@ -1492,11 +1518,4 @@ body.modal-open {
     width: 38px;
     height: 38px;
   }
-}
-
-.social-button:hover .social-label,
-.social-button:focus-visible .social-label {
-  opacity: 1;
-  transform: translateX(0);
-  max-width: 160px;
 }
