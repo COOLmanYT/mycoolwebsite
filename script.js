@@ -1,4 +1,4 @@
-const ver = "Version 0.9.01 Public Beta";
+const ver = "Version 0.9.02 Public Beta";
 const COMMENTS_API_URL = '/api/comments';
 const COMMENTS_STORAGE_KEY = 'coolman-comments';
 const ANALYTICS_MODULE_URL = 'https://unpkg.com/@vercel/analytics/dist/analytics.mjs';
@@ -31,6 +31,29 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const THEME_STORAGE_KEY = 'coolman-theme';
+
+function applyInitialTheme() {
+	const storedTheme = getStoredTheme();
+	const prefersLight = window.matchMedia?.('(prefers-color-scheme: light)')?.matches ?? false;
+	const initialTheme = storedTheme ?? (prefersLight ? 'light' : 'dark');
+
+	applyTheme(initialTheme, { persist: Boolean(storedTheme) });
+
+	if (!storedTheme && window.matchMedia) {
+		const mediaQuery = window.matchMedia('(prefers-color-scheme: light)');
+		const handleChange = (event) => {
+			if (!getStoredTheme()) {
+				applyTheme(event.matches ? 'light' : 'dark', { persist: false });
+			}
+		};
+
+		if (mediaQuery.addEventListener) {
+			mediaQuery.addEventListener('change', handleChange);
+		} else if (mediaQuery.addListener) {
+			mediaQuery.addListener(handleChange);
+		}
+	}
+}
 
 function setupThemeToggle() {
 	const toggle = document.querySelector('.theme-toggle');
@@ -118,10 +141,10 @@ function enhanceSocialButtons() {
 	const socialButtons = document.querySelectorAll('.social-button');
 	socialButtons.forEach((button) => {
 		const label = inferSocialLabel(button);
-		button.addEventListener('mouseenter', () => button.classList.add('tilt'));
-		button.addEventListener('mouseleave', () => button.classList.remove('tilt'));
 		if (label) {
 			button.setAttribute('aria-label', label);
+			button.dataset.label = label;
+			button.dataset.tooltip = label;
 			if (!button.getAttribute('title')) {
 				button.setAttribute('title', label);
 			}
@@ -390,6 +413,7 @@ function initBlogViewer() {
 			event.preventDefault();
 			openBlogModal(trigger);
 		});
+		trigger.style.cursor = 'pointer';
 	});
 
 	blogViewerState.closeButton?.addEventListener('click', () => {
