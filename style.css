@@ -1,11 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
 .hero-outro {
   margin: 0 auto clamp(1.5rem, 5vw, 2.5rem);
   max-width: min(70ch, 90%);
   text-align: center;
   color: var(--text-secondary);
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
 :root {
   color-scheme: dark;
