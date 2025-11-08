@@ -1,4 +1,4 @@
-const ver = "Version 0.9.89 Public Beta";
+const ver = "Version 0.9.9 Public Beta";
 const COMMENTS_API_URL = '/api/comments';
 const COMMENTS_STORAGE_KEY = 'coolman-comments';
 const ANALYTICS_MODULE_URL = 'https://unpkg.com/@vercel/analytics/dist/analytics.mjs';
@@ -358,6 +358,8 @@ function enableContactForm() {
 				statusElement.textContent = notice;
 				statusElement.classList.remove('success', 'error');
 			}
+			submitButton.disabled = false;
+			submitButton.textContent = 'Send Message';
 			contactForm.removeEventListener('submit', handleSubmit);
 			window.setTimeout(() => contactForm.submit(), 16);
 		};
@@ -752,6 +754,52 @@ async function initLatestUploadCard() {
 	const durationEl = card.querySelector('[data-video-duration]');
 	const feedValidator = (text) => /<entry[\s>]/i.test(text) || /<feed[\s>]/i.test(text);
 
+	const parseNumericValue = (value) => {
+		if (typeof value === 'number') {
+			return Number.isFinite(value) ? value : Number.NaN;
+		}
+		if (typeof value === 'string') {
+			const normalized = value.replace(/,/g, '').trim();
+			if (!normalized) {
+				return Number.NaN;
+			}
+			const numeric = Number(normalized);
+			return Number.isFinite(numeric) ? numeric : Number.NaN;
+		}
+		return Number.NaN;
+	};
+
+	const normaliseToIsoString = (input) => {
+		if (!input) {
+			return '';
+		}
+		if (input instanceof Date) {
+			return Number.isNaN(input.getTime()) ? '' : input.toISOString();
+		}
+		if (typeof input === 'number') {
+			const milliseconds = input < 1e12 ? input * 1000 : input;
+			const date = new Date(milliseconds);
+			return Number.isNaN(date.getTime()) ? '' : date.toISOString();
+		}
+		if (typeof input === 'string') {
+			const trimmed = input.trim();
+			if (!trimmed) {
+				return '';
+			}
+			const numeric = Number(trimmed);
+			if (!Number.isNaN(numeric) && /^\d+$/.test(trimmed)) {
+				const milliseconds = numeric < 1e12 ? numeric * 1000 : numeric;
+				const numericDate = new Date(milliseconds);
+				if (!Number.isNaN(numericDate.getTime())) {
+					return numericDate.toISOString();
+				}
+			}
+			const parsed = new Date(trimmed);
+			return Number.isNaN(parsed.getTime()) ? '' : parsed.toISOString();
+		}
+		return '';
+	};
+
 	const markError = (message) => {
 		card.classList.add('now-playing--error');
 		thumbEl?.classList.remove('now-playing__thumb--skeleton');
@@ -775,12 +823,110 @@ async function initLatestUploadCard() {
 			linkEl.href = channelUrl;
 		}
 		delete card.dataset.latestVideoPublished;
-		};
+	};
 
-		if (!resolvedChannelId && !legacyUser && !normalizedHandle) {
-			markError('Latest video coming soon — check out the full channel!');
-			return;
+	const applyVideoData = (videoPayload = {}) => {
+		const {
+			title,
+			url,
+			thumbnail,
+			publishedAt,
+			durationSeconds,
+			viewCount,
+		} = videoPayload;
+		const safeTitle = title?.toString().trim() || 'Latest upload from COOLmanYT';
+		const resolvedLink = (() => {
+			if (!url) {
+				return channelUrl;
+			}
+			try {
+				return url.startsWith('http') ? url : new URL(url, 'https://www.youtube.com').href;
+			} catch (error) {
+				return channelUrl;
+			}
+		})();
+
+		card.classList.remove('now-playing--error');
+		if (titleEl) {
+			titleEl.textContent = safeTitle;
 		}
+		if (thumbEl) {
+			thumbEl.classList.remove('now-playing__thumb--skeleton');
+			if (thumbnail) {
+				thumbEl.style.backgroundImage = `url("${thumbnail}")`;
+				thumbEl.style.backgroundSize = 'cover';
+				thumbEl.style.backgroundPosition = 'center';
+			} else {
+				thumbEl.style.removeProperty('background-image');
+				thumbEl.style.removeProperty('background-size');
+				thumbEl.style.removeProperty('background-position');
+			}
+		}
+		if (linkEl) {
+			linkEl.href = resolvedLink;
+		}
+
+		const publishedIso = normaliseToIsoString(publishedAt);
+		if (publishedIso) {
+			card.dataset.latestVideoPublished = publishedIso;
+		} else {
+			delete card.dataset.latestVideoPublished;
+		}
+
+		if (statsEl) {
+			const viewsNumeric = parseNumericValue(viewCount);
+			const relative = publishedIso ? formatRelativeTime(publishedIso) : '';
+			const statsParts = [];
+			if (Number.isFinite(viewsNumeric) && viewsNumeric >= 0) {
+				statsParts.push(`${formatViewCount(viewsNumeric)} views`);
+			}
+			if (relative) {
+				statsParts.push(relative);
+			}
+			if (statsParts.length) {
+				statsEl.hidden = false;
+				statsEl.textContent = statsParts.join(' · ');
+			} else {
+				statsEl.hidden = true;
+				statsEl.textContent = '';
+			}
+		}
+
+		if (durationEl) {
+			let durationValue = parseNumericValue(durationSeconds);
+			if (!Number.isFinite(durationValue) || durationValue <= 0) {
+				const durationMillis = parseNumericValue(
+					videoPayload.durationMilliseconds ??
+					videoPayload.durationMs ??
+					videoPayload.duration_ms ??
+					videoPayload.lengthMilliseconds ??
+					videoPayload.lengthMs ??
+					videoPayload.length_ms,
+				);
+				if (Number.isFinite(durationMillis) && durationMillis > 0) {
+					durationValue = durationMillis / 1000;
+				}
+			}
+			if (Number.isFinite(durationValue) && durationValue > 0) {
+				const durationLabel = formatDurationLabel(Math.round(durationValue));
+				if (durationLabel) {
+					durationEl.hidden = false;
+					durationEl.textContent = durationLabel;
+				} else {
+					durationEl.hidden = true;
+					durationEl.textContent = '';
+				}
+			} else {
+				durationEl.hidden = true;
+				durationEl.textContent = '';
+			}
+		}
+	};
+
+	if (!resolvedChannelId && !legacyUser && !normalizedHandle) {
+		markError('Latest video coming soon — check out the full channel!');
+		return;
+	}
 
 	const buildChannelFeedUrl = (id) => `https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(id)}`;
 	const buildUserFeedUrl = (user) => `https://www.youtube.com/feeds/videos.xml?user=${encodeURIComponent(user)}`;
@@ -803,6 +949,144 @@ async function initLatestUploadCard() {
 			console.info('YouTube feed attempt failed', { url: candidate.url, reason: error?.message });
 			return null;
 		}
+	};
+
+	const attemptPipedLatest = async () => {
+		const identifierPool = [];
+		if (resolvedChannelId) {
+			identifierPool.push(resolvedChannelId);
+		}
+		if (normalizedHandle) {
+			identifierPool.push(normalizedHandle);
+		}
+		if (legacyUser) {
+			identifierPool.push(legacyUser);
+		}
+		const uniqueIdentifiers = Array.from(new Set(identifierPool.filter(Boolean)));
+		if (!uniqueIdentifiers.length) {
+			return false;
+		}
+
+		const pipedBases = [
+			'https://piped.video/api/v1/channel/',
+			'https://piped.mha.fi/api/v1/channel/',
+			'https://piped.lunar.icu/api/v1/channel/',
+		];
+
+		for (const identifier of uniqueIdentifiers) {
+			const trimmedIdentifier = identifier.trim();
+			if (!trimmedIdentifier) {
+				continue;
+			}
+			const encodedIdentifier = encodeURIComponent(trimmedIdentifier);
+			for (const base of pipedBases) {
+				const sanitizedBase = base.endsWith('/') ? base : `${base}/`;
+				const attemptUrl = `${sanitizedBase}${encodedIdentifier}`;
+				try {
+					const response = await fetch(attemptUrl, {
+						headers: { Accept: 'application/json' },
+						cache: 'no-store',
+					});
+					if (!response.ok) {
+						continue;
+					}
+					const payload = await response.json().catch(() => null);
+					if (!payload) {
+						continue;
+					}
+
+					const pipedChannelId = payload.id || payload.channelId || payload.channel_id;
+					if (pipedChannelId && !resolvedChannelId) {
+						resolvedChannelId = pipedChannelId;
+						updateChannelUrl();
+					}
+
+					const collections = [
+						payload.latestStreams,
+						payload.relatedStreams,
+						payload.streams,
+						payload.videos,
+						payload.items,
+						payload.uploads,
+					];
+					const streams = [];
+					collections.forEach((collection) => {
+						if (Array.isArray(collection)) {
+							collection.forEach((entry) => streams.push(entry));
+						}
+					});
+
+					const stream = streams.find((entry) => entry && (entry.url || entry.shortUrl || entry.watchUrl) && entry.title);
+					if (!stream) {
+						continue;
+					}
+
+					const rawUrl = stream.url || stream.shortUrl || stream.watchUrl || '';
+					let videoUrl = channelUrl;
+					if (rawUrl) {
+						if (rawUrl.startsWith('http')) {
+							videoUrl = rawUrl;
+						} else if (rawUrl.startsWith('/')) {
+							videoUrl = `https://www.youtube.com${rawUrl}`;
+						} else {
+							videoUrl = `https://www.youtube.com/watch?v=${rawUrl}`;
+						}
+					}
+
+					const candidateThumbnail = stream.thumbnail || stream.thumbnailUrl || stream.thumbnailURL || null;
+					const candidatePublished =
+						stream.uploaded ??
+						stream.uploadedDate ??
+						stream.published ??
+						stream.publishedDate ??
+						stream.uploadedAt ??
+						stream.createdAt ??
+						stream.timestamp ??
+						stream.date ??
+						stream.publishDate;
+					let candidateDuration = parseNumericValue(
+						stream.duration ??
+						stream.lengthSeconds ??
+						stream.length_seconds ??
+						stream.durationSeconds,
+					);
+					if (!Number.isFinite(candidateDuration) || candidateDuration <= 0) {
+						const candidateDurationMs = parseNumericValue(
+							stream.durationMilliseconds ??
+							stream.durationMs ??
+							stream.duration_ms ??
+							stream.lengthMilliseconds ??
+							stream.lengthMs ??
+							stream.length_ms,
+						);
+						if (Number.isFinite(candidateDurationMs) && candidateDurationMs > 0) {
+							candidateDuration = candidateDurationMs / 1000;
+						}
+					}
+					const candidateViews = parseNumericValue(
+						stream.views ??
+						stream.viewCount ??
+						stream.watchers ??
+						stream.view_count ??
+						(stream.stats ? stream.stats.views : undefined),
+					);
+
+					applyVideoData({
+						title: stream.title,
+						url: videoUrl,
+						thumbnail: candidateThumbnail,
+						publishedAt: candidatePublished,
+						durationSeconds: candidateDuration,
+						viewCount: candidateViews,
+					});
+					return true;
+				} catch (error) {
+					console.info('Piped latest video attempt failed', { url: attemptUrl, reason: error?.message });
+				}
+			}
+		}
+
+		return false;
 	};
 
 	for (const candidate of candidateFeeds) {
@@ -835,6 +1119,9 @@ async function initLatestUploadCard() {
 	}
 
 	if (!feedText) {
+		if (await attemptPipedLatest()) {
+			return;
+		}
 		if (lastFeedError) {
 			console.error('Failed to load latest YouTube upload', lastFeedError);
 		} else {
@@ -852,6 +1139,9 @@ async function initLatestUploadCard() {
 		}
 		const entry = doc.querySelector('entry');
 		if (!entry) {
+			if (await attemptPipedLatest()) {
+				return;
+			}
 			markError('No uploads yet. Stay tuned!');
 			return;
 		}
@@ -876,72 +1166,24 @@ async function initLatestUploadCard() {
 		const viewCountRaw = statsNode?.getAttribute('viewCount') ?? statsNode?.getAttribute('views');
 		const viewCount = Number.parseInt(viewCountRaw ?? '', 10);
 
-		card.classList.remove('now-playing--error');
-		if (titleEl) {
-			titleEl.textContent = title;
-		}
-		if (thumbEl) {
-			thumbEl.classList.remove('now-playing__thumb--skeleton');
-			if (thumbnail) {
-				thumbEl.style.backgroundImage = `url("${thumbnail}")`;
-				thumbEl.style.backgroundSize = 'cover';
-				thumbEl.style.backgroundPosition = 'center';
-			} else {
-				thumbEl.style.removeProperty('background-image');
-				thumbEl.style.removeProperty('background-size');
-				thumbEl.style.removeProperty('background-position');
-			}
-		}
-		if (linkEl) {
-			linkEl.href = link;
-		}
-		let publishedIso = '';
-		if (published) {
-			const publishedDate = new Date(published);
-			if (!Number.isNaN(publishedDate.getTime())) {
-				publishedIso = publishedDate.toISOString();
-				card.dataset.latestVideoPublished = publishedIso;
-			} else {
-				delete card.dataset.latestVideoPublished;
-			}
-		} else {
-			delete card.dataset.latestVideoPublished;
-		}
-
-		if (statsEl) {
-			const relative = publishedIso ? formatRelativeTime(publishedIso) : published ? formatRelativeTime(published) : '';
-			const statsParts = [];
-			if (Number.isFinite(viewCount) && viewCount >= 0) {
-				statsParts.push(`${formatViewCount(viewCount)} views`);
-			}
-			if (relative) {
-				statsParts.push(relative);
-			}
-			if (statsParts.length) {
-				statsEl.hidden = false;
-				statsEl.textContent = statsParts.join(' · ');
-			} else {
-				statsEl.hidden = true;
-				statsEl.textContent = '';
-			}
-		}
-		if (durationEl && Number.isFinite(durationSeconds) && durationSeconds > 0) {
-			const durationLabel = formatDurationLabel(Number(durationSeconds));
-			if (durationLabel) {
-				durationEl.hidden = false;
-				durationEl.textContent = durationLabel;
-			} else {
-				durationEl.hidden = true;
-				durationEl.textContent = '';
-			}
-		} else if (durationEl) {
-			durationEl.hidden = true;
-			durationEl.textContent = '';
-		}
+		applyVideoData({
+			title,
+			url: link,
+			thumbnail,
+			publishedAt: published,
+			durationSeconds,
+			viewCount,
+		});
+		return;
 	} catch (error) {
 		console.error('Failed to load latest YouTube upload', error);
-		markError('Unable to fetch the latest video right now. Watch more on YouTube.');
 	}
+
+	if (await attemptPipedLatest()) {
+		return;
+	}
+
+	markError('Unable to fetch the latest video right now. Watch more on YouTube.');
 }
 
 async function fetchFeedWithFallback(url, accept = 'application/atom+xml', validator = null) {
@@ -956,11 +1198,19 @@ async function fetchFeedWithFallback(url, accept = 'application/atom+xml', valid
 		{ label: 'direct', build: (target) => target },
 		{
 			label: 'allorigins',
-			build: (target) => `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`,
+			build: (target) => `https://api.allorigins.win/raw?url=${encodeURIComponent(ensureHttpsWrapped(target))}`,
 		},
 		{
 			label: 'r.jina.ai',
 			build: (target) => `https://r.jina.ai/${ensureHttpsWrapped(target)}`,
+		},
+		{
+			label: 'cors.isomorphic-git',
+			build: (target) => `https://cors.isomorphic-git.org/${ensureHttpsWrapped(target)}`,
+		},
+		{
+			label: 'thingproxy',
+			build: (target) => `https://thingproxy.freeboard.io/fetch/${ensureHttpsWrapped(target)}`,
 		},
 	];
 
