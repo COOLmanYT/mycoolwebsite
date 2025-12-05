@@ -432,19 +432,25 @@
       copyToClipboard(text, copyFeedback);
     });
 
-    buildBtn?.addEventListener('click', () => {
-      copyToClipboard('npm run build:blog', copyFeedback, 'Build command copied!');
-    });
+    if (buildBtn) {
+      buildBtn.addEventListener('click', () => {
+        copyToClipboard('npm run build:blog', copyFeedback, 'Build command copied!');
+      });
+    }
 
-    refreshBtn?.addEventListener('click', loadManifest);
-    loginBtn?.addEventListener('click', () => {
-      window.location.href = '/api/auth/login';
-    });
-    refreshAuthBtn?.addEventListener('click', () => {
-      refreshAuthBtn.disabled = true;
-      initAuthFlow();
-    });
-    logoutBtn?.addEventListener('click', handleLogout);
+    if (refreshBtn) refreshBtn.addEventListener('click', loadManifest);
+    if (loginBtn) {
+      loginBtn.addEventListener('click', () => {
+        window.location.href = '/api/auth/login';
+      });
+    }
+    if (refreshAuthBtn) {
+      refreshAuthBtn.addEventListener('click', () => {
+        refreshAuthBtn.disabled = true;
+        initAuthFlow();
+      });
+    }
+    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
 
     updatePreview();
     loadManifest();
@@ -549,7 +555,7 @@
         standaloneNote: (formData.get('standaloneNote') || '').trim(),
         secondaryActionLabel: (formData.get('secondaryActionLabel') || '').trim(),
         secondaryActionUrl: (formData.get('secondaryActionUrl') || '').trim(),
-        body: formData.get('body')?.trim() || '## New Section\n\nWrite your update here.\n',
+        body: (formData.get('body') || '').toString().trim() || '## New Section\n\nWrite your update here.\n',
       };
     }
 
@@ -697,35 +703,35 @@
       } catch (error) {
         console.warn('Auth flow failed', error);
         lockAdmin('Could not verify your session. Try again.');
-        refreshAuthBtn?.removeAttribute('hidden');
-        refreshAuthBtn?.removeAttribute('disabled');
+        if (refreshAuthBtn) {
+          refreshAuthBtn.removeAttribute('hidden');
+          refreshAuthBtn.removeAttribute('disabled');
+        }
       }
     }
 
     function lockAdmin(message) {
       if (!authGuard) return;
-      shell?.setAttribute('hidden', 'true');
+      if (shell) shell.setAttribute('hidden', 'true');
       authGuard.removeAttribute('hidden');
       authError.textContent = message || '';
-      authMeta?.setAttribute('hidden', 'true');
-      distributionStatus?.textContent = 'Locked';
-      if (distributionFeedback) {
-        distributionFeedback.textContent = '';
-      }
+      if (authMeta) authMeta.setAttribute('hidden', 'true');
+      if (distributionStatus) distributionStatus.textContent = 'Locked';
+      if (distributionFeedback) distributionFeedback.textContent = '';
     }
 
     function unlockAdmin(payload) {
-      authGuard?.setAttribute('hidden', 'true');
-      shell?.removeAttribute('hidden');
-      authMeta?.removeAttribute('hidden');
-      refreshAuthBtn?.setAttribute('hidden', 'true');
+      if (authGuard) authGuard.setAttribute('hidden', 'true');
+      if (shell) shell.removeAttribute('hidden');
+      if (authMeta) authMeta.removeAttribute('hidden');
+      if (refreshAuthBtn) refreshAuthBtn.setAttribute('hidden', 'true');
       updateAuthMeta(payload.user);
       initAllowlistControls(payload);
       initDistributionCard(payload.distribution);
     }
 
     async function handleLogout(event) {
-      event?.preventDefault();
+      if (event) event.preventDefault();
       try {
         await fetch('/api/auth/logout', { method: 'POST' });
       } finally {
@@ -751,8 +757,8 @@
       const warning = allowlistSection.querySelector('[data-allowlist-warning]');
       const emptyState = allowlistSection.querySelector('[data-allowlist-empty]');
       const allowlistRefreshBtn = allowlistSection.querySelector('[data-refresh-allowlist]');
-      const input = form?.querySelector('input[name="username"]');
-      const submit = form?.querySelector('[data-allowlist-add]');
+      const input = form ? form.querySelector('input[name="username"]') : null;
+      const submit = form ? form.querySelector('[data-allowlist-add]') : null;
       let cachedUsers = Array.isArray(sessionData.allowlist) ? sessionData.allowlist : [];
       const editingEnabled = Boolean(sessionData.canEditAllowlist);
       const alreadyInitialized = allowlistSection.dataset.allowlistInit === 'true';
@@ -762,20 +768,20 @@
       renderAllowlist(cachedUsers);
 
       if (!editingEnabled) {
-        warning?.removeAttribute('hidden');
-        input?.setAttribute('disabled', 'true');
-        submit?.setAttribute('disabled', 'true');
+        if (warning) warning.removeAttribute('hidden');
+        if (input) input.setAttribute('disabled', 'true');
+        if (submit) submit.setAttribute('disabled', 'true');
       } else {
-        warning?.setAttribute('hidden', 'true');
-        input?.removeAttribute('disabled');
-        submit?.removeAttribute('disabled');
+        if (warning) warning.setAttribute('hidden', 'true');
+        if (input) input.removeAttribute('disabled');
+        if (submit) submit.removeAttribute('disabled');
       }
 
       if (alreadyInitialized) {
         return;
       }
 
-      allowlistRefreshBtn?.addEventListener('click', async () => {
+      if (allowlistRefreshBtn) allowlistRefreshBtn.addEventListener('click', async () => {
         allowlistRefreshBtn.disabled = true;
         const latest = await fetch('/api/admin/allowlist');
         allowlistRefreshBtn.disabled = false;
@@ -789,7 +795,7 @@
         feedback.textContent = 'Allow list refreshed.';
       });
 
-      form?.addEventListener('submit', async (event) => {
+      if (form) form.addEventListener('submit', async (event) => {
         event.preventDefault();
         if (!editingEnabled) return;
         const formData = new FormData(form);
@@ -853,10 +859,10 @@
         if (!listEl) return;
         if (!users.length) {
           listEl.innerHTML = '';
-          emptyState?.removeAttribute('hidden');
+          if (emptyState) emptyState.removeAttribute('hidden');
           return;
         }
-        emptyState?.setAttribute('hidden', 'true');
+        if (emptyState) emptyState.setAttribute('hidden', 'true');
         listEl.innerHTML = users
           .map((user) => {
             const removeButton = editingEnabled
@@ -870,42 +876,30 @@
 
     function initDistributionCard(distribution = {}) {
       if (!distributionCard) return;
-      if (distributionStatus) {
-        distributionStatus.textContent = 'Synced';
-      }
+      if (distributionStatus) distributionStatus.textContent = 'Synced';
       const rssUrl = distribution.rssUrl || `${window.location.origin.replace(/\/$/, '')}/blog/feed.xml`;
-      if (rssDisplay) {
-        rssDisplay.textContent = rssUrl;
-      }
-      if (rssOpenBtn) {
-        rssOpenBtn.href = rssUrl;
-      }
-      if (rssCopyBtn) {
-        rssCopyBtn.dataset.rss = rssUrl;
-      }
+      if (rssDisplay) rssDisplay.textContent = rssUrl;
+      if (rssOpenBtn) rssOpenBtn.href = rssUrl;
+      if (rssCopyBtn) rssCopyBtn.dataset.rss = rssUrl;
       const webhookConfigured = Boolean(distribution.webhookConfigured);
-      if (webhookStatusEl) {
-        webhookStatusEl.textContent = webhookConfigured ? 'Webhook connected' : 'Not configured';
-      }
-      if (webhookTestBtn) {
-        webhookTestBtn.disabled = !webhookConfigured;
-      }
+      if (webhookStatusEl) webhookStatusEl.textContent = webhookConfigured ? 'Webhook connected' : 'Not configured';
+      if (webhookTestBtn) webhookTestBtn.disabled = !webhookConfigured;
       if (distributionCard.dataset.bound === 'true') {
         return;
       }
-      rssCopyBtn?.addEventListener('click', handleRssCopy);
-      webhookTestBtn?.addEventListener('click', handleWebhookTest);
+      if (rssCopyBtn) rssCopyBtn.addEventListener('click', handleRssCopy);
+      if (webhookTestBtn) webhookTestBtn.addEventListener('click', handleWebhookTest);
       distributionCard.dataset.bound = 'true';
     }
 
     function handleRssCopy(event) {
-      event?.preventDefault();
-      if (!rssCopyBtn?.dataset.rss) return;
+      if (event) event.preventDefault();
+      if (!rssCopyBtn || !rssCopyBtn.dataset.rss) return;
       copyToClipboard(rssCopyBtn.dataset.rss, distributionFeedback, 'RSS URL copied');
     }
 
     async function handleWebhookTest(event) {
-      event?.preventDefault();
+      if (event) event.preventDefault();
       if (!webhookTestBtn) return;
       const originalLabel = webhookTestBtn.dataset.label || webhookTestBtn.textContent || 'Send test ping';
       webhookTestBtn.disabled = true;
