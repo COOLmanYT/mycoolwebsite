@@ -318,6 +318,38 @@
       </div>
     </section>
 
+    <section class="admin-form-card" data-blog-editor hidden>
+      <div class="admin-card__header">
+        <div>
+          <p class="tag-pill">Editor</p>
+          <h2>Blog Edit / Delete</h2>
+        </div>
+        <span class="admin-card__status" data-blog-editor-status>Idle</span>
+      </div>
+      <form class="admin-form" data-blog-editor-form>
+        <div class="admin-form__field">
+          <label for="blogEditorSlug">Slug</label>
+          <input type="text" id="blogEditorSlug" name="slug" placeholder="lighting-makeover-checklist" data-blog-editor-slug required>
+        </div>
+        <div class="admin-form__field admin-form__field--full">
+          <label for="blogEditorContent">Markdown</label>
+          <textarea id="blogEditorContent" name="content" rows="12" placeholder="---
+slug: example
+title: Example Post
+---
+
+Body here." data-blog-editor-content></textarea>
+          <p class="admin-help-text">Edits commit directly to <code>blog/content/&lt;slug&gt;.md</code> via GitHub.</p>
+        </div>
+        <div class="admin-form__actions">
+          <button type="button" class="button button--ghost" data-blog-editor-load>Load</button>
+          <button type="button" class="button" data-blog-editor-save>Save</button>
+          <button type="button" class="button button--ghost" data-blog-editor-delete>Delete</button>
+          <p class="admin-help-text" data-blog-editor-feedback></p>
+        </div>
+      </form>
+    </section>
+
     <section class="admin-form-card" data-site-settings hidden>
       <div class="admin-card__header">
         <div>
@@ -340,6 +372,10 @@
         <div class="admin-form__field">
           <label for="bannerLink">Banner button link</label>
           <input type="url" id="bannerLink" name="bannerLink" placeholder="https://github.com/RandomInternetUser3000/mycoolwebsite">
+        </div>
+        <div class="admin-form__field">
+          <label for="bannerButtonText">Banner button text</label>
+          <input type="text" id="bannerButtonText" name="bannerButtonText" placeholder="Open Source Repo">
         </div>
         <div class="admin-form__field admin-form__checkbox">
           <label><input type="checkbox" name="countdownEnabled" checked> Show countdown</label>
@@ -453,6 +489,16 @@
     const siteSettingsSaveBtn = document.querySelector('[data-site-settings-save]');
     const siteSettingsFeedback = document.querySelector('[data-site-settings-feedback]');
     const siteSettingsWarning = document.querySelector('[data-site-settings-warning]');
+    const blogEditorSection = document.querySelector('[data-blog-editor]');
+    const blogEditorForm = document.querySelector('[data-blog-editor-form]');
+    const blogEditorSlug = document.querySelector('[data-blog-editor-slug]');
+    const blogEditorContent = document.querySelector('[data-blog-editor-content]');
+    const blogEditorStatus = document.querySelector('[data-blog-editor-status]');
+    const blogEditorFeedback = document.querySelector('[data-blog-editor-feedback]');
+    const blogEditorLoadBtn = document.querySelector('[data-blog-editor-load]');
+    const blogEditorSaveBtn = document.querySelector('[data-blog-editor-save]');
+    const blogEditorDeleteBtn = document.querySelector('[data-blog-editor-delete]');
+    let blogEditorSha = null;
 
     if (!form) return;
 
@@ -504,6 +550,9 @@
     }
 
     if (refreshBtn) refreshBtn.addEventListener('click', loadManifest);
+    if (table) {
+      table.addEventListener('click', handleManifestAction);
+    }
     if (loginBtn) {
       loginBtn.addEventListener('click', () => {
         window.location.href = '/api/auth/login';
@@ -520,6 +569,7 @@
     updatePreview();
     loadManifest();
     initAuthFlow();
+    initBlogEditor();
 
     async function loadManifest() {
       manifestStatus.textContent = 'Loading…';
@@ -566,6 +616,10 @@
             <td data-label="Status"><span class="admin-pill admin-pill--${status || 'published'}">${escapeHtml(label)}</span></td>
             <td data-label="Date">${escapeHtml(formatDate(post.date || post.datePublished))}</td>
             <td data-label="Standalone">${post.standalone ? 'Yes' : 'No'}</td>
+            <td data-label="Actions" class="admin-table__actions">
+              <button type="button" class="button button--tiny" data-edit-post="${escapeHtml(post.slug)}">Edit</button>
+              <button type="button" class="button button--ghost button--tiny" data-delete-post="${escapeHtml(post.slug)}">Delete</button>
+            </td>
           </tr>`;
         })
         .join('');
@@ -579,6 +633,7 @@
               <th>Status</th>
               <th>Date</th>
               <th>Standalone</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>${rows}</tbody>
@@ -940,6 +995,142 @@
       }
     }
 
+    function handleManifestAction(event) {
+      const editBtn = event.target.closest('[data-edit-post]');
+      const deleteBtn = event.target.closest('[data-delete-post]');
+      if (editBtn) {
+        event.preventDefault();
+        const slug = editBtn.dataset.editPost;
+        if (blogEditorSlug) blogEditorSlug.value = slug;
+        loadBlogPost(slug);
+      }
+      if (deleteBtn) {
+        event.preventDefault();
+        const slug = deleteBtn.dataset.deletePost;
+        if (blogEditorSlug) blogEditorSlug.value = slug;
+        deleteBlogPost(slug);
+      }
+    }
+
+    function initBlogEditor() {
+      if (!blogEditorSection || !blogEditorForm || !blogEditorSlug || !blogEditorContent) return;
+      blogEditorSection.removeAttribute('hidden');
+
+      const bindBtn = (button, handler) => {
+        if (button) button.addEventListener('click', (event) => { event.preventDefault(); handler(); });
+      };
+
+      bindBtn(blogEditorLoadBtn, () => loadBlogPost(blogEditorSlug.value));
+      bindBtn(blogEditorSaveBtn, () => saveBlogPost(blogEditorSlug.value, blogEditorContent.value));
+      bindBtn(blogEditorDeleteBtn, () => deleteBlogPost(blogEditorSlug.value));
+    }
+
+    function setBlogEditorStatus(text) {
+      if (blogEditorStatus) blogEditorStatus.textContent = text;
+    }
+
+    function setBlogEditorFeedback(text) {
+      if (blogEditorFeedback) blogEditorFeedback.textContent = text || '';
+    }
+
+    function sanitizeSlug(slug) {
+      return (slug || '').toString().trim();
+    }
+
+    async function loadBlogPost(slug) {
+      const cleanSlug = sanitizeSlug(slug);
+      if (!cleanSlug) {
+        setBlogEditorFeedback('Enter a slug to load.');
+        return;
+      }
+      setBlogEditorStatus('Loading…');
+      setBlogEditorFeedback('');
+      blogEditorSha = null;
+      try {
+        const res = await fetch(`/api/admin/blog?slug=${encodeURIComponent(cleanSlug)}`);
+        const payload = await res.json();
+        if (!res.ok) {
+          throw new Error(payload.error || `Load failed (${res.status})`);
+        }
+        blogEditorContent.value = payload.content || '';
+        blogEditorSha = payload.sha || null;
+        setBlogEditorStatus('Loaded');
+        setBlogEditorFeedback(`Loaded ${cleanSlug}`);
+      } catch (error) {
+        setBlogEditorStatus('Load failed');
+        setBlogEditorFeedback(error.message || 'Could not load post');
+      }
+    }
+
+    async function saveBlogPost(slug, content) {
+      const cleanSlug = sanitizeSlug(slug);
+      if (!cleanSlug) {
+        setBlogEditorFeedback('Enter a slug before saving.');
+        return;
+      }
+      const body = (content || '').toString();
+      if (!body.trim()) {
+        setBlogEditorFeedback('Content cannot be empty.');
+        return;
+      }
+      setBlogEditorStatus('Saving…');
+      setBlogEditorFeedback('');
+      try {
+        const res = await fetch('/api/admin/blog', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug: cleanSlug, content: body, sha: blogEditorSha || undefined }),
+        });
+        const payload = await res.json();
+        if (!res.ok) {
+          const error = new Error(payload.error || `Save failed (${res.status})`);
+          error.statusCode = res.status;
+          throw error;
+        }
+        blogEditorSha = payload.sha || null;
+        setBlogEditorStatus('Saved');
+        setBlogEditorFeedback(`Saved ${cleanSlug}`);
+        loadManifest();
+      } catch (error) {
+        setBlogEditorStatus('Save failed');
+        setBlogEditorFeedback(error.message || 'Could not save post');
+      }
+    }
+
+    async function deleteBlogPost(slug) {
+      const cleanSlug = sanitizeSlug(slug);
+      if (!cleanSlug) {
+        setBlogEditorFeedback('Enter a slug before deleting.');
+        return;
+      }
+      if (!window.confirm(`Delete ${cleanSlug}? This cannot be undone.`)) {
+        return;
+      }
+      setBlogEditorStatus('Deleting…');
+      setBlogEditorFeedback('');
+      try {
+        const res = await fetch('/api/admin/blog', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug: cleanSlug }),
+        });
+        const payload = await res.json();
+        if (!res.ok) {
+          const error = new Error(payload.error || `Delete failed (${res.status})`);
+          error.statusCode = res.status;
+          throw error;
+        }
+        blogEditorContent.value = '';
+        blogEditorSha = null;
+        setBlogEditorStatus('Deleted');
+        setBlogEditorFeedback(`Deleted ${cleanSlug}`);
+        loadManifest();
+      } catch (error) {
+        setBlogEditorStatus('Delete failed');
+        setBlogEditorFeedback(error.message || 'Could not delete post');
+      }
+    }
+
     function initSiteSettings() {
       if (!siteSettingsSection || !siteSettingsForm) return;
       siteSettingsSection.removeAttribute('hidden');
@@ -990,6 +1181,7 @@
       const bannerEnabled = siteSettingsForm.querySelector('input[name="bannerEnabled"]');
       const bannerText = siteSettingsForm.querySelector('input[name="bannerText"]');
       const bannerLink = siteSettingsForm.querySelector('input[name="bannerLink"]');
+      const bannerButtonText = siteSettingsForm.querySelector('input[name="bannerButtonText"]');
       const countdownEnabled = siteSettingsForm.querySelector('input[name="countdownEnabled"]');
       const countdown = siteSettingsForm.querySelector('input[name="releaseCountdownTarget"]');
       const countdownHeading = siteSettingsForm.querySelector('input[name="countdownHeading"]');
@@ -1000,6 +1192,7 @@
       if (bannerEnabled) bannerEnabled.checked = Boolean(data.bannerEnabled);
       if (bannerText) bannerText.value = data.bannerText || '';
       if (bannerLink) bannerLink.value = data.bannerLink || '';
+      if (bannerButtonText) bannerButtonText.value = data.bannerButtonText || '';
       if (countdownEnabled) countdownEnabled.checked = data.countdownEnabled !== false;
       if (countdown) {
         countdown.value = toDateTimeLocal(data.releaseCountdownTarget || '');
@@ -1026,6 +1219,7 @@
         bannerEnabled: formData.get('bannerEnabled') === 'on',
         bannerText: (formData.get('bannerText') || '').toString().trim(),
         bannerLink: (formData.get('bannerLink') || '').toString().trim(),
+        bannerButtonText: (formData.get('bannerButtonText') || '').toString().trim(),
         countdownEnabled: formData.get('countdownEnabled') === 'on',
         releaseCountdownTarget: (formData.get('releaseCountdownTarget') || '').toString().trim(),
         countdownHeading: (formData.get('countdownHeading') || '').toString().trim(),

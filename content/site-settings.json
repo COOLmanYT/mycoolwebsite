@@ -3,9 +3,10 @@
   "bannerEnabled": true,
   "bannerText": "🎉Website Release!",
   "bannerLink": "https://github.com/RandomInternetUser3000/mycoolwebsite",
+  "bannerButtonText": "Open Source Repo",
   "footerText": "Made with ♥️ by COOLmanYT",
   "footerHtml": "",
   "countdownEnabled": false,
   "countdownHeading": "Release Countdown",
-  "countdownNote": "Counting down to 6 December 2025 at 9:00 AM AEDT. (Official releace date may differ)"
+  "countdownNote": ""
 }
