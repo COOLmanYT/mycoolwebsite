@@ -136,6 +136,9 @@ function sanitizeSettings(input) {
   if (typeof input.bannerLink === 'string') {
     next.bannerLink = input.bannerLink;
   }
+  if (typeof input.bannerButtonText === 'string') {
+    next.bannerButtonText = input.bannerButtonText;
+  }
   if (typeof input.bannerEnabled === 'boolean') {
     next.bannerEnabled = input.bannerEnabled;
   }

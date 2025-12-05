@@ -1,13 +1,17 @@
-const ver = "Version 1.0.0";
+const ver = "Version 1.0.1";
 const COMMENTS_API_URL = '/api/comments';
 const COMMENTS_STORAGE_KEY = 'coolman-comments';
 const DEFAULT_SITE_SETTINGS = {
 	releaseCountdownTarget: '2025-12-05T22:00:00Z',
+	bannerEnabled: true,
+	bannerText: '🎉 Website Release!',
+	bannerLink: 'https://github.com/RandomInternetUser3000/mycoolwebsite',
+	bannerButtonText: 'Open Source Repo',
 	countdownEnabled: true,
 	countdownHeading: 'Release Countdown',
 	countdownNote: 'Counting down to 6 December 2025 at 9:00 AM AEDT. (Official releace date may differ)',
 };
-const SITE_SETTINGS_PATH = 'content/site-settings.json';
+const SITE_SETTINGS_PATH = '/api/admin/site-settings';
 let siteSettings = { ...DEFAULT_SITE_SETTINGS };
 // Vercel Web Analytics configuration
 const ANALYTICS_MODULE_URL = 'https://cdn.vercel-analytics.com/v1/script.js';
@@ -47,7 +51,8 @@ async function hydrateSiteSettings() {
 		if (!res.ok) {
 			throw new Error(`Site settings fetch failed (${res.status})`);
 		}
-		const data = await res.json();
+		const payload = await res.json();
+		const data = payload?.data ?? payload;
 		if (data && typeof data === 'object') {
 			siteSettings = { ...DEFAULT_SITE_SETTINGS, ...data };
 		}
@@ -76,6 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	}
 
 	await hydrateSiteSettings();
+	applyTopBannerSettings();
 	initReleaseCountdown();
 	initLatestUploadCard();
 	initShareButtons();
@@ -843,6 +849,47 @@ function initReleaseCountdown() {
 		}
 	};
 	window.addEventListener('beforeunload', cleanup, { once: true });
+}
+
+function applyTopBannerSettings() {
+	const banners = document.querySelectorAll('.top-banner');
+	banners.forEach((banner) => {
+		if (siteSettings.bannerEnabled === false) {
+			banner.setAttribute('hidden', 'true');
+			banner.setAttribute('aria-hidden', 'true');
+			return;
+		}
+
+		banner.removeAttribute('hidden');
+		banner.removeAttribute('aria-hidden');
+
+		const textEl = banner.querySelector('span');
+		if (textEl && siteSettings.bannerText) {
+			textEl.textContent = siteSettings.bannerText;
+		}
+
+		const buttons = Array.from(banner.querySelectorAll('.banner-button'));
+		const primary = buttons[0];
+		if (buttons.length > 1) {
+			buttons.slice(1).forEach((btn) => btn.remove());
+		}
+		const href = siteSettings.bannerLink || primary?.getAttribute('href') || '#';
+		const label = siteSettings.bannerButtonText || primary?.textContent || 'Open Source Repo';
+		if (primary) {
+			primary.textContent = label;
+			primary.setAttribute('href', href);
+			primary.setAttribute('target', '_blank');
+			primary.setAttribute('rel', 'noopener noreferrer');
+		} else {
+			const anchor = document.createElement('a');
+			anchor.className = 'banner-button';
+			anchor.textContent = label;
+			anchor.href = href;
+			anchor.target = '_blank';
+			anchor.rel = 'noopener noreferrer';
+			banner.appendChild(anchor);
+		}
+	});
 }
 
 async function initLatestUploadCard() {
