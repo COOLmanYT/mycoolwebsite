@@ -1,7 +1,9 @@
 const ver = "Version 0.9.952 Pre-Release";
 const COMMENTS_API_URL = '/api/comments';
 const COMMENTS_STORAGE_KEY = 'coolman-comments';
-const ANALYTICS_MODULE_URL = 'https://unpkg.com/@vercel/analytics/dist/analytics.mjs';
+// Vercel Web Analytics configuration
+const ANALYTICS_MODULE_URL = 'https://cdn.vercel-analytics.com/v1/script.js';
+const VERCEL_ANALYTICS_MODULE_ESM = 'https://unpkg.com/@vercel/analytics@latest/dist/analytics.mjs';
 const blogViewerState = {
 	container: null,
 	closeButton: null,
@@ -1960,26 +1962,37 @@ function generateCommentId() {
 	return `c_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+/**
+ * Injects Vercel Web Analytics on the client side.
+ * Uses dynamic import to load the analytics module asynchronously.
+ * Runs during idle time to avoid blocking page interactions.
+ */
 function injectAnalytics() {
 	if (window.__coolmanAnalyticsLoaded) {
 		return;
 	}
 
-	const load = async () => {
+	const loadAnalytics = async () => {
 		try {
-			const module = await import(ANALYTICS_MODULE_URL);
-			if (module?.inject) {
-				module.inject();
+			// Import the Vercel Analytics ESM module
+			const { inject } = await import(VERCEL_ANALYTICS_MODULE_ESM);
+			
+			// Call inject() to initialize analytics tracking
+			if (typeof inject === 'function') {
+				inject();
 				window.__coolmanAnalyticsLoaded = true;
 			}
 		} catch (error) {
-			console.info('Vercel Analytics unavailable:', error);
+			// Analytics is optional - log info level if unavailable
+			console.info('Vercel Web Analytics loaded via script tag or unavailable:', error.message);
 		}
 	};
 
+	// Schedule loading during browser idle time for better performance
 	if ('requestIdleCallback' in window) {
-		window.requestIdleCallback(load, { timeout: 2000 });
+		window.requestIdleCallback(loadAnalytics, { timeout: 2000 });
 	} else {
-		setTimeout(load, 0);
+		// Fallback for browsers without requestIdleCallback support
+		setTimeout(loadAnalytics, 0);
 	}
 }
