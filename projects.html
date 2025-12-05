@@ -469,5 +469,11 @@
 
     <script src="script.js"></script>
   <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Vercel Web Analytics -->
+  <script type="module">
+    // This script ensures Vercel Web Analytics is initialized
+    // The inject() function is called via the injectAnalytics() function in script.js
+    // which loads the analytics module during idle time
+  </script>
 </body>
 </html>
