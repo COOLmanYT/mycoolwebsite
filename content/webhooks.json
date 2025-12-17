@@ -1,5 +1,5 @@
 {
-  "messageTemplate": "New blog update: **{title}** — {summary}\n{url}",
+  "messageTemplate": "<@&1450977011110641835> New blog update: **{title}** — {summary}\n{url}",
   "embedTemplate": {
     "title": "{title}",
     "description": "{summary}\n{url}",
