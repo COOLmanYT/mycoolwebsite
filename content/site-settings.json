@@ -6,7 +6,7 @@
   "bannerButtonText": "Open Source Repo",
   "footerText": "Made with ♥️ by COOLmanYT",
   "footerHtml": "",
-  "countdownEnabled": true,
+  "countdownEnabled": false,
   "countdownHeading": "Video Upload Countdown",
   "countdownNote": "Counting down to 13/12/2025 2:00PM AEDT. (Official time may differ)"
 }

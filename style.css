@@ -1450,34 +1450,47 @@ body:not(.theme-light) .social-button img[src*="github"] {
   color: inherit;
 }
 
-footer {
+.site-footer {
   margin: 2rem 0 0;
-  padding: 1.1rem 1rem 1rem;
+  padding: 0.9rem 1rem;
   color: var(--text-muted);
-  font-size: clamp(0.85rem, 2vw, 0.95rem);
+  font-size: clamp(0.78rem, 1.7vw, 0.9rem);
   line-height: 1.4;
   width: 100%;
   text-align: center;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.2rem;
+  justify-content: center;
+  gap: 0.35rem 1rem;
+}
+
+.site-footer p,
+.site-footer span {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.site-footer strong {
+  color: var(--text-primary);
 }
 
 @media (max-width: 767px) {
-  footer {
+  .site-footer {
     margin-top: 1.35rem;
-    padding: 1rem 0.75rem 0.9rem;
+    padding: 0.85rem 0.75rem;
+    gap: 0.3rem 0.75rem;
   }
 }
 
-footer a {
+.site-footer a {
   color: var(--accent);
   text-decoration: none;
   transition: color 0.2s;
 }
-
-footer a:hover {
+.site-footer a:hover {
   color: var(--accent-hover);
   text-decoration: underline;
 }
