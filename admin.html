@@ -1162,10 +1162,9 @@ Body here." data-blog-editor-content></textarea>
       setBlogEditorStatus('Deleting…');
       setBlogEditorFeedback('');
       try {
-        const res = await fetch('/api/admin/blog', {
+        const res = await fetch(`/api/admin/blog?slug=${encodeURIComponent(cleanSlug)}`, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ slug: cleanSlug }),
         });
         const payload = await res.json();
         if (!res.ok) {

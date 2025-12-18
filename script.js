@@ -1,4 +1,4 @@
-const ver = "Version 1.0.172";
+const ver = "Version 1.0.173";
 const COMMENTS_API_URL = '/api/comments';
 const COMMENTS_STORAGE_KEY = 'coolman-comments';
 const DEFAULT_SITE_SETTINGS = {
@@ -785,7 +785,7 @@ function initReleaseCountdown() {
 		return;
 	}
 
-	const countdownEnabled = siteSettings.countdownEnabled !== false;
+	const countdownEnabled = siteSettings.countdownEnabled === true;
 	if (!countdownEnabled) {
 		container.setAttribute('hidden', 'true');
 		container.setAttribute('aria-hidden', 'true');
