@@ -2399,15 +2399,6 @@ diff --git a/script.js b/script.js
 +const ver = "Version 0.9.97 Pre-Release";
 +const COMMENTS_API_URL = '/api/comments';
 +const COMMENTS_STORAGE_KEY = 'coolman-comments';
-+<<<<<<< HEAD
-+const ANALYTICS_MODULE_URL = 'https://unpkg.com/@vercel/analytics/dist/analytics.mjs';
-+const DEFAULT_SITE_SETTINGS = {
-+	releaseCountdownTarget: '2025-12-05T22:00:00Z',
-+};
-+const SITE_SETTINGS_PATH = 'content/site-settings.json';
-+let siteSettings = { ...DEFAULT_SITE_SETTINGS };
-+=======
-+// Vercel Web Analytics configuration
 +const ANALYTICS_MODULE_URL = 'https://cdn.vercel-analytics.com/v1/script.js';
 +const VERCEL_ANALYTICS_MODULE_ESM = 'https://unpkg.com/@vercel/analytics@latest/dist/analytics.mjs';
 +>>>>>>> eb0bdb33ac06a09bb89a5f360961982d2317e7fa
