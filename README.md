@@ -108,7 +108,7 @@ The site loves static hosts: Vercel, Netlify, Cloudflare Pages, GitHub Pages—p
 
 ## Contributing
 
-Ideas, bug reports, nitpicks? Open an issue or PR. Please keep new features accessible, resist dropping frameworks into the stack, and make sure interactive pieces degrade gracefully without JavaScript. If you know me IRL, bribe me with a slushie and I will probably merge even faster. XD
+Ideas, bug reports, nitpicks? Open an issue or PR. Please keep new features accessible, resist dropping frameworks into the stack, and make sure interactive pieces degrade gracefully without JavaScript. If you know me IRL, bribe me with a slushie and I will probably merge even faster. XD :3
 
 ---
 
