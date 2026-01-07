@@ -115,3 +115,4 @@ Ideas, bug reports, nitpicks? Open an issue or PR. Please keep new features acce
 Thank you oh so much for visiting my website, firstly, but also actually checking out the code that allows the website to run in the first place! I have spent hours on this code and to all the coders out there, may your code be life changing!
 
 *Content sprinkled together with GPT-5.1-Codex (Preview).* 
+
