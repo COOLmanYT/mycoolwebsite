@@ -88,7 +88,7 @@ The admin dashboard at `/admin.html` now requires GitHub OAuth plus an allow lis
 2. **Set the required environment variables** in Vercel (or `.env` when running locally):
    - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`
    - `SESSION_SECRET` — any long random string for cookie signing
-   - `SITE_BASE_URL` — e.g. `https://mycoolwebsite.vercel.app`
+   - `SITE_BASE_URL` — e.g. `https://coolmanyt.com`
    - `GITHUB_OWNER` / `GITHUB_REPO` (defaults already match this repo)
    - `ALLOWLIST_BRANCH` if your default branch isn’t `main`
    - `DISCORD_WEBHOOK_URL` (optional) — lets blog builds broadcast to Discord and powers the admin “Send test ping” button
