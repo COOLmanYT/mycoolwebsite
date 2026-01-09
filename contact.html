@@ -113,16 +113,26 @@
           <input type="checkbox" id="under13" name="under13">
           <span>I am under 13 years old.</span>
         </label>
+        <label class="checkbox-row">
+          <input type="checkbox" id="dataConsent" name="dataConsent" required>
+          <span>I consent to this form data being used to contact me about my message.</span>
+          <span class="help-icon" aria-label="Why we ask for consent" title="We only use this info to reply to your message. Please be honest so we can respond appropriately.">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <circle cx="12" cy="12" r="10" />
+              <text x="12" y="16" text-anchor="middle" font-size="12" fill="currentColor">?</text>
+            </svg>
+          </span>
+        </label>
         <button type="submit">Send Message</button>
         <div id="formStatus" hidden></div>
       </form>
 
       <div id="formSuccess" class="form-message success" hidden>Message sent! You can only send one per day.</div>
-      <div id="formCooldown" class="form-message" hidden>You can only send one message per day. Please try again later.</div>
+      <div id="formCooldown" class="form-message" hidden>Daily limit reached. You can send another message after the cooldown ends.</div>
     </section>
   </main>
 
-  <p><em>*Submissions are limited to one per 24 hours, and we will not collect information from users under 13.</em></p>
+  <p><em>*After clicking "Send Message", Formspree may show a CAPTCHA to finish sending. There is a 24h cooldown to send messages. If you're under 13, please ask a parent or guardian to help.</em></p>
   
   <footer class="site-footer" role="contentinfo">
     <span>Made with ♥️ by <strong>COOLmanYT</strong></span>

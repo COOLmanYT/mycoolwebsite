@@ -1,4 +1,4 @@
-const ver = "Version 1.0.181";
+const ver = "Version 1.0.182";
 const COMMENTS_API_URL = '/api/comments';
 const COMMENTS_STORAGE_KEY = 'coolman-comments';
 const DEFAULT_SITE_SETTINGS = {
@@ -42,24 +42,11 @@ const projectViewerState = {
 	activeTrigger: null,
 };
 
+enforceHtmlExtensionRedirect();
+
 const CHANNEL_ID_CACHE = new Map();
 
-async function hydrateSiteSettings() {
-	try {
-		const res = await fetch(`${SITE_SETTINGS_PATH}?ts=${Date.now()}`);
-		if (!res.ok) {
-			throw new Error(`Site settings fetch failed (${res.status})`);
-		}
-		const payload = await res.json();
-		const data = payload?.data ?? payload;
-		if (data && typeof data === 'object') {
-			siteSettings = { ...DEFAULT_SITE_SETTINGS, ...data };
-		}
-	} catch (error) {
-		console.warn('Falling back to default site settings', error);
-		siteSettings = { ...DEFAULT_SITE_SETTINGS };
-	}
-}
+const THEME_STORAGE_KEY = 'coolman-theme';
 
 document.addEventListener('DOMContentLoaded', async () => {
 	applyInitialTheme();
@@ -70,9 +57,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 	enhanceSocialButtons();
 	enableHorizontalScrollNav();
 	initNavGradient();
+	initSubscribeGlow();
 	prepareTopBanner();
-	
-	// Lazy-load heavy features only if their triggers are present
+
 	if (document.querySelector('[data-project-open]')) {
 		initProjectViewer();
 	}
@@ -87,8 +74,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 	initShareButtons();
 	injectAnalytics();
 });
-
-const THEME_STORAGE_KEY = 'coolman-theme';
 
 function applyInitialTheme() {
 	const storedTheme = getStoredTheme();
@@ -180,6 +165,42 @@ function setStoredTheme(theme) {
 	} catch (error) {
 		// Ignore storage errors (private mode, etc.)
 	}
+}
+
+function enforceHtmlExtensionRedirect() {
+	try {
+		const path = window.location.pathname;
+		if (path === '/' || path.endsWith('.html')) {
+			return;
+		}
+		const lastSegment = path.split('/').filter(Boolean).pop() || '';
+		const hasExtension = lastSegment.includes('.');
+		const endsWithSlash = path.endsWith('/');
+		if (hasExtension || endsWithSlash) {
+			return;
+		}
+		const target = `${path}.html${window.location.search}${window.location.hash}`;
+		window.location.replace(target);
+	} catch (error) {
+		console.warn('HTML extension redirect failed', error);
+	}
+}
+
+async function hydrateSiteSettings() {
+	try {
+		const res = await fetch(`${SITE_SETTINGS_PATH}?ts=${Date.now()}`);
+		if (!res.ok) {
+			throw new Error(`Site settings fetch failed (${res.status})`);
+		}
+		const payload = await res.json();
+		const data = payload?.data ?? payload;
+		if (data && typeof data === 'object') {
+			siteSettings = { ...DEFAULT_SITE_SETTINGS, ...data };
+		}
+	} catch (error) {
+		console.warn('Falling back to default site settings', error);
+		siteSettings = { ...DEFAULT_SITE_SETTINGS };
+		}
 }
 
 function fadeInPage() {
@@ -372,7 +393,7 @@ function initNavGradient() {
 	});
 }
 
-function enableContactForm() {
+async function enableContactForm() {
 	const contactForm = document.getElementById('contactForm');
 	if (!contactForm) {
 		return;
@@ -382,6 +403,7 @@ function enableContactForm() {
 	const successElement = document.getElementById('formSuccess');
 	const cooldownElement = document.getElementById('formCooldown');
 	const under13Checkbox = document.getElementById('under13');
+	const consentCheckbox = document.getElementById('dataConsent');
 	const submitButton = contactForm.querySelector('button[type="submit"]');
 	const endpoint = contactForm.getAttribute('action');
 
@@ -394,20 +416,60 @@ function enableContactForm() {
 		return;
 	}
 
-	const hasCooldown = () => document.cookie.split(';').some((entry) => entry.trim().startsWith('form_sent='));
-	const setCooldown = () => {
-		document.cookie = 'form_sent=1; max-age=86400; path=/; SameSite=Lax';
+	let allowlistBypass = false;
+	const fetchAllowlistStatus = async () => {
+		try {
+			const res = await fetch('/api/session');
+			if (!res.ok) return;
+			const data = await res.json();
+			const login = data?.user?.login;
+			const list = Array.isArray(data?.allowlist) ? data.allowlist : [];
+			allowlistBypass = Boolean(data?.authenticated && login && list.includes(login));
+		} catch (error) {
+			console.warn('Allowlist check failed', error);
+		}
 	};
 
-	const showCooldownState = () => {
+	await fetchAllowlistStatus();
+
+	const getCooldownInfo = () => {
+		const entry = document.cookie.split(';').map((c) => c.trim()).find((c) => c.startsWith('form_sent='));
+		if (!entry) return null;
+		const value = entry.split('=')[1];
+		const expiresAt = Number(value);
+		if (Number.isFinite(expiresAt) && expiresAt > Date.now()) {
+			return { expiresAt };
+		}
+		return null;
+	};
+
+	const formatCooldownMessage = (expiresAt) => {
+		const remainingMs = expiresAt - Date.now();
+		const remainingHours = Math.max(0, Math.ceil(remainingMs / (1000 * 60 * 60)));
+		const expires = new Date(expiresAt).toLocaleString();
+		return `You can send another message in about ${remainingHours} hour${remainingHours === 1 ? '' : 's'} (after ${expires}).`;
+	};
+
+	const setCooldown = () => {
+		const expiresAt = Date.now() + 86_400_000;
+		document.cookie = `form_sent=${expiresAt}; max-age=86400; path=/; SameSite=Lax`;
+		return expiresAt;
+	};
+
+	const showCooldownState = (info) => {
+		if (allowlistBypass) {
+			return;
+		}
 		contactForm.hidden = true;
 		if (cooldownElement) {
+			cooldownElement.textContent = info?.expiresAt ? formatCooldownMessage(info.expiresAt) : 'You can only send one message per day. Please try again later.';
 			cooldownElement.hidden = false;
 		}
 	};
 
-	if (hasCooldown()) {
-		showCooldownState();
+	const initialCooldown = getCooldownInfo();
+	if (initialCooldown && !allowlistBypass) {
+		showCooldownState(initialCooldown);
 		return;
 	}
 
@@ -420,6 +482,9 @@ function enableContactForm() {
 		if (successElement) {
 			successElement.hidden = true;
 		}
+		if (cooldownElement && allowlistBypass) {
+			cooldownElement.hidden = true;
+		}
 	};
 
 	const handleSubmit = async (event) => {
@@ -428,6 +493,15 @@ function enableContactForm() {
 
 		if (under13Checkbox?.checked) {
 			window.alert('Please ask a parent or guardian to help send this message.');
+			return;
+		}
+
+		if (consentCheckbox && !consentCheckbox.checked) {
+			if (statusElement) {
+				statusElement.textContent = 'Please provide consent to use this info to reply.';
+				statusElement.classList.add('error');
+				statusElement.hidden = false;
+			}
 			return;
 		}
 
@@ -442,6 +516,7 @@ function enableContactForm() {
 		if (statusElement) {
 			statusElement.textContent = '';
 			statusElement.classList.remove('success', 'error');
+			statusElement.hidden = true;
 		}
 
 		try {
@@ -456,6 +531,9 @@ function enableContactForm() {
 			if (response.ok) {
 				if (successElement) {
 					successElement.hidden = false;
+					if (allowlistBypass) {
+						successElement.textContent = 'Message sent! You are allowlisted, so no cooldown applies.';
+					}
 				}
 				if (statusElement) {
 					statusElement.textContent = '';
@@ -463,8 +541,13 @@ function enableContactForm() {
 					statusElement.hidden = true;
 				}
 				contactForm.reset();
-				setCooldown();
-				showCooldownState();
+				if (!allowlistBypass) {
+					const expiresAt = setCooldown();
+					showCooldownState({ expiresAt });
+				} else {
+					submitButton.disabled = false;
+					submitButton.textContent = 'Send Message';
+				}
 				return;
 			}
 
@@ -797,6 +880,32 @@ function initBlogViewer() {
 	if (blogViewerState.commentForm) {
 		blogViewerState.commentForm.addEventListener('submit', handleCommentSubmit);
 	}
+}
+
+function initSubscribeGlow() {
+	const buttons = document.querySelectorAll('.button--subscribe');
+	if (!buttons.length) {
+		return;
+	}
+
+	const updateGlow = (button, event) => {
+		const rect = button.getBoundingClientRect();
+		const x = ((event.clientX - rect.left) / rect.width) * 100;
+		const y = ((event.clientY - rect.top) / rect.height) * 100;
+		button.style.setProperty('--sub-glow-x', `${x}%`);
+		button.style.setProperty('--sub-glow-y', `${y}%`);
+		button.style.setProperty('--sub-glow-opacity', '0.42');
+	};
+
+	const resetGlow = (button) => {
+		button.style.setProperty('--sub-glow-opacity', '0');
+	};
+
+	buttons.forEach((button) => {
+		button.addEventListener('pointermove', (event) => updateGlow(button, event));
+		button.addEventListener('pointerenter', (event) => updateGlow(button, event));
+		button.addEventListener('pointerleave', () => resetGlow(button));
+	});
 }
 
 function initReleaseCountdown() {

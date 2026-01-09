@@ -671,11 +671,43 @@ button:focus-visible {
 }
 
 .button--subscribe {
+  position: relative;
+  overflow: hidden;
   background: linear-gradient(135deg, #ff3044, #ff6b6b);
   color: #fff;
   box-shadow: 0 14px 28px rgba(255, 72, 96, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, filter 0.2s ease;
+  --sub-glow-x: 50%;
+  --sub-glow-y: 50%;
+  --sub-glow-strength: 42%;
+  --sub-glow-opacity: 0;
+  --sub-glow-color-1: hsla(355, 92%, 62%, 0.65);
+  --sub-glow-color-2: hsla(12, 94%, 58%, 0.45);
+}
+
+.button--subscribe::before {
+  content: "";
+  position: absolute;
+  inset: -40%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at var(--sub-glow-x, 50%) var(--sub-glow-y, 50%),
+    var(--sub-glow-color-1) 0%,
+    var(--sub-glow-color-2) var(--sub-glow-strength),
+    transparent calc(var(--sub-glow-strength) + 18%)
+  );
+  opacity: var(--sub-glow-opacity);
+  filter: blur(16px) saturate(1.2);
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.button--subscribe span,
+.button--subscribe {
+  position: relative;
+  z-index: 1;
 }
 
 .button--subscribe:hover,
@@ -684,6 +716,7 @@ button:focus-visible {
   transform: translateY(-2px) scale(1.01);
   box-shadow: 0 18px 36px rgba(255, 72, 96, 0.42);
   color: #fff;
+  --sub-glow-opacity: 0.36;
 }
 
 .hero-socials {
@@ -1535,6 +1568,11 @@ body:not(.theme-light) .social-button img[src*="github"] {
   margin-top: 1rem;
 }
 
+.contact-form .message-note {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
 .contact-form .checkbox-row {
   display: flex;
   align-items: center;
@@ -1546,6 +1584,51 @@ body:not(.theme-light) .social-button img[src*="github"] {
 .contact-form .checkbox-row input[type="checkbox"] {
   width: auto;
   accent-color: var(--accent);
+}
+
+.contact-form .checkbox-row .help-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  border: 1px solid var(--outline);
+  cursor: help;
+  position: relative;
+}
+
+.contact-form .checkbox-row .help-icon svg {
+  width: 14px;
+  height: 14px;
+  color: currentColor;
+}
+
+.contact-form .checkbox-row .help-icon::after {
+  content: attr(title);
+  position: absolute;
+  left: 50%;
+  top: -8px;
+  transform: translate(-50%, -100%);
+  padding: 0.5rem 0.75rem;
+  background: var(--surface-strong, #0f1224);
+  border: 1px solid var(--outline);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  box-shadow: var(--shadow-soft);
+  z-index: 5;
+}
+
+.contact-form .checkbox-row .help-icon:hover::after,
+.contact-form .checkbox-row .help-icon:focus-visible::after {
+  opacity: 1;
 }
 
 .contact-form input,
