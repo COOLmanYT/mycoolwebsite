@@ -1,13 +1,13 @@
-const ver = "Version 1.0.18";
+const ver = "Version 1.0.181";
 const COMMENTS_API_URL = '/api/comments';
 const COMMENTS_STORAGE_KEY = 'coolman-comments';
 const DEFAULT_SITE_SETTINGS = {
 	releaseCountdownTarget: '2025-12-05T22:00:00Z',
-	bannerEnabled: true,
+	bannerEnabled: false,
 	bannerText: '🎉 Website Release!',
 	bannerLink: 'https://github.com/RandomInternetUser3000/mycoolwebsite',
 	bannerButtonText: 'Open Source Repo',
-	countdownEnabled: false,
+	countdownEnabled: false, // made countdown a HTML comment because this feature is currently not working lol
 	countdownHeading: 'Release Countdown',
 	countdownNote: '',
 };
@@ -379,6 +379,9 @@ function enableContactForm() {
 	}
 
 	const statusElement = document.getElementById('formStatus');
+	const successElement = document.getElementById('formSuccess');
+	const cooldownElement = document.getElementById('formCooldown');
+	const under13Checkbox = document.getElementById('under13');
 	const submitButton = contactForm.querySelector('button[type="submit"]');
 	const endpoint = contactForm.getAttribute('action');
 
@@ -391,22 +394,44 @@ function enableContactForm() {
 		return;
 	}
 
+	const hasCooldown = () => document.cookie.split(';').some((entry) => entry.trim().startsWith('form_sent='));
+	const setCooldown = () => {
+		document.cookie = 'form_sent=1; max-age=86400; path=/; SameSite=Lax';
+	};
+
+	const showCooldownState = () => {
+		contactForm.hidden = true;
+		if (cooldownElement) {
+			cooldownElement.hidden = false;
+		}
+	};
+
+	if (hasCooldown()) {
+		showCooldownState();
+		return;
+	}
+
+	const clearMessages = () => {
+		if (statusElement) {
+			statusElement.textContent = '';
+			statusElement.classList.remove('success', 'error');
+			statusElement.hidden = true;
+		}
+		if (successElement) {
+			successElement.hidden = true;
+		}
+	};
+
 	const handleSubmit = async (event) => {
 		event.preventDefault();
+		clearMessages();
 
-		const fallbackToNativeSubmit = (notice = 'Redirecting to Formspree to finish your submission…') => {
-			if (statusElement) {
-				statusElement.textContent = notice;
-				statusElement.classList.remove('success', 'error');
-			}
-			submitButton.disabled = false;
-			submitButton.textContent = 'Send Message';
-			contactForm.removeEventListener('submit', handleSubmit);
-			window.setTimeout(() => contactForm.submit(), 16);
-		};
+		if (under13Checkbox?.checked) {
+			window.alert('Please ask a parent or guardian to help send this message.');
+			return;
+		}
 
 		if (!endpoint) {
-			fallbackToNativeSubmit();
 			return;
 		}
 
@@ -429,33 +454,36 @@ function enableContactForm() {
 			});
 
 			if (response.ok) {
+				if (successElement) {
+					successElement.hidden = false;
+				}
 				if (statusElement) {
-					statusElement.textContent = "Message sent successfully! I'll get back to you soon.";
-					statusElement.classList.add('success');
+					statusElement.textContent = '';
+					statusElement.classList.remove('error');
+					statusElement.hidden = true;
 				}
 				contactForm.reset();
-			} else {
-				const data = await response.json().catch(() => null);
-				const shouldFallback =
-					response.type === 'opaqueredirect' ||
-					response.status === 0 ||
-					[302, 303, 307, 308, 400, 401, 403, 404, 405, 409, 410, 422, 429, 500, 502, 503, 504].includes(response.status);
-				if (shouldFallback) {
-					fallbackToNativeSubmit('Opening Formspree to complete the CAPTCHA…');
-					return;
-				}
-
-				const errorMessage = data?.errors?.[0]?.message || 'Something went wrong. Please try again later.';
-				if (statusElement) {
-					statusElement.textContent = errorMessage;
-					statusElement.classList.add('error');
-				}
+				setCooldown();
+				showCooldownState();
+				return;
 			}
+
+			const data = await response.json().catch(() => null);
+			const errorMessage = data?.errors?.[0]?.message || 'Something went wrong. Please try again later.';
+			if (statusElement) {
+				statusElement.textContent = errorMessage;
+				statusElement.classList.add('error');
+				statusElement.hidden = false;
+			}
+			submitButton.disabled = false;
+			submitButton.textContent = 'Send Message';
 		} catch (error) {
-			console.warn('Contact form fetch failed, falling back to default submission', error);
-			fallbackToNativeSubmit();
-			return;
-		} finally {
+			console.warn('Contact form fetch failed', error);
+			if (statusElement) {
+				statusElement.textContent = 'Network error. Please try again later.';
+				statusElement.classList.add('error');
+				statusElement.hidden = false;
+			}
 			submitButton.disabled = false;
 			submitButton.textContent = 'Send Message';
 		}
@@ -1163,7 +1191,16 @@ async function initLatestUploadCard() {
 		return;
 	}
 
+	const skipFeedFallback = typeof window !== 'undefined' && !/^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || '');
 	if (await attemptApiLatest()) {
+		return;
+	}
+
+	if (skipFeedFallback) {
+		if (await attemptPipedLatest()) {
+			return;
+		}
+		markError('Unable to fetch the latest video right now. Watch more on YouTube.');
 		return;
 	}
 

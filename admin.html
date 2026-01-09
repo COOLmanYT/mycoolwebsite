@@ -271,6 +271,23 @@
               <li>Loading…</li>
             </ul>
           </div>
+          <div class="admin-form__field admin-form__field--full">
+            <label for="webhookSendTargets">Send a one-time message</label>
+            <select id="webhookSendTargets" data-webhook-send-target multiple size="4"></select>
+            <p class="admin-help-text">Select one or more webhooks. Leave empty to send to all saved webhooks.</p>
+          </div>
+          <div class="admin-form__field admin-form__field--full">
+            <label for="webhookSendMessage">Message (no templates)</label>
+            <textarea id="webhookSendMessage" rows="3" data-webhook-send-message placeholder="Hello from the admin panel!"></textarea>
+          </div>
+          <div class="admin-form__field admin-form__field--full">
+            <label for="webhookSendEmbed">Embed (JSON, optional)</label>
+            <textarea id="webhookSendEmbed" rows="4" data-webhook-send-embed placeholder='{"title":"Alert","description":"Short note"}'></textarea>
+          </div>
+          <div class="admin-form__actions">
+            <button type="button" class="button" data-webhook-send>Send now</button>
+            <p class="admin-help-text" data-webhook-send-feedback></p>
+          </div>
         </div>
       </article>
     </section>
@@ -481,7 +498,7 @@ Body here." data-blog-editor-content></textarea>
         </div>
         <div class="admin-form__field">
           <label for="countdownNote">Countdown note (below timer)</label>
-          <textarea id="countdownNote" name="countdownNote" rows="2" placeholder="Counting down to 6 December 2025 at 9:00 AM AEDT. (Official releace date may differ)"></textarea>
+          <textarea id="countdownNote" name="countdownNote" rows="2" placeholder="Counting down to 6 December 2025 at 9:00 AM AEDT. (Official release date may differ)"></textarea>
         </div>
         <div class="admin-form__field">
           <label for="footerText">Footer text</label>
@@ -602,6 +619,11 @@ Body here." data-blog-editor-content></textarea>
     const webhookFeedback = document.querySelector('[data-webhook-feedback]');
     const webhookTestMessage = document.querySelector('[data-webhook-test-message]');
     const webhookTestEmbed = document.querySelector('[data-webhook-test-embed]');
+    const webhookSendSelect = document.querySelector('[data-webhook-send-target]');
+    const webhookSendMessage = document.querySelector('[data-webhook-send-message]');
+    const webhookSendEmbed = document.querySelector('[data-webhook-send-embed]');
+    const webhookSendBtn = document.querySelector('[data-webhook-send]');
+    const webhookSendFeedback = document.querySelector('[data-webhook-send-feedback]');
     let webhookConfig = { webhooks: [], messageTemplate: '', embedTemplate: {} };
 
     if (!form) return;
@@ -1214,9 +1236,10 @@ Body here." data-blog-editor-content></textarea>
       setBlogEditorStatus('Deleting…');
       setBlogEditorFeedback('');
       try {
-        const res = await fetch(`/api/admin/blog?slug=${encodeURIComponent(cleanSlug)}`, {
+        const res = await fetch('/api/admin/blog', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug: cleanSlug }),
         });
         const payload = await res.json();
         if (!res.ok) {
@@ -1448,13 +1471,23 @@ Body here." data-blog-editor-content></textarea>
         });
       }
 
+      if (webhookSendBtn) {
+        webhookSendBtn.addEventListener('click', (event) => {
+          if (event) event.preventDefault();
+          sendOneTimeWebhook();
+        });
+      }
+
       if (webhookList) {
         webhookList.addEventListener('click', (event) => {
           const btn = event.target.closest('[data-remove-webhook]');
           if (!btn) return;
           const id = btn.dataset.removeWebhook;
-          webhookConfig.webhooks = webhookConfig.webhooks.filter((w) => w.id !== id);
-          renderWebhookList();
+          const hook = webhookConfig.webhooks.find((w) => w.id === id);
+          if (window.confirm(`Remove webhook${hook?.label ? ` “${hook.label}”` : ''}?`)) {
+            webhookConfig.webhooks = webhookConfig.webhooks.filter((w) => w.id !== id);
+            renderWebhookList();
+          }
         });
       }
     }
@@ -1487,6 +1520,7 @@ Body here." data-blog-editor-content></textarea>
       if (!webhookList) return;
       if (!webhookConfig.webhooks.length) {
         webhookList.innerHTML = '<li>No webhooks configured</li>';
+        refreshSendTargets();
         return;
       }
       webhookList.innerHTML = webhookConfig.webhooks
@@ -1496,6 +1530,25 @@ Body here." data-blog-editor-content></textarea>
           return `<li><div><strong>${safeLabel}</strong><br><small>${safeUrl}</small></div><button type="button" class="button button--ghost button--tiny" data-remove-webhook="${hook.id}">Remove</button></li>`;
         })
         .join('');
+      refreshSendTargets();
+    }
+
+    function refreshSendTargets() {
+      if (!webhookSendSelect) return;
+      webhookSendSelect.innerHTML = '';
+      if (!webhookConfig.webhooks.length) {
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'No webhooks saved yet';
+        webhookSendSelect.appendChild(opt);
+        return;
+      }
+      webhookConfig.webhooks.forEach((hook) => {
+        const opt = document.createElement('option');
+        opt.value = hook.id;
+        opt.textContent = hook.label ? `${hook.label} — ${hook.url}` : hook.url;
+        webhookSendSelect.appendChild(opt);
+      });
     }
 
     function addWebhook() {
@@ -1554,6 +1607,54 @@ Body here." data-blog-editor-content></textarea>
       } catch (error) {
         setWebhookStatus('Save failed');
         setWebhookFeedback(error.message || 'Could not save webhook settings.');
+      }
+    }
+
+    async function sendOneTimeWebhook() {
+      if (!webhookSendBtn) return;
+      const selectedIds = Array.from(webhookSendSelect?.selectedOptions || []).map((opt) => opt.value).filter(Boolean);
+      const message = (webhookSendMessage?.value || '').trim();
+      const embedText = (webhookSendEmbed?.value || '').trim();
+      let embedPayload = undefined;
+
+      if (!message) {
+        if (webhookSendFeedback) webhookSendFeedback.textContent = 'Enter a message to send.';
+        return;
+      }
+
+      if (embedText) {
+        try {
+          embedPayload = JSON.parse(embedText);
+        } catch (error) {
+          if (webhookSendFeedback) webhookSendFeedback.textContent = 'Embed JSON is invalid.';
+          return;
+        }
+      }
+
+      webhookSendBtn.disabled = true;
+      const originalLabel = webhookSendBtn.textContent;
+      webhookSendBtn.textContent = 'Sending…';
+      if (webhookSendFeedback) webhookSendFeedback.textContent = 'Sending message…';
+      try {
+        const res = await fetch('/api/admin/webhook-send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: selectedIds, message, embed: embedPayload }),
+        });
+        const payload = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(payload.error || `Send failed (${res.status})`);
+        }
+        if (webhookSendFeedback) {
+          const sent = payload.sent || 0;
+          const failed = payload.failed?.length ? `, ${payload.failed.length} failed` : '';
+          webhookSendFeedback.textContent = `Sent to ${sent} webhook(s)${failed}.`;
+        }
+      } catch (error) {
+        if (webhookSendFeedback) webhookSendFeedback.textContent = error.message || 'Send failed';
+      } finally {
+        webhookSendBtn.disabled = false;
+        webhookSendBtn.textContent = originalLabel;
       }
     }
 

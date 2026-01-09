@@ -1,5 +1,5 @@
 {
-  "releaseCountdownTarget": "2025-12-13T03:00",
+  "releaseCountdownTarget": "2025-12-13T03:00:00Z",
   "bannerEnabled": true,
   "bannerText": "🎉Website Release!",
   "bannerLink": "https://github.com/RandomInternetUser3000/mycoolwebsite",
@@ -7,6 +7,6 @@
   "footerText": "Made with ♥️ by COOLmanYT",
   "footerHtml": "",
   "countdownEnabled": false,
-  "countdownHeading": "Video Upload Countdown",
-  "countdownNote": "Counting down to 13/12/2025 2:00PM AEDT. (Official time may differ)"
+  "countdownHeading": "Release Countdown",
+  "countdownNote": "Counting down to 13 December 2025 at 2:00 PM AEDT."
 }

@@ -133,6 +133,8 @@ img {
 .home-page main {
   justify-content: center;
   text-align: center;
+  padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 3vw, 2.75rem);
+  gap: clamp(1.5rem, 3vw, 2.5rem);
 }
 
 
@@ -666,6 +668,22 @@ button:focus-visible {
   flex-wrap: wrap;
   justify-content: center;
   gap: 1rem;
+}
+
+.button--subscribe {
+  background: linear-gradient(135deg, #ff3044, #ff6b6b);
+  color: #fff;
+  box-shadow: 0 14px 28px rgba(255, 72, 96, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.button--subscribe:hover,
+.button--subscribe:focus-visible {
+  background: linear-gradient(135deg, #ff4b5f, #ff7b7b);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 18px 36px rgba(255, 72, 96, 0.42);
+  color: #fff;
 }
 
 .hero-socials {
@@ -1205,6 +1223,11 @@ button:focus-visible {
   gap: 0.5rem;
 }
 
+.release-countdown[hidden],
+.release-countdown[aria-hidden="true"] {
+  display: none !important;
+}
+
 .release-countdown__label {
   margin: 0;
   font-size: 0.95rem;
@@ -1512,6 +1535,19 @@ body:not(.theme-light) .social-button img[src*="github"] {
   margin-top: 1rem;
 }
 
+.contact-form .checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.contact-form .checkbox-row input[type="checkbox"] {
+  width: auto;
+  accent-color: var(--accent);
+}
+
 .contact-form input,
 .contact-form textarea {
   width: 100%;
@@ -1537,6 +1573,7 @@ body:not(.theme-light) .social-button img[src*="github"] {
   cursor: not-allowed;
 }
 
+.form-message,
 #formStatus {
   margin-top: 1rem;
   padding: 0.75rem 1rem;
@@ -1547,12 +1584,14 @@ body:not(.theme-light) .social-button img[src*="github"] {
   color: var(--text-secondary);
 }
 
+.form-message.success,
 #formStatus.success {
   background: var(--status-success-bg);
   border-color: var(--status-success-border);
   color: var(--status-success-text);
 }
 
+.form-message.error,
 #formStatus.error {
   background: rgba(231, 76, 60, 0.2);
   border-color: rgba(231, 76, 60, 0.35);
@@ -2523,8 +2562,8 @@ body.modal-open {
 
 .admin-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1.25rem;
 }
 
 .admin-card,
@@ -2534,7 +2573,7 @@ body.modal-open {
   background: rgba(17, 22, 39, 0.65);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 1rem;
-  padding: 1.5rem;
+  padding: 1.25rem;
   backdrop-filter: blur(12px);
 }
 
@@ -2595,7 +2634,11 @@ body.modal-open {
 
 .admin-form-card {
   display: grid;
-  gap: 1.5rem;
+  gap: 1.25rem;
+}
+
+.admin-card--distribution[data-webhook-card] {
+  grid-column: 1 / -1;
 }
 
 .admin-form {

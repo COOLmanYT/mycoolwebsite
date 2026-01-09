@@ -103,19 +103,26 @@
         
     <section class="contact-section">
       <h2>Send a Message</h2>
-      <p>Have a question or just want to say hi? Fill out the form below, and you can send me an email without ever leaving this page*! (Provided by Formspree)</p>
+      <p>Have a question or just want to say hi? Fill out the form below—no new tabs or redirects.</p>
             
       <form class="contact-form" action="https://formspree.io/f/xldoypbj" method="post" id="contactForm">
         <input type="text" name="name" placeholder="name.exe" required>
         <input type="email" name="email" placeholder="your-email@emailprovider.com" required>
         <textarea name="message" rows="5" placeholder="Hi there! I would like to talk to you, the amazing COOLmanYT, about..." required></textarea>
+        <label class="checkbox-row">
+          <input type="checkbox" id="under13" name="under13">
+          <span>I am under 13 years old.</span>
+        </label>
         <button type="submit">Send Message</button>
-        <div id="formStatus"></div>
+        <div id="formStatus" hidden></div>
       </form>
+
+      <div id="formSuccess" class="form-message success" hidden>Message sent! You can only send one per day.</div>
+      <div id="formCooldown" class="form-message" hidden>You can only send one message per day. Please try again later.</div>
     </section>
   </main>
 
-  <p><em>*After clicking "Send Message", you will be brought to formspree.io to complete a CAPTCHA and finally send your message. So in reality, you do leave the website. </em>(Sorry!)</p>
+  <p><em>*Submissions are limited to one per 24 hours, and we will not collect information from users under 13.</em></p>
   
   <footer class="site-footer" role="contentinfo">
     <span>Made with ♥️ by <strong>COOLmanYT</strong></span>
