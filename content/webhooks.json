@@ -5,5 +5,11 @@
     "description": "{summary}\n{url}",
     "color": 5793266
   },
-  "webhooks": []
+  "webhooks": [
+    {
+      "id": "dderpq62",
+      "label": "Webhook",
+      "url": "https://discord.com/api/webhooks/1446400380530593874/usBbxz0y1dN9x7lN9Vl6ArRS6Jk5i8tV_ph99e9EOxyJmi6csa8CGkhzHNHDb681ml6q"
+    }
+  ]
 }
