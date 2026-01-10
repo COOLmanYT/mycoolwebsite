@@ -1,4 +1,4 @@
-const ver = "Version 1.0.183";
+const ver = "Version 1.0.183.1";
 const COMMENTS_API_URL = '/api/comments';
 const COMMENTS_STORAGE_KEY = 'coolman-comments';
 const DEFAULT_SITE_SETTINGS = {
@@ -491,6 +491,18 @@ async function enableContactForm() {
 		event.preventDefault();
 		clearMessages();
 
+		const fallbackToNativeSubmit = (notice = 'Opening Formspree to complete the CAPTCHA…') => {
+			if (statusElement) {
+				statusElement.textContent = notice;
+				statusElement.classList.remove('success', 'error');
+				statusElement.hidden = false;
+			}
+			submitButton.disabled = false;
+			submitButton.textContent = 'Send Message';
+			contactForm.removeEventListener('submit', handleSubmit);
+			window.setTimeout(() => contactForm.submit(), 10);
+		};
+
 		if (!ageCheckbox?.checked) {
 			window.alert("To comply with privacy laws, I can't collect data from users under 13. Please ask a parent to send this message for you!");
 			return;
@@ -555,6 +567,11 @@ async function enableContactForm() {
 			const data = await response.json().catch(() => null);
 			const serverError = data?.errors?.[0]?.message;
 			const errorMessage = serverError || `Something went wrong (status ${response.status}). Please try again later.`;
+			const shouldFallback = response.status === 403 || response.status === 422 || response.type === 'opaqueredirect';
+			if (shouldFallback) {
+				fallbackToNativeSubmit('Opening Formspree to complete verification…');
+				return;
+			}
 			if (statusElement) {
 				statusElement.textContent = errorMessage;
 				statusElement.classList.add('error');
@@ -1256,6 +1273,7 @@ async function initLatestUploadCard() {
 	};
 
 	const attemptApiLatest = async () => {
+		const API_TIMEOUT_MS = 5000;
 		const params = new URLSearchParams();
 		if (resolvedChannelId) {
 			params.set('channelId', resolvedChannelId);
@@ -1267,10 +1285,13 @@ async function initLatestUploadCard() {
 		}
 		const query = params.toString();
 		const endpoint = `/api/youtube/latest${query ? `?${query}` : ''}`;
+		const controller = new AbortController();
+		const timeoutId = window.setTimeout(() => controller.abort(), API_TIMEOUT_MS);
 		try {
 			const response = await fetch(endpoint, {
 				headers: { Accept: 'application/json' },
 				cache: 'no-store',
+				signal: controller.signal,
 			});
 			if (!response.ok) {
 				return false;
@@ -1294,6 +1315,8 @@ async function initLatestUploadCard() {
 			return true;
 		} catch (error) {
 			return false;
+		} finally {
+			window.clearTimeout(timeoutId);
 		}
 	};
 
