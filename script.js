@@ -1,4 +1,4 @@
-const ver = "Version 1.0.184";
+const ver = "Version 1.0.186";
 const COMMENTS_API_URL = '/api/comments';
 const COMMENTS_STORAGE_KEY = 'coolman-comments';
 const DEFAULT_SITE_SETTINGS = {
@@ -7,7 +7,7 @@ const DEFAULT_SITE_SETTINGS = {
 	bannerText: '🎉 Website Release!',
 	bannerLink: 'https://github.com/RandomInternetUser3000/mycoolwebsite',
 	bannerButtonText: 'Open Source Repo',
-	countdownEnabled: false, // made countdown a HTML comment because this feature is currently not working lol
+	countdownEnabled: false, //you can make the countdown a comment if this fails
 	countdownHeading: 'Release Countdown',
 	countdownNote: '',
 };
@@ -42,6 +42,186 @@ const projectViewerState = {
 	activeTrigger: null,
 };
 
+let cachedAuthState = null;
+let authStatePromise = null;
+
+function setAuthStateCache(state) {
+	cachedAuthState = state;
+	window.coolmanAuthState = state;
+	try {
+		document.dispatchEvent(new CustomEvent('coolmanyt:auth-state', { detail: state }));
+	} catch (error) {
+		console.warn('Auth event dispatch failed', error);
+	}
+}
+
+async function fetchSessionState() {
+	try {
+		const res = await fetch('/api/session', { headers: { Accept: 'application/json' } });
+		if (!res.ok) {
+			throw new Error(`Session request failed (${res.status})`);
+		}
+		const data = await res.json();
+		const login = data?.user?.login || '';
+		const allowlist = Array.isArray(data?.allowlist) ? data.allowlist : [];
+		const allowlisted = Boolean(data?.authenticated && login && allowlist.includes(login));
+		return {
+			authenticated: Boolean(data?.authenticated),
+			allowlisted,
+			hasSessionCookie: Boolean(data?.hasSessionCookie),
+			login,
+			avatarUrl: data?.user?.avatarUrl || '',
+			allowlistSource: data?.allowlistSource || '',
+			error: null,
+		};
+	} catch (error) {
+		const message = error?.message || 'Session lookup failed';
+		return {
+			authenticated: false,
+			allowlisted: false,
+			hasSessionCookie: false,
+			login: '',
+			avatarUrl: '',
+			allowlistSource: '',
+			error: message,
+		};
+	}
+}
+
+async function getAuthState(options = {}) {
+	if (!options.force && cachedAuthState) {
+		return cachedAuthState;
+	}
+	if (!options.force && authStatePromise) {
+		return authStatePromise;
+	}
+	authStatePromise = fetchSessionState();
+	const state = await authStatePromise;
+	authStatePromise = null;
+	setAuthStateCache(state);
+	return state;
+}
+
+function resolveAuthIcon(state) {
+	const icons = {
+		success: '/images/github-success.png',
+		warning: '/images/github-warning.png',
+		cookie: '/images/github-cookie.png',
+		signin: '/images/github-signin.png',
+		error: '/images/github-error.png',
+	};
+
+	if (!state) {
+		return { src: icons.signin, label: 'Sign in with GitHub' };
+	}
+	if (state.error) {
+		return { src: icons.error, label: state.error };
+	}
+	if (state.authenticated && state.allowlisted) {
+		return { src: icons.success, label: 'Signed in with GitHub (allowlisted).' };
+	}
+	if (state.authenticated && !state.allowlisted) {
+		return { src: icons.warning, label: 'Signed in with GitHub but not on the allowlist.' };
+	}
+	if (!state.authenticated && state.hasSessionCookie) {
+		return { src: icons.cookie, label: 'GitHub session cookie detected. Sign in to continue.' };
+	}
+	return { src: icons.signin, label: 'Sign in with GitHub' };
+}
+
+function renderHeaderAuthIndicator(state) {
+	const headerBar = document.querySelector('.header-bar');
+	if (!headerBar) {
+		return;
+	}
+
+	let indicator = headerBar.querySelector('[data-auth-indicator]');
+	if (!indicator) {
+		indicator = document.createElement('div');
+		indicator.className = 'auth-indicator';
+		indicator.setAttribute('data-auth-indicator', 'true');
+		indicator.setAttribute('role', 'status');
+		indicator.setAttribute('aria-live', 'polite');
+		indicator.innerHTML = `
+			<img data-auth-icon alt="" aria-hidden="false">
+			<button type="button" class="button button--ghost button--tiny auth-signout" data-auth-signout hidden>Sign out</button>
+		`;
+		const logo = headerBar.querySelector('.site-logo');
+		if (logo) {
+			headerBar.insertBefore(indicator, logo);
+		} else {
+			headerBar.appendChild(indicator);
+		}
+	}
+
+	const iconEl = indicator.querySelector('[data-auth-icon]');
+	const signOutBtn = indicator.querySelector('[data-auth-signout]');
+	const icon = resolveAuthIcon(state);
+	if (iconEl) {
+		iconEl.src = icon.src;
+		iconEl.alt = icon.label;
+		iconEl.title = icon.label;
+		iconEl.setAttribute('aria-label', icon.label);
+		iconEl.hidden = false;
+	}
+	if (signOutBtn) {
+		signOutBtn.hidden = !state?.authenticated;
+		if (!signOutBtn.dataset.bound) {
+			signOutBtn.addEventListener('click', handleGlobalSignOut);
+			signOutBtn.dataset.bound = 'true';
+		}
+	}
+}
+
+function renderContactAuthBadge(state) {
+	const heading = document.querySelector('.contact-section h2');
+	if (!heading) {
+		return;
+	}
+	let badge = heading.querySelector('[data-contact-auth-badge]');
+	if (!badge) {
+		badge = document.createElement('img');
+		badge.setAttribute('data-contact-auth-badge', 'true');
+		badge.className = 'contact-auth-badge';
+		heading.appendChild(badge);
+	}
+
+	const shouldShow = Boolean(state?.authenticated && state?.allowlisted);
+	if (!shouldShow) {
+		badge.hidden = true;
+		return;
+	}
+	const icon = resolveAuthIcon({ authenticated: true, allowlisted: true });
+	badge.src = icon.src;
+	badge.alt = 'You can send messages with no cooldown restrictions.';
+	badge.title = 'You can send messages with no cooldown restrictions.';
+	badge.hidden = false;
+}
+
+async function handleGlobalSignOut(event) {
+	if (event) {
+		event.preventDefault();
+	}
+	try {
+		await fetch('/api/auth/logout', { method: 'POST' });
+	} catch (error) {
+		console.warn('Logout failed', error);
+	} finally {
+		window.location.reload();
+	}
+}
+
+async function initAuthIndicators(initialState = null) {
+	const state = initialState || (await getAuthState().catch(() => null));
+	renderHeaderAuthIndicator(state);
+	renderContactAuthBadge(state);
+}
+
+document.addEventListener('coolmanyt:auth-state', (event) => {
+	renderHeaderAuthIndicator(event.detail);
+	renderContactAuthBadge(event.detail);
+});
+
 enforceHtmlExtensionRedirect();
 
 const CHANNEL_ID_CACHE = new Map();
@@ -53,8 +233,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 	setupThemeToggle();
 	fadeInPage();
 	applySiteVersion();
-	enableContactForm();
+	const authState = await getAuthState().catch((error) => {
+		console.warn('Auth state unavailable', error);
+		return null;
+	});
+	initAuthIndicators(authState);
+	enableContactForm(authState);
 	enhanceSocialButtons();
+	decorateExternalLinks();
 	enableHorizontalScrollNav();
 	initNavGradient();
 	initSubscribeGlow();
@@ -450,7 +636,7 @@ function initNavGradient() {
 	});
 }
 
-async function enableContactForm() {
+async function enableContactForm(initialAuthState) {
 	const contactForm = document.getElementById('contactForm');
 	if (!contactForm) {
 		return;
@@ -474,20 +660,15 @@ async function enableContactForm() {
 	}
 
 	let allowlistBypass = false;
-	const fetchAllowlistStatus = async () => {
-		try {
-			const res = await fetch('/api/session');
-			if (!res.ok) return;
-			const data = await res.json();
-			const login = data?.user?.login;
-			const list = Array.isArray(data?.allowlist) ? data.allowlist : [];
-			allowlistBypass = Boolean(data?.authenticated && login && list.includes(login));
-		} catch (error) {
-			console.warn('Allowlist check failed', error);
-		}
+	let authState = initialAuthState || null;
+	const resolveAllowlistBypass = async () => {
+		if (allowlistBypass) return allowlistBypass;
+		authState = authState || (await getAuthState().catch(() => null));
+		allowlistBypass = Boolean(authState?.authenticated && authState?.allowlisted);
+		return allowlistBypass;
 	};
 
-	await fetchAllowlistStatus();
+	await resolveAllowlistBypass();
 
 	const getCooldownInfo = () => {
 		const entry = document.cookie.split(';').map((c) => c.trim()).find((c) => c.startsWith('form_sent='));
@@ -557,6 +738,9 @@ async function enableContactForm() {
 			submitButton.disabled = false;
 			submitButton.textContent = 'Send Message';
 			contactForm.removeEventListener('submit', handleSubmit);
+			if (!allowlistBypass) {
+				setCooldown();
+			}
 			window.setTimeout(() => contactForm.submit(), 10);
 		};
 
@@ -649,6 +833,66 @@ async function enableContactForm() {
 	};
 
 	contactForm.addEventListener('submit', handleSubmit);
+}
+
+function ensureMaterialSymbols() {
+	if (document.querySelector('link[data-material-symbols]')) {
+		return;
+	}
+	const link = document.createElement('link');
+	link.rel = 'stylesheet';
+	link.href =
+		'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_outward,open_in_new';
+	link.setAttribute('data-material-symbols', 'true');
+	document.head.appendChild(link);
+}
+
+function decorateExternalLinks() {
+	ensureMaterialSymbols();
+	const anchors = Array.from(document.querySelectorAll('a[href]'));
+	anchors.forEach((anchor) => {
+		if (anchor.dataset.noExternalIcon === 'true') {
+			return;
+		}
+
+		const href = anchor.getAttribute('href');
+		if (!href || href.startsWith('#')) {
+			return;
+		}
+
+		let url;
+		try {
+			url = new URL(href, window.location.href);
+		} catch (error) {
+			return;
+		}
+
+		const isMail = href.startsWith('mailto:');
+		const isTel = href.startsWith('tel:');
+		const isSameOrigin = url.origin === window.location.origin;
+		if (!isMail && !isTel && isSameOrigin) {
+			return;
+		}
+
+		if (anchor.querySelector('.external-icon')) {
+			return;
+		}
+
+		const opensNew = anchor.target === '_blank';
+		const icon = document.createElement('span');
+		icon.className = 'material-symbols-outlined external-icon';
+		icon.textContent = opensNew || isMail || isTel ? 'open_in_new' : 'arrow_outward';
+		icon.setAttribute('aria-hidden', 'true');
+		anchor.appendChild(icon);
+
+		if (!anchor.getAttribute('aria-label')) {
+			const labelText = anchor.textContent?.trim();
+			if (labelText) {
+				const descriptor = opensNew || isMail || isTel ? 'opens in a new tab or app' : 'opens an external site';
+				anchor.setAttribute('aria-label', `${labelText} (${descriptor})`);
+			}
+		}
+	});
 }
 
 function applySiteVersion() {

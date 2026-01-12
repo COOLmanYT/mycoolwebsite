@@ -1,4 +1,4 @@
-import { getSessionFromRequest } from '../lib/server/auth.js';
+import { getSessionFromRequest, parseCookies, SESSION_COOKIE } from '../lib/server/auth.js';
 import { fetchAllowlistFromGithub } from '../lib/server/allowlist.js';
 import { sendJson } from '../lib/server/http.js';
 import fs from 'fs/promises';
@@ -20,9 +20,11 @@ export default async function handler(req, res) {
     return;
   }
 
+  const cookies = parseCookies(req.headers?.cookie || req.headers?.Cookie || '');
+  const hasSessionCookie = Boolean(cookies[SESSION_COOKIE]);
   const session = getSessionFromRequest(req);
   if (!session) {
-    sendJson(res, 200, { authenticated: false });
+    sendJson(res, 200, { authenticated: false, hasSessionCookie });
     return;
   }
 
@@ -31,6 +33,7 @@ export default async function handler(req, res) {
   const webhookConfigured = await hasWebhookConfigured();
   sendJson(res, 200, {
     authenticated: true,
+    hasSessionCookie,
     user: {
       login: session.login,
       name: session.name,

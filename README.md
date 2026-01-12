@@ -7,7 +7,7 @@ This repo powers my public site: a static, no-build playground for project write
 - Release countdown and "My Favourite Songs" cards that now share the same glassy gradients in dark and light themes.
 - Dynamic "Latest Upload" panel that fetches the newest YouTube video via channel handle/ID fallbacks, thumbnails, stats, and durations.
 - Lazy-loaded heavy modules in `script.js`, so project/blog viewers, share buttons, and analytics logic only run when the relevant DOM exists.
-- Formspree-powered contact form with inline status messaging plus an automatic fallback when CORS blocks AJAX submissions.
+- Formspree-powered contact form with inline status messaging, automatic fallback when CORS blocks AJAX submissions, and a custom thank-you redirect (no Formspree default screen).
 - Structured metadata (Open Graph, Twitter, JSON-LD) across every page to keep previews and SEO tidy.
 - Fully functioning `admin.html` with GitHub OAuth and lots of powerful powers.
 
@@ -17,10 +17,10 @@ This repo powers my public site: a static, no-build playground for project write
 mycoolwebsite/
 ├── index.html                   # Homepage + hero, latest video, countdown, playlist
 ├── about.html                   # Meet-the-creator page (paired with about.css)
-├── projects.html                # Project gallery + inline viewer templates
+├── projects.html                # Project gallary + inline viewer templates
 ├── blog/index.html              # Blog listing + inline reader templates
 ├── contact.html                 # Contact channels + Formspree form
-├── gallery.html                 # Screenshot grid + light narrative
+├── gallary.html                 # Screenshot grid + light narrative
 ├── style.css                    # Global styles + component systems
 ├── script.js                    # Theme toggle, countdown, lazy initialisers, forms
 ├── about.css                    # Extra styles for /about
@@ -64,8 +64,9 @@ mycoolwebsite/
 - Latest YouTube upload — update the `data-channel-user` (or optional `data-channel-id`) on the `[data-latest-video]` block in `index.html`. The script resolves handles, IDs, or legacy usernames automatically.
 - Blog posts — write markdown with front matter inside `blog/content/*.md`, then run `npm run build:blog` to regenerate `blog/index.html`, `blog/feed.xml`, `blog/.generated/blog-manifest.json`, and every standalone page derived from `blog/templates/blog-standalone.html`.
 - Projects — extend `projects.html` with new cards + `<template>` blocks, and drop long-form write-ups into `projects/your-page.html` so you can share direct URLs.
-- Social buttons — edit the `.social-links` clusters on each page (plus the hero footer). Icons live under `images/`; remember alt text.
-- Images — drop optimised assets into `images/` and reference them relatively (`images/avatar.png`).
+<<<<<<< HEAD
+- Social buttons — edit the `.social-links` clusters on each page (plus the hero footer). Icons live under `images/`; remember alt text. External links automatically get Material Symbols for “open in new” vs “external” based on target/protocol.
+- Images — drop optimized assets into `images/` and reference them relatively (`images/avatar.png`).
 
 ## Blog Workflow
 

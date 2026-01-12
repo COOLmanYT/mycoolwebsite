@@ -6,8 +6,9 @@
   <meta name="description" content="Internal admin tools for COOLmanYT: generate blog posts, review manifest stats, and keep the content pipeline tidy.">
   <meta name="author" content="COOLmanYT">
   <meta name="color-scheme" content="dark light">
-  <link rel="icon" type="image/png" href="images/avatar.png">
-  <link rel="apple-touch-icon" href="images/avatar.png">
+  <link rel="icon" type="image/png" href="/images/avatar.png">
+  <link rel="icon" href="/images/favicon.ico">
+  <link rel="apple-touch-icon" href="/images/avatar.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="style.css">
@@ -29,9 +30,9 @@
 <body class="admin-page">
   <a class="skip-link" href="#mainContent">Skip to main content</a>
   <div class="top-banner">
-    <span>🛠️ <strong>Pre-Release</strong> version of the website. (RELEASE SOON!)</span>
+    <span>🎉 Website Release!</span>
     <a class="banner-button" href="https://github.com/RandomInternetUser3000/mycoolwebsite" target="_blank" rel="noopener noreferrer">Open Source GitHub Repository</a>
-    <a class="banner-button" href="index.html#release-countdown">View Countdown</a>
+    <a class="banner-button" href="index.html#release-countdown" data-release-link hidden aria-hidden="true" tabindex="-1">View Countdown</a>
   </div>
 
   <header class="site-header" role="banner">
@@ -42,7 +43,7 @@
           <a href="about.html" class="nav-pill">About</a>
           <a href="projects.html" class="nav-pill">Projects</a>
           <a href="contact.html" class="nav-pill">Contact</a>
-          <a href="gallery.html" class="nav-pill">Gallery</a>
+          <a href="gallary.html" class="nav-pill">Gallary</a>
           <a href="blog/index.html" class="nav-pill">Blog</a>
         </nav>
       </div>
@@ -89,6 +90,10 @@
       <p class="tag-pill">Restricted</p>
       <h1>Sign in required</h1>
       <p>Only approved GitHub accounts can unlock this admin panel. Sign in to continue.</p>
+      <div class="admin-lock__status" aria-live="polite">
+        <img src="/images/github.png" alt="GitHub sign-in status" data-auth-lock-icon>
+        <span class="admin-help-text" data-auth-lock-label>Awaiting sign-in</span>
+      </div>
       <div class="admin-lock__actions">
         <a class="button" data-trigger-login href="/api/auth/login">Sign in with GitHub</a>
         <button type="button" class="button button--ghost" data-trigger-refresh hidden>Retry</button>
@@ -113,6 +118,7 @@
             <p class="admin-auth-label">Signed in as</p>
             <strong data-auth-username>—</strong>
           </div>
+          <img src="/images/github-success.png" alt="GitHub status" class="admin-auth-status" data-auth-inline-icon hidden>
           <button type="button" class="button button--ghost button--small" data-trigger-logout>Sign out</button>
         </div>
       </div>
@@ -580,6 +586,9 @@ Body here." data-blog-editor-content></textarea>
     const shell = document.querySelector('[data-admin-shell]');
     const authGuard = document.querySelector('[data-auth-guard]');
     const authMeta = document.querySelector('[data-auth-meta]');
+    const authInlineIcon = document.querySelector('[data-auth-inline-icon]');
+    const authLockIcon = document.querySelector('[data-auth-lock-icon]');
+    const authLockLabel = document.querySelector('[data-auth-lock-label]');
     const loginBtn = document.querySelector('[data-trigger-login]');
     const refreshAuthBtn = document.querySelector('[data-trigger-refresh]');
     const logoutBtn = document.querySelector('[data-trigger-logout]');
@@ -621,6 +630,77 @@ Body here." data-blog-editor-content></textarea>
     const webhookSendBtn = document.querySelector('[data-webhook-send]');
     const webhookSendFeedback = document.querySelector('[data-webhook-send-feedback]');
     let webhookConfig = { webhooks: [], messageTemplate: '', embedTemplate: {} };
+    let latestAuthState = null;
+
+    function publishAdminAuthState(state) {
+      latestAuthState = state;
+      try {
+        document.dispatchEvent(new CustomEvent('coolmanyt:auth-state', { detail: state }));
+      } catch (error) {
+        console.warn('Auth state dispatch failed', error);
+      }
+    }
+
+    function deriveAuthState(payload) {
+      const login = payload?.user?.login || '';
+      const list = Array.isArray(payload?.allowlist) ? payload.allowlist : [];
+      const allowlisted = Boolean(payload?.authenticated && login && list.includes(login));
+      return {
+        authenticated: Boolean(payload?.authenticated),
+        allowlisted,
+        hasSessionCookie: Boolean(payload?.hasSessionCookie),
+        login,
+        error: payload?.error || null,
+      };
+    }
+
+    function resolveAdminIcon(state) {
+      const icons = {
+        success: '/images/github-success.png',
+        warning: '/images/github-warning.png',
+        cookie: '/images/github-cookie.png',
+        signin: '/images/github.png',
+        error: '/images/github-error.png',
+      };
+      if (!state) {
+        return { src: icons.signin, label: 'Sign in with GitHub' };
+      }
+      if (state.error) {
+        return { src: icons.error, label: state.error };
+      }
+      if (state.authenticated && state.allowlisted) {
+        return { src: icons.success, label: 'Signed in and allowlisted.' };
+      }
+      if (state.authenticated && !state.allowlisted) {
+        return { src: icons.warning, label: 'Signed in but not on the allowlist.' };
+      }
+      if (!state.authenticated && state.hasSessionCookie) {
+        return { src: icons.cookie, label: 'Session cookie detected. Sign in to continue.' };
+      }
+      return { src: icons.signin, label: 'Sign in with GitHub' };
+    }
+
+    function renderLockIcon(state) {
+      if (!authLockIcon || !authLockLabel) return;
+      const icon = resolveAdminIcon(state);
+      authLockIcon.src = icon.src;
+      authLockIcon.alt = icon.label;
+      authLockIcon.title = icon.label;
+      authLockLabel.textContent = icon.label;
+    }
+
+    function renderInlineAuthIcon(state) {
+      if (!authInlineIcon) return;
+      const icon = resolveAdminIcon(state);
+      if (state?.authenticated) {
+        authInlineIcon.hidden = false;
+        authInlineIcon.src = icon.src;
+        authInlineIcon.alt = icon.label;
+        authInlineIcon.title = icon.label;
+      } else {
+        authInlineIcon.hidden = true;
+      }
+    }
 
     if (!form) return;
 
@@ -931,21 +1011,33 @@ Body here." data-blog-editor-content></textarea>
       if (!shell || !authGuard) {
         return;
       }
-      lockAdmin('Checking your session…');
+      lockAdmin('Checking your session…', latestAuthState);
       try {
         const res = await fetch('/api/session', { headers: { Accept: 'application/json' } });
         if (!res.ok) {
           throw new Error(`Session request failed (${res.status})`);
         }
         const payload = await res.json();
+        const state = deriveAuthState(payload);
+        publishAdminAuthState(state);
+        renderLockIcon(state);
         if (payload.authenticated) {
-          unlockAdmin(payload);
+          unlockAdmin(payload, state);
         } else {
-          lockAdmin('Sign in with GitHub to continue.');
+          lockAdmin('Sign in with GitHub to continue.', state);
         }
       } catch (error) {
         console.warn('Auth flow failed', error);
-        lockAdmin('Could not verify your session. Try again.');
+        const errorState = {
+          authenticated: false,
+          allowlisted: false,
+          hasSessionCookie: Boolean(latestAuthState?.hasSessionCookie),
+          login: '',
+          error: error?.message || 'Session verification failed',
+        };
+        publishAdminAuthState(errorState);
+        renderLockIcon(errorState);
+        lockAdmin('Could not verify your session. Try again.', errorState);
         if (refreshAuthBtn) {
           refreshAuthBtn.removeAttribute('hidden');
           refreshAuthBtn.removeAttribute('disabled');
@@ -953,7 +1045,7 @@ Body here." data-blog-editor-content></textarea>
       }
     }
 
-    function lockAdmin(message) {
+    function lockAdmin(message, state) {
       if (!authGuard) return;
       if (shell) shell.setAttribute('hidden', 'true');
       authGuard.removeAttribute('hidden');
@@ -961,14 +1053,20 @@ Body here." data-blog-editor-content></textarea>
       if (authMeta) authMeta.setAttribute('hidden', 'true');
       if (distributionStatus) distributionStatus.textContent = 'Locked';
       if (distributionFeedback) distributionFeedback.textContent = '';
+      renderLockIcon(state || latestAuthState);
+      if (authInlineIcon) {
+        authInlineIcon.hidden = true;
+      }
     }
 
-    function unlockAdmin(payload) {
+    function unlockAdmin(payload, state) {
       if (authGuard) authGuard.setAttribute('hidden', 'true');
       if (shell) shell.removeAttribute('hidden');
       if (authMeta) authMeta.removeAttribute('hidden');
       if (refreshAuthBtn) refreshAuthBtn.setAttribute('hidden', 'true');
-      updateAuthMeta(payload.user);
+      const resolvedState = state || deriveAuthState(payload);
+      updateAuthMeta(payload.user, resolvedState);
+      renderInlineAuthIcon(resolvedState);
       initAllowlistControls(payload);
       initDistributionCard(payload.distribution);
       initSiteSettings();
@@ -983,7 +1081,7 @@ Body here." data-blog-editor-content></textarea>
       }
     }
 
-    function updateAuthMeta(user) {
+    function updateAuthMeta(user, state) {
       if (!user) return;
       if (authName) {
         authName.textContent = user.name || user.login;
@@ -991,6 +1089,7 @@ Body here." data-blog-editor-content></textarea>
       if (authAvatar) {
         authAvatar.src = user.avatarUrl || 'images/avatar.png';
       }
+      renderInlineAuthIcon(state || latestAuthState);
     }
 
     function initAllowlistControls(sessionData) {

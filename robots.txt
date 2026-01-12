@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /lib/server/
+Disallow: /api/
+Disallow: /content/
+Disallow: /admin.html
+Disallow: /api/admin/
+Allow: /
+
+Sitemap: https://coolmanyt.com/sitemap.xml

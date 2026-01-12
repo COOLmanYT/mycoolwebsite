@@ -4,7 +4,7 @@ title: Building my Website using GPT-5 Codex (and some brains)
 tag: Featured
 date: 2025-12-18
 dateDisplay: December 18, 2025
-updated: 2025-12-18
+updated: 2026-1-13
 readingTime: 13 minute read
 summary: I created this entire website with a mix of GitHub Copilot, GPT-5 Codex, and my own stubbornness. Here is how the prototypes evolved into the current release.
 cardHighlights:
@@ -27,7 +27,7 @@ The first commit began when I saw my friend with his awesome and cool website. I
 I left the website for a bit, then I came back after learning some more code. My first pull request was actually just trying to make the button using HTML instead of JS, but all it did was add a href inside of a button. Sounds stupid, right? Because it was.
 
 ## Everything In Between
-After 50 commits and me getting a 30 day free trial of Copilot Pro, the website started coming along. The nice gradient background was relaxing, the dark/light mode button got rid of the need of a dark mode extension and I got a working interactive nav bar! The blog was barebones and only with placeholders, and the gallery was (and still is) just placeholders that the AI got from some place on the internet.
+After 50 commits and me getting a 30 day free trial of Copilot Pro, the website started coming along. The nice gradient background was relaxing, the dark/light mode button got rid of the need of a dark mode extension and I got a working interactive nav bar! The blog was barebones and only with placeholders, and the gallary was (and still is) just placeholders that the AI got from some place on the internet.
 
 But I was still in Beta. There were more things that I wanted to add, I wanted to change, I wanted to get rid of. The website looked and felt complete, but I knew there was more to add
 
@@ -43,9 +43,9 @@ And so began the grueling task of making one. And a secure one it had to be. I n
 
 I also wanted to incorporate RSS into my website as well as a Discord webhook for my discord server (that I'm going to announce in my next YouTube video officially) to ping everyone when I have a new blog post. I mean, I could make a YouTube video instead, but with the admin panel, I could just post without having to make a YouTube video and go through editing and all that *boring* crap.
 
-After a few hours of coding (and asking ChatGPT to code for me), I had done it. I had implemented everything I wanted, along with a countdown to a release. And **I had done it. I had finished my website.** I went ahead and created a branch, converted it into a pull request, and added it to main. 
+After a few hours of coding (and asking ChatGPT to code for me), I had done it. I had implemented everything I wanted, along with a countdown to a release. And **I had done it. I had finished my website** (mostly). I went ahead and created a branch, converted it into a pull request, and added it to main. 
 
 My website still had a few issues, but they were resolved later.
 
 ## What Now?
-I won't give up on this website. There will be things I want to add and some of those are impossible on this static website. Maybe one day, I'll change this website from Vercel to another. Maybe I'll buy the domain coolmanyt.com to make it official. Who knows? But right now, it's just going to get better from here.
+I won't give up on this website. There will be things I want to add and some of those are impossible on this static website. Maybe one day, I'll change this website from Vercel to another. Maybe I'll buy the domain coolmanyt.com to make it official. (spoiler: I did) Who knows? But right now, it's just going to get better from here.
