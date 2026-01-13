@@ -258,10 +258,10 @@ body.banner-disabled .top-banner {
   height: 28px;
   display: block;
   flex-shrink: 0;
-}
-
-body:not(.theme-light) .auth-indicator img {
-  filter: brightness(0) invert(1);
+  background: #fff;
+  border-radius: 50%;
+  padding: 4px;
+  box-shadow: 0 0 0 1px var(--outline);
 }
 
 .auth-indicator .auth-signout {
@@ -275,6 +275,12 @@ body:not(.theme-light) .auth-indicator img {
   height: 22px;
   margin-left: 0.4rem;
   vertical-align: middle;
+}
+.contact-auth-badge {
+  background: #fff;
+  border-radius: 50%;
+  padding: 3px;
+  box-shadow: 0 0 0 1px var(--outline);
 }
 
 .nav-wrapper {
@@ -1637,6 +1643,13 @@ body.theme-light .latest-blog {
   margin: 0 auto 0.5rem;
 }
 
+.social-links img[src*="github"] {
+  background: #fff;
+  border-radius: 16px;
+  padding: 6px;
+  box-shadow: 0 0 0 1px var(--outline);
+}
+
 .site-header .social-links {
   margin: 1.25rem 0 0.5rem;
 }
@@ -1984,8 +1997,8 @@ body:not(.theme-light) .contact-auth-badge {
   color: var(--text-secondary);
 }
 
-/* Gallary Styles */
-.gallary-grid {
+/* Gallery Styles */
+.gallery-grid {
   width: 100%;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1993,7 +2006,7 @@ body:not(.theme-light) .contact-auth-badge {
   margin: 1.5rem 0 3rem;
 }
 
-.gallary-item {
+.gallery-item {
   position: relative;
   overflow: hidden;
   border-radius: 16px;
@@ -2001,14 +2014,14 @@ body:not(.theme-light) .contact-auth-badge {
   box-shadow: var(--shadow-soft);
 }
 
-.gallary-item img {
+.gallery-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
 
-.gallary-item figcaption {
+.gallery-item figcaption {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -2020,7 +2033,7 @@ body:not(.theme-light) .contact-auth-badge {
   letter-spacing: 0.01em;
 }
 
-.gallary-item:hover img {
+.gallery-item:hover img {
   transform: scale(1.05);
 }
 
@@ -2130,9 +2143,12 @@ body:not(.theme-light) .contact-auth-badge {
 
 .blog-grid {
   width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.6rem;
+  justify-content: center;
 }
 
 .blog-card {
@@ -2712,7 +2728,7 @@ body.modal-open {
     grid-template-columns: 1fr;
   }
 
-  .gallary-grid {
+  .gallery-grid {
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   }
 

@@ -17,10 +17,10 @@ This repo powers my public site: a static, no-build playground for project write
 mycoolwebsite/
 ├── index.html                   # Homepage + hero, latest video, countdown, playlist
 ├── about.html                   # Meet-the-creator page (paired with about.css)
-├── projects.html                # Project gallary + inline viewer templates
+├── projects.html                # Project gallery + inline viewer templates
 ├── blog/index.html              # Blog listing + inline reader templates
 ├── contact.html                 # Contact channels + Formspree form
-├── gallary.html                 # Screenshot grid + light narrative
+├── gallery.html                 # Screenshot grid + light narrative
 ├── style.css                    # Global styles + component systems
 ├── script.js                    # Theme toggle, countdown, lazy initialisers, forms
 ├── about.css                    # Extra styles for /about

@@ -1,4 +1,4 @@
-const ver = "Version 1.0.191";
+const ver = "Version 1.0.195";
 const COMMENTS_API_URL = '/api/comments';
 const COMMENTS_STORAGE_KEY = 'coolman-comments';
 const DEFAULT_SITE_SETTINGS = {
@@ -186,7 +186,7 @@ function renderContactAuthBadge(state) {
 	if (!heading) {
 		return;
 	}
-	const shouldShow = Boolean(state?.authenticated && state?.allowlisted);
+	const shouldShow = Boolean(state?.authenticated);
 	let badge = heading.querySelector('[data-contact-auth-badge]');
 	if (!shouldShow) {
 		if (badge) {
@@ -200,10 +200,10 @@ function renderContactAuthBadge(state) {
 		badge.className = 'contact-auth-badge';
 		heading.appendChild(badge);
 	}
-	const icon = resolveAuthIcon({ authenticated: true, allowlisted: true });
+	const icon = resolveAuthIcon(state || { authenticated: false });
 	badge.src = icon.src;
-	badge.alt = 'You can send messages with no cooldown restrictions.';
-	badge.title = 'You can send messages with no cooldown restrictions.';
+	badge.alt = icon.label || 'Signed in with GitHub';
+	badge.title = icon.label || 'Signed in with GitHub';
 	badge.hidden = false;
 }
 
@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	applySiteVersion();
 	const authState = await getAuthState().catch((error) => {
 		console.warn('Auth state unavailable', error);
-		return null;
+		return cachedAuthState;
 	});
 	initAuthIndicators(authState);
 	enableContactForm(authState);
@@ -657,6 +657,7 @@ async function enableContactForm(initialAuthState) {
 	const ageCheckbox = document.getElementById('over13');
 	const consentCheckbox = document.getElementById('dataConsent');
 	const submitButton = contactForm.querySelector('button[type="submit"]');
+	const redirectInput = contactForm.querySelector('input[name="_redirect"]');
 	const endpoint = contactForm.getAttribute('action');
 
 	if (statusElement) {
@@ -668,7 +669,7 @@ async function enableContactForm(initialAuthState) {
 		return;
 	}
 
-	let allowlistBypass = false;
+	let allowlistBypass = Boolean(initialAuthState?.authenticated && initialAuthState?.allowlisted);
 	let authState = initialAuthState || null;
 	const resolveAllowlistBypass = async () => {
 		if (allowlistBypass) return allowlistBypass;
@@ -678,6 +679,15 @@ async function enableContactForm(initialAuthState) {
 	};
 
 	await resolveAllowlistBypass();
+	if (allowlistBypass) {
+		if (contactForm.hidden) {
+			contactForm.hidden = false;
+		}
+		if (cooldownElement) {
+			cooldownElement.hidden = true;
+			cooldownElement.textContent = '';
+		}
+	}
 
 	const getCooldownInfo = () => {
 		const entry = document.cookie.split(';').map((c) => c.trim()).find((c) => c.startsWith('form_sent='));
@@ -693,8 +703,22 @@ async function enableContactForm(initialAuthState) {
 	const formatCooldownMessage = (expiresAt) => {
 		const remainingMs = expiresAt - Date.now();
 		const remainingHours = Math.max(0, Math.ceil(remainingMs / (1000 * 60 * 60)));
-		const expires = new Date(expiresAt).toLocaleString();
-		return `You can send another message in about ${remainingHours} hour${remainingHours === 1 ? '' : 's'} (after ${expires}).`;
+		const detectedZone = Intl?.DateTimeFormat?.().resolvedOptions?.().timeZone || '';
+		const fallbackZone = 'Australia/Sydney'; // AEDT/AEST fallback per request
+		const finalZone = detectedZone || fallbackZone;
+		const formatOptions = {
+			timeZone: finalZone,
+			dateStyle: 'short',
+			timeStyle: 'medium',
+			timeZoneName: 'short',
+		};
+		let formatted = '';
+		try {
+			formatted = new Intl.DateTimeFormat('en-AU', formatOptions).format(new Date(expiresAt));
+		} catch (error) {
+			formatted = new Date(expiresAt).toLocaleString('en-GB', { timeZone: 'UTC', timeZoneName: 'short' });
+		}
+		return `You can send another message in about ${remainingHours} hour${remainingHours === 1 ? '' : 's'} (after ${formatted}).`;
 	};
 
 	const setCooldown = () => {
@@ -792,6 +816,15 @@ async function enableContactForm(initialAuthState) {
 			});
 
 			if (response.ok) {
+				const redirectUrl = redirectInput?.value?.trim() || '';
+				let expiresAt = null;
+				if (!allowlistBypass) {
+					expiresAt = setCooldown();
+				}
+				if (redirectUrl) {
+					window.location.assign(redirectUrl);
+					return;
+				}
 				if (successElement) {
 					successElement.hidden = false;
 					if (allowlistBypass) {
@@ -805,7 +838,6 @@ async function enableContactForm(initialAuthState) {
 				}
 				contactForm.reset();
 				if (!allowlistBypass) {
-					const expiresAt = setCooldown();
 					showCooldownState({ expiresAt });
 				} else {
 					submitButton.disabled = false;
@@ -861,6 +893,10 @@ function decorateExternalLinks() {
 	const anchors = Array.from(document.querySelectorAll('a[href]'));
 	anchors.forEach((anchor) => {
 		if (anchor.dataset.noExternalIcon === 'true') {
+			return;
+		}
+
+		if (anchor.closest('.site-footer') || anchor.closest('.social-links')) {
 			return;
 		}
 
@@ -1811,68 +1847,92 @@ async function attemptPipedLatest() {
 						}
 					});
 
-					const stream = streams.find((entry) => entry && (entry.url || entry.shortUrl || entry.watchUrl) && entry.title);
-					if (!stream) {
+					const candidates = streams
+						.map((entry) => {
+							if (!entry || !entry.title) {
+								return null;
+							}
+							const rawPublished =
+								entry.uploaded ??
+								entry.uploadedDate ??
+								entry.published ??
+								entry.publishedDate ??
+								entry.uploadedAt ??
+								entry.createdAt ??
+								entry.timestamp ??
+								entry.date ??
+								entry.publishDate;
+							const publishedIso = normaliseToIsoString(rawPublished);
+							const publishedTimestamp = publishedIso ? Date.parse(publishedIso) : Number.NaN;
+							let candidateDuration = parseNumericValue(
+								entry.duration ??
+								entry.lengthSeconds ??
+								entry.length_seconds ??
+								entry.durationSeconds,
+							);
+							if (!Number.isFinite(candidateDuration) || candidateDuration <= 0) {
+								const candidateDurationMs = parseNumericValue(
+									entry.durationMilliseconds ??
+									entry.durationMs ??
+									entry.duration_ms ??
+									entry.lengthMilliseconds ??
+									entry.lengthMs ??
+									entry.length_ms,
+								);
+								if (Number.isFinite(candidateDurationMs) && candidateDurationMs > 0) {
+									candidateDuration = candidateDurationMs / 1000;
+								}
+							}
+							const candidateViews = parseNumericValue(
+								entry.views ??
+								entry.viewCount ??
+								entry.watchers ??
+								entry.view_count ??
+								(entry.stats ? entry.stats.views : undefined),
+							);
+							const candidateThumbnail = entry.thumbnail || entry.thumbnailUrl || entry.thumbnailURL || null;
+							const rawUrl = entry.url || entry.shortUrl || entry.watchUrl || '';
+							let videoUrl = channelUrl;
+							if (rawUrl) {
+								if (rawUrl.startsWith('http')) {
+									videoUrl = rawUrl;
+								} else if (rawUrl.startsWith('/')) {
+									videoUrl = `https://www.youtube.com${rawUrl}`;
+								} else {
+									videoUrl = `https://www.youtube.com/watch?v=${rawUrl}`;
+								}
+							}
+
+							return {
+								entry,
+								title: entry.title,
+								publishedIso,
+								publishedTimestamp,
+								videoUrl,
+								thumbnail: candidateThumbnail,
+								durationSeconds: candidateDuration,
+								viewCount: candidateViews,
+							};
+						})
+						.filter(Boolean)
+						.sort((a, b) => {
+							const aTs = Number.isFinite(a.publishedTimestamp) ? a.publishedTimestamp : -Infinity;
+							const bTs = Number.isFinite(b.publishedTimestamp) ? b.publishedTimestamp : -Infinity;
+							return bTs - aTs;
+						});
+
+					const best = candidates[0];
+					if (!best) {
 						continue;
 					}
 
-					const rawUrl = stream.url || stream.shortUrl || stream.watchUrl || '';
-					let videoUrl = channelUrl;
-					if (rawUrl) {
-						if (rawUrl.startsWith('http')) {
-							videoUrl = rawUrl;
-						} else if (rawUrl.startsWith('/')) {
-							videoUrl = `https://www.youtube.com${rawUrl}`;
-						} else {
-							videoUrl = `https://www.youtube.com/watch?v=${rawUrl}`;
-						}
-					}
-
-					const candidateThumbnail = stream.thumbnail || stream.thumbnailUrl || stream.thumbnailURL || null;
-					const candidatePublished =
-						stream.uploaded ??
-						stream.uploadedDate ??
-						stream.published ??
-						stream.publishedDate ??
-						stream.uploadedAt ??
-						stream.createdAt ??
-						stream.timestamp ??
-						stream.date ??
-						stream.publishDate;
-					let candidateDuration = parseNumericValue(
-						stream.duration ??
-						stream.lengthSeconds ??
-						stream.length_seconds ??
-						stream.durationSeconds,
-					);
-					if (!Number.isFinite(candidateDuration) || candidateDuration <= 0) {
-						const candidateDurationMs = parseNumericValue(
-							stream.durationMilliseconds ??
-							stream.durationMs ??
-							stream.duration_ms ??
-							stream.lengthMilliseconds ??
-							stream.lengthMs ??
-							stream.length_ms,
-						);
-						if (Number.isFinite(candidateDurationMs) && candidateDurationMs > 0) {
-							candidateDuration = candidateDurationMs / 1000;
-						}
-					}
-					const candidateViews = parseNumericValue(
-						stream.views ??
-						stream.viewCount ??
-						stream.watchers ??
-						stream.view_count ??
-						(stream.stats ? stream.stats.views : undefined),
-					);
-
 					applyVideoData({
-						title: stream.title,
-						url: videoUrl,
-						thumbnail: candidateThumbnail,
-						publishedAt: candidatePublished,
-						durationSeconds: candidateDuration,
-						viewCount: candidateViews,
+						title: best.title,
+						url: best.videoUrl,
+						thumbnail: best.thumbnail,
+						publishedAt: best.publishedIso || best.publishedTimestamp || '',
+						durationSeconds: best.durationSeconds,
+						viewCount: best.viewCount,
 					});
 					return true;
 				} catch (error) {

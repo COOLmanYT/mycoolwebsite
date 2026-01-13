@@ -27,7 +27,7 @@ The first commit began when I saw my friend with his awesome and cool website. I
 I left the website for a bit, then I came back after learning some more code. My first pull request was actually just trying to make the button using HTML instead of JS, but all it did was add a href inside of a button. Sounds stupid, right? Because it was.
 
 ## Everything In Between
-After 50 commits and me getting a 30 day free trial of Copilot Pro, the website started coming along. The nice gradient background was relaxing, the dark/light mode button got rid of the need of a dark mode extension and I got a working interactive nav bar! The blog was barebones and only with placeholders, and the gallary was (and still is) just placeholders that the AI got from some place on the internet.
+After 50 commits and me getting a 30 day free trial of Copilot Pro, the website started coming along. The nice gradient background was relaxing, the dark/light mode button got rid of the need of a dark mode extension and I got a working interactive nav bar! The blog was barebones and only with placeholders, and the gallery was (and still is) just placeholders that the AI got from some place on the internet.
 
 But I was still in Beta. There were more things that I wanted to add, I wanted to change, I wanted to get rid of. The website looked and felt complete, but I knew there was more to add
 
