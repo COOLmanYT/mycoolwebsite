@@ -32,7 +32,7 @@ You can find the current website version in:
 If you believe you’ve found a security vulnerability, please report it **privately** first.
 
 ### Preferred: Email
-Send details to: **official.coolman.yt@gmail.com**
+Send details to: **official.coolman.yt[@] gmail.com**
 
 Please include:
 - A clear description of the issue and potential impact
