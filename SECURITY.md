@@ -29,10 +29,10 @@ You can find the current website version in:
 
 ## Reporting a Vulnerability
 
-If you believe you’ve found a security vulnerability, please report it **privately** first.
+If you believe you’ve found a security vulnerability, please report it **privately**.
 
 ### Preferred: Email
-Send details to: **official.coolman.yt[@] gmail.com**
+Send details to: **official.coolman.yt[@]gmail.com**
 
 Please include:
 - A clear description of the issue and potential impact
@@ -60,6 +60,6 @@ After you report a vulnerability, you can expect updates when:
 
 I’ll respond using the same contact method you used (unless you request otherwise).
 
-## Safe Harbor
+## Safe Harbour
 
-If you act in good faith and avoid privacy violations, service disruption, and data destruction, I will not pursue action against you for responsible disclosure.
+If you act in good faith and avoid privacy violations, service disruption, and data destruction, I will not pursue action against you for responsible disclosure. Usage of the website and searching for vulnerabilities must follow the website Terms of Service, available right in the repo or at https://coolmanyt.com/terms.html.
