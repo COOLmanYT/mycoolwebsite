@@ -124,6 +124,12 @@
       </div>
     </section>
 
+<p id="envCheck"></p>
+<script>
+document.getElementById("envCheck").textContent = 
+    typeof window === "undefined" ? "Server-side" : "Client-side";
+</script>
+
     <section class="admin-grid" aria-label="Quick controls">
       <article class="admin-card">
         <div class="admin-card__header">
