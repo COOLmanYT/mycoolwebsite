@@ -6,6 +6,32 @@ const PIPED_BASES = [
 	'https://piped.video/api/v1/channel/',
 	'https://piped.mha.fi/api/v1/channel/',
 ];
+const DEFAULT_FETCH_TIMEOUT_MS = 5000;
+const PIPED_FETCH_TIMEOUT_MS = 4500;
+const FEED_FETCH_TIMEOUT_MS = 4500;
+
+function linkAbortSignals(controller, externalSignal) {
+	if (!externalSignal) {
+		return;
+	}
+	if (externalSignal.aborted) {
+		controller.abort(externalSignal.reason);
+		return;
+	}
+	externalSignal.addEventListener('abort', () => controller.abort(externalSignal.reason), { once: true });
+}
+
+async function fetchWithTimeout(resource, options = {}) {
+	const { timeout = DEFAULT_FETCH_TIMEOUT_MS, signal, ...rest } = options;
+	const controller = new AbortController();
+	linkAbortSignals(controller, signal);
+	const timer = setTimeout(() => controller.abort(), timeout);
+	try {
+		return await fetch(resource, { ...rest, signal: controller.signal });
+	} finally {
+		clearTimeout(timer);
+	}
+}
 
 export const config = { runtime: 'nodejs' };
 
@@ -79,7 +105,7 @@ async function resolveChannelId(handle, apiKey) {
 	url.searchParams.set('key', apiKey);
 
 	try {
-		const response = await fetch(url);
+		const response = await fetchWithTimeout(url, { timeout: DEFAULT_FETCH_TIMEOUT_MS });
 		if (!response.ok) {
 			return await resolveChannelIdFromPiped(normalized);
 		}
@@ -101,7 +127,7 @@ async function fetchLatestVideo(channelId, apiKey) {
 	searchUrl.searchParams.set('key', apiKey);
 
 	try {
-		const searchResponse = await fetch(searchUrl);
+		const searchResponse = await fetchWithTimeout(searchUrl, { timeout: DEFAULT_FETCH_TIMEOUT_MS });
 		if (!searchResponse.ok) {
 			return await fetchLatestViaFeed(channelId);
 		}
@@ -139,7 +165,10 @@ async function fetchLatestFromPiped(identifier) {
 		const sanitizedBase = base.endsWith('/') ? base : `${base}/`;
 		const url = `${sanitizedBase}${encodeURIComponent(cleaned)}`;
 		try {
-			const response = await fetch(url, { headers: { Accept: 'application/json' } });
+			const response = await fetchWithTimeout(url, {
+				headers: { Accept: 'application/json' },
+				timeout: PIPED_FETCH_TIMEOUT_MS,
+			});
 			if (!response.ok) continue;
 			const payload = await response.json().catch(() => null);
 			if (!payload) continue;
@@ -218,7 +247,10 @@ async function getLatestVideo({ channelId, handle, apiKey }) {
 async function fetchLatestViaFeed(channelId) {
 	const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(channelId)}`;
 	try {
-		const res = await fetch(feedUrl, { headers: { Accept: 'application/atom+xml' } });
+		const res = await fetchWithTimeout(feedUrl, {
+			headers: { Accept: 'application/atom+xml' },
+			timeout: FEED_FETCH_TIMEOUT_MS,
+		});
 		if (!res.ok) {
 			return null;
 		}
@@ -251,7 +283,7 @@ async function fetchVideoDetails(videoId, apiKey) {
 	videosUrl.searchParams.set('key', apiKey);
 
 	try {
-		const response = await fetch(videosUrl);
+		const response = await fetchWithTimeout(videosUrl, { timeout: DEFAULT_FETCH_TIMEOUT_MS });
 		if (!response.ok) {
 			return null;
 		}
