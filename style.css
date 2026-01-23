@@ -2721,6 +2721,21 @@ body.modal-open {
   gap: 1.25rem;
 }
 
+.comments {
+  max-width: min(960px, 95vw);
+  margin: clamp(1.5rem, 4vw, 2.5rem) auto;
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+  background: var(--surface);
+  border: 1px solid var(--outline);
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
+}
+
+.comments .giscus,
+.comments iframe.giscus-frame {
+  width: 100% !important;
+}
+
 .comments-section__header {
   display: flex;
   justify-content: space-between;

@@ -270,6 +270,20 @@ async function getLatestVideo({ channelId, handle, apiKey }) {
 	}
 
 	const viaFeed = await fetchLatestViaFeed(channelId);
+
+	if (viaFeed && viaFeed.viewCount == null) {
+		const pipedSupplement = await fetchLatestFromPiped(channelId || handle);
+		if (pipedSupplement && (!viaFeed.videoId || pipedSupplement.videoId === viaFeed.videoId)) {
+			return {
+				...viaFeed,
+				viewCount: normalizeViewCount(pipedSupplement.viewCount),
+				durationSeconds: viaFeed.durationSeconds ?? pipedSupplement.durationSeconds ?? null,
+				thumbnail: viaFeed.thumbnail || pipedSupplement.thumbnail || null,
+				publishedAt: viaFeed.publishedAt || pipedSupplement.publishedAt || null,
+			};
+		}
+	}
+
 	return viaFeed;
 }
 
