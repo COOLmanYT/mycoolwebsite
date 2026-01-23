@@ -10,6 +10,16 @@ const DEFAULT_FETCH_TIMEOUT_MS = 5000;
 const PIPED_FETCH_TIMEOUT_MS = 4500;
 const FEED_FETCH_TIMEOUT_MS = 4500;
 
+function extractVideoId(value) {
+	if (!value) return '';
+	const asString = String(value).trim();
+	if (!asString) return '';
+	const urlMatch = asString.match(/(?:v=|vi=)([A-Za-z0-9_-]{6,})/);
+	if (urlMatch?.[1]) return urlMatch[1];
+	const pathMatch = asString.match(/([A-Za-z0-9_-]{6,})$/);
+	return pathMatch?.[1] || '';
+}
+
 function linkAbortSignals(controller, externalSignal) {
 	if (!externalSignal) {
 		return;
@@ -133,7 +143,7 @@ async function fetchLatestVideo(channelId, apiKey) {
 		}
 		const searchJson = await searchResponse.json();
 		const item = searchJson?.items?.[0];
-		const videoId = item?.id?.videoId;
+		const videoId = extractVideoId(item?.id?.videoId);
 		const snippet = item?.snippet || {};
 		if (!videoId) {
 			return await fetchLatestViaFeed(channelId);
@@ -186,14 +196,15 @@ async function fetchLatestFromPiped(identifier) {
 					if (!entry?.title) return null;
 					const published = entry.uploaded ?? entry.uploadedDate ?? entry.published ?? entry.publishedDate ?? entry.createdAt;
 					const publishedAt = published ? new Date(published).toISOString() : null;
-					const videoId = entry.url || entry.videoId || entry.id;
+					const rawVideoId = entry.url || entry.videoId || entry.id;
+					const videoId = extractVideoId(rawVideoId);
 					const thumbnail = entry.thumbnail || entry.thumbnailUrl || (videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : null);
 					return {
 						title: entry.title,
 						videoId,
 						thumbnail,
 						publishedAt,
-						url: videoId ? (String(videoId).startsWith('http') ? videoId : `https://www.youtube.com/watch?v=${videoId}`) : null,
+						url: videoId ? `https://www.youtube.com/watch?v=${videoId}` : null,
 						viewCount: entry.views ?? entry.viewCount ?? null,
 						durationSeconds: entry.duration ?? entry.lengthSeconds ?? null,
 					};
@@ -255,9 +266,11 @@ async function fetchLatestViaFeed(channelId) {
 			return null;
 		}
 		const text = await res.text();
-		const videoId = text.match(/<yt:videoId>([^<]+)<\/yt:videoId>/)?.[1] || '';
-		const title = text.match(/<title>([^<]+)<\/title>/)?.[1] || 'Latest upload';
-		const publishedAt = text.match(/<published>([^<]+)<\/published>/)?.[1] || null;
+		const entryMatch = text.match(/<entry[\s\S]*?<\/entry>/);
+		const entryBlock = entryMatch?.[0] || '';
+		const videoId = extractVideoId(entryBlock.match(/<yt:videoId>([^<]+)<\/yt:videoId>/)?.[1]);
+		const title = entryBlock.match(/<title>([^<]+)<\/title>/)?.[1] || 'Latest upload';
+		const publishedAt = entryBlock.match(/<published>([^<]+)<\/published>/)?.[1] || null;
 		if (!videoId) {
 			return null;
 		}

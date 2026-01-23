@@ -1,4 +1,4 @@
-const ver = "Version 1.0.26";
+const ver = "Version 1.0.27-test";
 const COMMENTS_API_URL = '/api/comments';
 const COMMENTS_STORAGE_KEY = 'coolman-comments';
 const DEFAULT_SITE_SETTINGS = {
@@ -32,16 +32,6 @@ const blogViewerState = {
 	defaultStatusMessage: '',
 	currentComments: [],
 	shareFeedbackTimer: null,
-};
-
-const projectViewerState = {
-	container: null,
-	closeButton: null,
-	title: null,
-	contentHost: null,
-	shareButton: null,
-	activeSlug: null,
-	activeTrigger: null,
 };
 
 let cachedAuthState = null;
@@ -259,10 +249,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 	initLazySections();
 	initLazyMailerLite();
 	initLatestBlogCard();
-
-	if (document.querySelector('[data-project-open]')) {
-		initProjectViewer();
-	}
 	if (document.querySelector('[data-blog-open]')) {
 		initBlogViewer();
 	}
@@ -1030,224 +1016,6 @@ function applySiteVersion() {
 	});
 }
 
-function initProjectViewer() {
-	const container = document.querySelector('[data-project-viewer]');
-	if (!container) {
-		return;
-	}
-
-	const triggers = document.querySelectorAll('[data-project-open]');
-	if (!triggers.length) {
-		return;
-	}
-
-	projectViewerState.container = container;
-	projectViewerState.closeButton = container.querySelector('[data-project-close]');
-	projectViewerState.title = container.querySelector('[data-project-title]');
-	projectViewerState.contentHost = container.querySelector('[data-project-content]');
-	projectViewerState.shareButton = container.querySelector('[data-project-toolbar-share]');
-
-	triggers.forEach((trigger) => {
-		trigger.setAttribute('aria-haspopup', 'dialog');
-		trigger.setAttribute('aria-expanded', 'false');
-		trigger.style.cursor = trigger.style.cursor || 'pointer';
-		trigger.addEventListener('click', (event) => {
-			if (event.defaultPrevented) {
-				return;
-			}
-			if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
-				return;
-			}
-			event.preventDefault();
-			openProjectViewer(trigger);
-		});
-	});
-
-	projectViewerState.closeButton?.addEventListener('click', () => {
-		closeProjectViewer();
-	});
-
-	container.addEventListener('keydown', (event) => {
-		if (event.key === 'Escape') {
-			closeProjectViewer();
-		}
-	});
-
-	projectViewerState.contentHost?.addEventListener('click', (event) => {
-		const closestClose = event.target.closest('[data-project-close-inline]');
-		if (closestClose) {
-			event.preventDefault();
-			closeProjectViewer();
-		}
-	});
-
-	const applyHashState = () => {
-		const hashSlug = window.location.hash?.replace(/^#/, '') ?? '';
-		if (!hashSlug) {
-			if (projectViewerState.activeSlug) {
-				closeProjectViewer({ skipHashReset: true });
-			}
-			return;
-		}
-
-		const hashTrigger = document.querySelector(`[data-project-open="${hashSlug}"]`);
-		const templateExists = Boolean(document.getElementById(`project-template-${hashSlug}`));
-		if (hashTrigger && templateExists) {
-			openProjectViewer(hashTrigger, { skipHashUpdate: true });
-		} else if (projectViewerState.activeSlug) {
-			closeProjectViewer({ skipHashReset: true });
-		}
-	};
-
-	window.addEventListener('hashchange', applyHashState);
-
-	applyHashState();
-}
-
-function openProjectViewer(trigger, options = {}) {
-	const slug = trigger.getAttribute('data-project-open');
-	if (!slug || projectViewerState.activeSlug === slug) {
-		return;
-	}
-
-	const template = document.getElementById(`project-template-${slug}`);
-	if (!template) {
-		return;
-	}
-
-	const previousTrigger = projectViewerState.activeTrigger;
-	projectViewerState.activeSlug = slug;
-	projectViewerState.activeTrigger = trigger;
-	if (previousTrigger && previousTrigger !== trigger) {
-		previousTrigger.setAttribute('aria-expanded', 'false');
-	}
-
-	if (projectViewerState.contentHost) {
-		projectViewerState.contentHost.innerHTML = '';
-		const fragment = template.content.cloneNode(true);
-		projectViewerState.contentHost.appendChild(fragment);
-	}
-
-	const article = projectViewerState.contentHost?.querySelector('.project-detail');
-	if (article && !article.id) {
-		article.id = slug;
-	}
-
-	const heading = article?.querySelector('h1');
-	if (heading) {
-		if (!heading.id) {
-			heading.id = `${slug}-heading`;
-		}
-		if (!heading.hasAttribute('tabindex')) {
-			heading.setAttribute('tabindex', '-1');
-		}
-	}
-
-	if (projectViewerState.title) {
-		projectViewerState.title.textContent = heading?.textContent?.trim() || 'Selected Project';
-	}
-
-	if (projectViewerState.shareButton) {
-		const toolbarShare = projectViewerState.shareButton;
-		const shareBase = toolbarShare.getAttribute('data-share-base') || 'projects.html';
-		const shareUrl = resolveShareUrl(slug, shareBase);
-		toolbarShare.setAttribute('data-share-base', shareBase);
-		toolbarShare.setAttribute('data-share-slug', slug);
-		toolbarShare.setAttribute('data-share-url', shareUrl);
-		window.clearTimeout(toolbarShare._shareResetTimer);
-		const shareLabelTarget = toolbarShare.querySelector('[data-share-label]');
-		const defaultLabel = toolbarShare.dataset.shareDefault || shareLabelTarget?.textContent?.trim() || 'Share';
-		if (!toolbarShare.dataset.shareDefault) {
-			toolbarShare.dataset.shareDefault = defaultLabel;
-		}
-		if (shareLabelTarget) {
-			shareLabelTarget.textContent = defaultLabel;
-		} else {
-			toolbarShare.textContent = defaultLabel;
-		}
-		if (toolbarShare.dataset.shareBound === 'true') {
-			// Already bound from a previous open; nothing further.
-		} else {
-			setupShareButton(toolbarShare, slug, shareBase);
-		}
-	}
-
-	const shareButtons = projectViewerState.contentHost?.querySelectorAll('[data-article-share]') ?? [];
-	shareButtons.forEach((button) => setupShareButton(button, slug, 'projects.html'));
-
-	projectViewerState.container?.classList.add('is-open');
-	projectViewerState.container?.removeAttribute('hidden');
-	projectViewerState.container?.removeAttribute('aria-hidden');
-	projectViewerState.container?.setAttribute('aria-expanded', 'true');
-	projectViewerState.container?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-	trigger.setAttribute('aria-expanded', 'true');
-
-	const { skipHashUpdate = false } = options;
-	if (!skipHashUpdate) {
-		const url = `${window.location.pathname}#${slug}`;
-		if (history.replaceState) {
-			history.replaceState(null, '', url);
-		} else {
-			window.location.hash = slug;
-		}
-	}
-
-	const focusTarget = heading || projectViewerState.title;
-	focusTarget?.focus({ preventScroll: true });
-}
-
-function closeProjectViewer(options = {}) {
-	const container = projectViewerState.container;
-	if (!container?.classList.contains('is-open')) {
-		return;
-	}
-
-	container.classList.remove('is-open');
-	container.setAttribute('hidden', 'hidden');
-	container.setAttribute('aria-hidden', 'true');
-	container.removeAttribute('aria-expanded');
-
-	if (projectViewerState.contentHost) {
-		projectViewerState.contentHost.innerHTML = '';
-	}
-
-	if (projectViewerState.title) {
-		projectViewerState.title.textContent = 'Selected Project';
-	}
-
-	if (projectViewerState.shareButton) {
-		const toolbarShare = projectViewerState.shareButton;
-		window.clearTimeout(toolbarShare._shareResetTimer);
-		const labelTarget = toolbarShare.querySelector('[data-share-label]');
-		const defaultLabel = toolbarShare.dataset.shareDefault || 'Share';
-		if (labelTarget) {
-			labelTarget.textContent = defaultLabel;
-		} else {
-			toolbarShare.textContent = defaultLabel;
-		}
-		toolbarShare.removeAttribute('data-share-slug');
-		toolbarShare.removeAttribute('data-share-url');
-	}
-
-	if (projectViewerState.activeTrigger) {
-		projectViewerState.activeTrigger.setAttribute('aria-expanded', 'false');
-	}
-
-	const focusReturnTarget = projectViewerState.activeTrigger;
-	projectViewerState.activeSlug = null;
-	projectViewerState.activeTrigger = null;
-
-	const { skipHashReset = false } = options;
-	if (!skipHashReset) {
-		if (history.replaceState) {
-			history.replaceState(null, '', window.location.pathname + window.location.search);
-		} else if (window.location.hash) {
-			window.location.hash = '';
-		}
-	}
-
-	focusReturnTarget?.focus({ preventScroll: true });
-}
 
 function initBlogViewer() {
 	const container = document.querySelector('[data-blog-reader]');
