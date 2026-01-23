@@ -1612,6 +1612,7 @@ async function initLatestUploadCard() {
 			viewCount,
 			videoId,
 		} = videoPayload;
+		const pendingKey = 'pipedPending';
 		const safeTitle = title?.toString().trim() || 'Latest upload from COOLmanYT';
 		const resolvedLink = (() => {
 			if (!url) {
@@ -1674,6 +1675,30 @@ async function initLatestUploadCard() {
 			} else {
 				statsEl.hidden = true;
 				statsEl.textContent = '';
+				if (derivedVideoId && !card.dataset[pendingKey]) {
+					card.dataset[pendingKey] = 'true';
+					fetch(`/api/youtube/latest?videoId=${encodeURIComponent(derivedVideoId)}`, {
+						headers: { Accept: 'application/json' },
+						cache: 'no-store',
+					})
+						.then((res) => (res.ok ? res.json() : null))
+						.then((extra) => {
+							card.dataset[pendingKey] = '';
+							if (!extra) return;
+							applyVideoData({
+								...videoPayload,
+								viewCount: extra.viewCount ?? videoPayload.viewCount,
+								durationSeconds: videoPayload.durationSeconds ?? extra.durationSeconds ?? null,
+								thumbnail: videoPayload.thumbnail || extra.thumbnail || null,
+								publishedAt: videoPayload.publishedAt || extra.publishedAt || null,
+								videoId: derivedVideoId,
+								title: videoPayload.title || extra.title || safeTitle,
+							});
+						})
+						.catch(() => {
+							card.dataset[pendingKey] = '';
+						});
+				}
 			}
 		}
 

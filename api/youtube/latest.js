@@ -76,9 +76,21 @@ export default async function handler(req, res) {
 		(searchParams.get('handle') || '').trim() ||
 		(searchParams.get('channelHandle') || '').trim() ||
 		(searchParams.get('channelUser') || '').trim();
+	const rawVideoId = (searchParams.get('videoId') || '').trim();
 
-	if (!rawChannelId && !rawHandle) {
-		sendJson(res, 400, { error: 'Provide channelId or handle' });
+	if (!rawChannelId && !rawHandle && !rawVideoId) {
+		sendJson(res, 400, { error: 'Provide channelId or handle or videoId' });
+		return;
+	}
+
+	if (rawVideoId) {
+		const specific = await getVideoById(rawVideoId, apiKey);
+		if (!specific) {
+			sendJson(res, 404, { error: 'Video not found' });
+			return;
+		}
+		res.setHeader('Cache-Control', 'public, max-age=120, stale-while-revalidate=60');
+		sendJson(res, 200, specific);
 		return;
 	}
 
@@ -295,6 +307,42 @@ async function getLatestVideo({ channelId, handle, apiKey }) {
 	}
 
 	return viaFeed;
+}
+
+async function getVideoById(videoId, apiKey) {
+	if (!videoId) return null;
+	const trimmed = videoId.trim();
+	if (!trimmed) return null;
+
+	if (apiKey) {
+		const details = await fetchVideoDetails(trimmed, apiKey);
+		if (details && details.viewCount != null) {
+			return {
+				videoId: trimmed,
+				url: `https://www.youtube.com/watch?v=${trimmed}`,
+				thumbnail: details.thumbnail || `https://i.ytimg.com/vi/${trimmed}/hqdefault.jpg`,
+				publishedAt: details.publishedAt || null,
+				durationSeconds: details.durationSeconds ?? null,
+				viewCount: details.viewCount,
+				title: details.title || 'Latest upload',
+			};
+		}
+	}
+
+	const piped = await fetchStreamFromPiped(trimmed);
+	if (piped) {
+		return {
+			videoId: trimmed,
+			url: `https://www.youtube.com/watch?v=${trimmed}`,
+			thumbnail: piped.thumbnail || `https://i.ytimg.com/vi/${trimmed}/hqdefault.jpg`,
+			publishedAt: piped.publishedAt || null,
+			durationSeconds: piped.durationSeconds ?? null,
+			viewCount: piped.viewCount ?? null,
+			title: piped.title || 'Latest upload',
+		};
+	}
+
+	return null;
 }
 
 async function fetchStreamFromPiped(videoId) {
