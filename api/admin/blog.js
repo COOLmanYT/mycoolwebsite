@@ -6,6 +6,8 @@ const REPO = process.env.GITHUB_REPO || 'mycoolwebsite';
 const BRANCH = process.env.ALLOWLIST_BRANCH || 'main';
 const API_BASE = 'https://api.github.com';
 const CONTENT_ROOT = 'blog/content';
+const MANIFEST_PATH = 'blog/.generated/blog-manifest.json';
+const STANDALONE_ROOT = 'blog';
 const COMMITTER_NAME = process.env.ALLOWLIST_COMMIT_NAME || 'COOLman Admin Bot';
 const COMMITTER_EMAIL = process.env.ALLOWLIST_COMMIT_EMAIL || 'bot@coolmanyt.local';
 
@@ -96,16 +98,69 @@ async function handleDelete(req, res, token) {
     sendJson(res, 501, { error: 'Editing not configured. Set ALLOWLIST_GITHUB_TOKEN.' });
     return;
   }
+
   try {
     const body = await readJsonBody(req);
-    const slug = validateSlug(body.slug);
-    const path = `${CONTENT_ROOT}/${slug}.md`;
-    const current = await fetchFileFromGithub(path, token);
-    if (!current.sha) {
-      throw Object.assign(new Error('Post not found'), { statusCode: 404 });
+    const url = new URL(req.url, 'http://localhost');
+    const slug = validateSlug(body.slug || url.searchParams.get('slug'));
+
+    const contentPath = `${CONTENT_ROOT}/${slug}.md`;
+    const standalonePath = `${STANDALONE_ROOT}/${slug}.html`;
+
+    const result = {
+      slug,
+      deletedContent: false,
+      removedFromManifest: false,
+      deletedStandalone: false,
+    };
+
+    // Remove markdown content if it exists
+    const current = await fetchFileFromGithub(contentPath, token, { allow404: true });
+    if (current.sha) {
+      await deleteFileFromGithub(contentPath, token, current.sha, `delete blog post: ${slug}`);
+      result.deletedContent = true;
     }
-    await deleteFileFromGithub(path, token, current.sha, `delete blog post: ${slug}`);
-    sendJson(res, 200, { slug, deleted: true, path });
+
+    // Remove manifest entry if present
+    const manifest = await fetchFileFromGithub(MANIFEST_PATH, token, { allow404: true });
+    if (manifest.data) {
+      try {
+        const parsed = JSON.parse(manifest.data);
+        const posts = Array.isArray(parsed.posts) ? parsed.posts : Array.isArray(parsed) ? parsed : [];
+        const filtered = posts.filter((post) => (post.slug || '').toLowerCase() !== slug.toLowerCase());
+        if (filtered.length !== posts.length) {
+          const updatedManifest = Array.isArray(parsed)
+            ? filtered
+            : { ...parsed, posts: filtered };
+          const serialized = `${JSON.stringify(updatedManifest, null, 2)}\n`;
+          await writeFileToGithub(
+            MANIFEST_PATH,
+            serialized,
+            token,
+            manifest.sha || undefined,
+            `remove blog manifest entry: ${slug}`,
+          );
+          result.removedFromManifest = true;
+        }
+      } catch (error) {
+        console.warn('Manifest parse failed during delete', error);
+      }
+    }
+
+    // Remove standalone HTML if it exists
+    const standalone = await fetchFileFromGithub(standalonePath, token, { allow404: true });
+    if (standalone.sha) {
+      await deleteFileFromGithub(standalonePath, token, standalone.sha, `delete standalone blog page: ${slug}`);
+      result.deletedStandalone = true;
+    }
+
+    if (!result.deletedContent && !result.removedFromManifest && !result.deletedStandalone) {
+      const err = new Error('No matching blog content, manifest entry, or standalone page found');
+      err.statusCode = 404;
+      throw err;
+    }
+
+    sendJson(res, 200, { ...result, path: contentPath });
   } catch (error) {
     console.error('Blog delete failed', error);
     const status = error.statusCode || 500;

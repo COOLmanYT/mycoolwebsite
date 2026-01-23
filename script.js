@@ -1,4 +1,4 @@
-const ver = "Version 1.0.27-test";
+const ver = "Version 1.0.5";
 const COMMENTS_API_URL = '/api/comments';
 const COMMENTS_STORAGE_KEY = 'coolman-comments';
 const DEFAULT_SITE_SETTINGS = {
@@ -17,6 +17,7 @@ const ANALYTICS_MODULE_URL = 'https://v.vercel-scripts.com/v1/script.js';
 const VERCEL_ANALYTICS_MODULE_ESM = 'https://unpkg.com/@vercel/analytics@latest/dist/analytics.mjs';
 const MAILERLITE_ACCOUNT_ID = '2039610';
 let mailerLiteQueued = false;
+let slowConnectionDetected = false;
 const blogViewerState = {
 	container: null,
 	closeButton: null,
@@ -33,6 +34,62 @@ const blogViewerState = {
 	currentComments: [],
 	shareFeedbackTimer: null,
 };
+
+function detectVerySlowConnection() {
+	const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+	if (!connection) {
+		return false;
+	}
+	const effectiveType = (connection.effectiveType || '').toLowerCase();
+	const downlink = Number(connection.downlink || 0);
+	const rtt = Number(connection.rtt || 0);
+	return (
+		effectiveType === 'slow-2g' ||
+		effectiveType === '2g' ||
+		effectiveType === '3g' ||
+		downlink > 0 && downlink < 1 ||
+		rtt > 800
+	);
+}
+
+function shouldDeferHeavyContent() {
+	return slowConnectionDetected;
+}
+
+function updateSlowConnectionFlag() {
+	slowConnectionDetected = detectVerySlowConnection();
+	return slowConnectionDetected;
+}
+
+function attachHeavyLoadButton(target, loadFn, label = 'Load content') {
+	if (!target || typeof loadFn !== 'function') {
+		return false;
+	}
+	const host = target.querySelector('[data-heavy-opt-in]') || target;
+	let button = host.querySelector('[data-heavy-load]');
+	if (!button) {
+		button = document.createElement('button');
+		button.type = 'button';
+		button.className = 'button button--ghost';
+		button.dataset.heavyLoad = 'true';
+		button.textContent = label;
+		host.appendChild(button);
+	}
+	if (button.dataset.bound === 'true') {
+		return true;
+	}
+	button.dataset.bound = 'true';
+	button.addEventListener('click', async () => {
+		button.disabled = true;
+		button.textContent = 'Loading…';
+		try {
+			await loadFn();
+		} finally {
+			button.remove();
+		}
+	});
+	return true;
+}
 
 let cachedAuthState = null;
 let authStatePromise = null;
@@ -230,6 +287,7 @@ const CHANNEL_ID_CACHE = new Map();
 const THEME_STORAGE_KEY = 'coolman-theme';
 
 document.addEventListener('DOMContentLoaded', async () => {
+	updateSlowConnectionFlag();
 	applyInitialTheme();
 	setupThemeToggle();
 	fadeInPage();
@@ -262,36 +320,57 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 function initLazySections() {
-	const observer = new IntersectionObserver((entries, obs) => {
-		entries.forEach((entry) => {
-			if (!entry.isIntersecting) return;
-			const target = entry.target;
-			if ('lazySpotify' in target.dataset) {
-				mountSpotifyEmbed(target);
-				obs.unobserve(target);
-			}
-			if ('latestVideo' in target.dataset) {
-				initLatestUploadCard();
-				obs.unobserve(target);
-			}
-		});
-	}, { rootMargin: '150px 0px 150px 0px', threshold: 0.1 });
+	const slowConnection = shouldDeferHeavyContent();
+	const observer = slowConnection
+		? null
+		: new IntersectionObserver((entries, obs) => {
+			entries.forEach((entry) => {
+				if (!entry.isIntersecting) return;
+				const target = entry.target;
+				if ('lazySpotify' in target.dataset) {
+					mountSpotifyEmbed(target);
+					obs.unobserve(target);
+				}
+				if ('latestVideo' in target.dataset) {
+					initLatestUploadCard();
+					obs.unobserve(target);
+				}
+			});
+		}, { rootMargin: '150px 0px 150px 0px', threshold: 0.1 });
 
 	const spotifyHost = document.querySelector('[data-lazy-spotify]');
 	if (spotifyHost) {
-		observer.observe(spotifyHost);
 		const button = spotifyHost.querySelector('[data-spotify-load]');
-		if (button) {
+		if (button && !button.dataset.bound) {
 			button.addEventListener('click', () => {
 				mountSpotifyEmbed(spotifyHost);
-				observer.unobserve(spotifyHost);
+				observer?.unobserve?.(spotifyHost);
 			});
+			button.dataset.bound = 'true';
+		}
+
+		if (!slowConnection && observer) {
+			observer.observe(spotifyHost);
 		}
 	}
 
 	const latestVideoSection = document.querySelector('[data-latest-video]');
 	if (latestVideoSection) {
-		observer.observe(latestVideoSection);
+		const loadLatest = () => {
+			initLatestUploadCard();
+			observer?.unobserve?.(latestVideoSection);
+		};
+
+		if (slowConnection) {
+			const title = latestVideoSection.querySelector('[data-video-title]');
+			if (title && !latestVideoSection.dataset.heavyNoticeApplied) {
+				title.textContent = 'Slow connection detected. Tap to load the latest video.';
+				latestVideoSection.dataset.heavyNoticeApplied = 'true';
+			}
+			attachHeavyLoadButton(latestVideoSection.querySelector('.now-playing__actions') || latestVideoSection, loadLatest, 'Load latest video');
+		} else if (observer) {
+			observer.observe(latestVideoSection);
+		}
 	}
 }
 
@@ -322,7 +401,16 @@ function initLazyMailerLite() {
 		return;
 	}
 
+	const slowConnection = shouldDeferHeavyContent();
+
 	const loadMailerLite = () => queueMailerLite();
+
+	if (slowConnection) {
+		embeds.forEach((embed) => {
+			attachHeavyLoadButton(embed.parentElement || embed, loadMailerLite, 'Load newsletter form');
+		});
+		return;
+	}
 
 	if ('IntersectionObserver' in window) {
 		const observer = new IntersectionObserver((entries) => {
@@ -404,6 +492,7 @@ function applyTheme(theme, options = { persist: true }) {
 	const isLight = theme === 'light';
 	body.classList.toggle('theme-light', isLight);
 	body.dataset.theme = theme;
+	updateGiscusTheme(theme);
 
 	updateToggleState(theme);
 
@@ -433,6 +522,31 @@ function updateToggleState(theme) {
 
 	toggle.setAttribute('aria-label', `Switch to ${nextThemeName.toLowerCase()}`);
 	toggle.setAttribute('aria-pressed', isLight ? 'false' : 'true');
+}
+
+function updateGiscusTheme(theme) {
+	const desired = theme === 'light' ? 'light' : 'dark';
+	const frame = document.querySelector('iframe.giscus-frame');
+	const send = (targetFrame) => {
+		try {
+			targetFrame.contentWindow?.postMessage({ giscus: { setConfig: { theme: desired } } }, 'https://giscus.app');
+		} catch (error) {
+			// ignore messaging errors
+		}
+	};
+
+	if (frame) {
+		send(frame);
+		return;
+	}
+
+	window.clearTimeout(updateGiscusTheme._retryTimer);
+	updateGiscusTheme._retryTimer = window.setTimeout(() => {
+		const retryFrame = document.querySelector('iframe.giscus-frame');
+		if (retryFrame) {
+			send(retryFrame);
+		}
+	}, 600);
 }
 
 function getStoredTheme() {

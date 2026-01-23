@@ -10,6 +10,17 @@ const DEFAULT_FETCH_TIMEOUT_MS = 5000;
 const PIPED_FETCH_TIMEOUT_MS = 4500;
 const FEED_FETCH_TIMEOUT_MS = 4500;
 
+function normalizeViewCount(value) {
+	if (typeof value === 'number') {
+		return Number.isFinite(value) && value >= 0 ? Math.floor(value) : null;
+	}
+	if (typeof value === 'string') {
+		const numeric = Number(value.replace(/,/g, '').trim());
+		return Number.isFinite(numeric) && numeric >= 0 ? Math.floor(numeric) : null;
+	}
+	return null;
+}
+
 function extractVideoId(value) {
 	if (!value) return '';
 	const asString = String(value).trim();
@@ -151,7 +162,7 @@ async function fetchLatestVideo(channelId, apiKey) {
 
 		const details = await fetchVideoDetails(videoId, apiKey);
 		const durationSeconds = details?.durationSeconds ?? null;
-		const viewCount = details?.viewCount ?? null;
+		const viewCount = normalizeViewCount(details?.viewCount);
 		const thumbnail = pickBestThumbnail(snippet?.thumbnails) || details?.thumbnail || null;
 
 		return {
@@ -205,7 +216,7 @@ async function fetchLatestFromPiped(identifier) {
 						thumbnail,
 						publishedAt,
 						url: videoId ? `https://www.youtube.com/watch?v=${videoId}` : null,
-						viewCount: entry.views ?? entry.viewCount ?? null,
+						viewCount: normalizeViewCount(entry.views ?? entry.viewCount),
 						durationSeconds: entry.duration ?? entry.lengthSeconds ?? null,
 					};
 				})
@@ -234,6 +245,13 @@ async function getLatestVideo({ channelId, handle, apiKey }) {
 	if (apiEnabled) {
 		const viaApi = await fetchLatestVideo(channelId, apiKey);
 		if (viaApi) {
+			if (viaApi.viewCount == null) {
+				const pipedSupplement = await fetchLatestFromPiped(channelId);
+				if (pipedSupplement && pipedSupplement.videoId === viaApi.videoId) {
+					viaApi.viewCount = normalizeViewCount(pipedSupplement.viewCount);
+					viaApi.thumbnail = viaApi.thumbnail || pipedSupplement.thumbnail || null;
+				}
+			}
 			return viaApi;
 		}
 	}
