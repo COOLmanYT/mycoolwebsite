@@ -212,6 +212,7 @@ img {
   gap: 0.75rem;
   color: var(--banner-text);
   box-shadow: var(--shadow-soft);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   font-size: 0.96rem;
 }
@@ -331,6 +332,7 @@ body.banner-disabled .top-banner {
   --nav-shadow: 0 18px 38px rgba(7, 10, 28, 0.45);
   box-shadow: none;
   filter: drop-shadow(var(--nav-shadow));
+  -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
   isolation: isolate;
   overflow: hidden;
@@ -717,6 +719,7 @@ button:focus-visible {
   opacity: 0;
   pointer-events: none;
   box-shadow: 0 8px 20px rgba(5, 8, 20, 0.5);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   transition: opacity 0.2s ease, transform 0.2s ease;
   z-index: 100;
@@ -2646,6 +2649,7 @@ body:not(.theme-light) .contact-auth-badge {
   position: absolute;
   inset: 0;
   background: rgba(7, 11, 24, 0.72);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
 
@@ -3126,6 +3130,7 @@ body.modal-open {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 1rem;
   padding: 1.25rem;
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
 
