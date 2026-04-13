@@ -3482,3 +3482,140 @@ body.modal-open {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+/* ── Simple Mode toggle (legal pages) ─────────────────────── */
+.legal-mode-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding: 0.6rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--outline);
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.legal-mode-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.legal-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  transform: none;
+}
+
+.legal-mode-toggle:hover,
+.legal-mode-toggle:focus-visible {
+  background: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.legal-mode-toggle:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.75);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.legal-mode-toggle-track {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  background: var(--accent);
+  border-radius: 11px;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.legal-mode-toggle--off .legal-mode-toggle-track {
+  background: var(--outline);
+}
+
+.legal-mode-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.legal-mode-toggle--off .legal-mode-toggle-thumb {
+  transform: translateX(18px);
+}
+
+.legal-mode-toggle-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  min-width: 2ch;
+}
+
+.legal-mode-badge {
+  display: inline-block;
+  font-size: 0.65em;
+  font-weight: 600;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.1em 0.5em;
+  border-radius: 4px;
+  vertical-align: middle;
+  margin-left: 0.4em;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* ── People First Design page ─────────────────────────────── */
+.pfd-page .pfd-hero {
+  text-align: center;
+  padding: clamp(2rem, 6vw, 4rem) 0 clamp(1rem, 3vw, 2rem);
+}
+
+.pfd-page .pfd-hero h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  margin-bottom: 0.5rem;
+}
+
+.pfd-page .pfd-hero p {
+  color: var(--text-secondary);
+  max-width: 60ch;
+  margin: 0 auto;
+}
+
+.pfd-card {
+  background: var(--surface);
+  border: 1px solid var(--outline);
+  border-radius: 12px;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  margin-bottom: 1.5rem;
+}
+
+.pfd-card h2 {
+  margin-top: 0;
+}
+
+.pfd-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.pfd-creator-note {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  border-left: 3px solid var(--accent);
+  padding-left: 0.75rem;
+  margin-top: 1rem;
+}
