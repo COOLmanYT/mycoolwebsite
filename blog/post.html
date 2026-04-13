@@ -209,7 +209,7 @@
         dateEl.textContent = dateStr;
         dateEl.setAttribute('datetime', post.created_at);
 
-        // Warnings rendered ABOVE content
+        // Warnings rendered above content
         if (Array.isArray(post.warnings) && post.warnings.length > 0) {
           warningsEl.innerHTML = post.warnings
             .map((w) => `<div class="sb-warning" role="note">⚠️ <span>${escapeHtml(w)}</span></div>`)
