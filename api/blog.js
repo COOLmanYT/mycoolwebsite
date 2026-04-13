@@ -5,10 +5,11 @@ import { renderMarkdown } from '../lib/server/markdown.js';
 export const config = { runtime: 'nodejs' };
 
 /**
- * Consolidated public blog handler — dispatches based on URL path:
+ * Consolidated public content handler — dispatches based on URL path:
  *
- *   GET /api/supabase-blog/posts  → list all published posts
- *   GET /api/supabase-blog/post   → single published post by slug (rendered HTML)
+ *   GET /api/supabase-blog/posts      → list all published blog posts
+ *   GET /api/supabase-blog/post       → single published post by slug (rendered HTML)
+ *   GET /api/projects/list            → list all projects
  */
 export default async function handler(req, res) {
   const url = new URL(req.url, 'http://localhost');
@@ -19,6 +20,9 @@ export default async function handler(req, res) {
   }
   if (pathname.endsWith('/post')) {
     return handlePost(req, res, url);
+  }
+  if (pathname.endsWith('/list') || pathname.includes('/projects')) {
+    return handleProjectsList(req, res);
   }
 
   res.statusCode = 404;
@@ -98,6 +102,35 @@ async function handlePost(req, res, url) {
     });
   } catch (err) {
     console.error('Unexpected error in handlePost', err);
+    sendJson(res, 500, { error: 'Internal server error' });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// GET /api/projects/list
+// ---------------------------------------------------------------------------
+
+async function handleProjectsList(req, res) {
+  if (req.method !== 'GET') {
+    return methodNotAllowed(res, ['GET']);
+  }
+
+  try {
+    const supabase = getSupabasePublic();
+    const { data, error } = await supabase
+      .from('projects')
+      .select('id, title, description, url, repo_url, status, tags, featured, created_at, updated_at')
+      .order('featured', { ascending: false })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error fetching projects', error);
+      return sendJson(res, 500, { error: 'Failed to fetch projects' });
+    }
+
+    sendJson(res, 200, { projects: data ?? [] });
+  } catch (err) {
+    console.error('Unexpected error in handleProjectsList', err);
     sendJson(res, 500, { error: 'Internal server error' });
   }
 }

@@ -5,6 +5,7 @@
     { "source": "/api/auth/:path*", "destination": "/api/auth" },
     { "source": "/api/admin/:path*", "destination": "/api/admin" },
     { "source": "/api/supabase-blog/:path*", "destination": "/api/blog" },
+    { "source": "/api/projects/:path*", "destination": "/api/blog" },
     { "source": "/api/youtube/latest", "destination": "/api/youtube" },
     { "source": "/api/youtube/latest/:path*", "destination": "/api/youtube" }
   ]

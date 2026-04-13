@@ -894,17 +894,17 @@ async function handleWebhooksUpdate(req, res, token) {
 }
 
 // ===========================================================================
-// PROJECTS  (/api/admin/projects)
+// PROJECTS  (/api/admin/projects)  — Supabase backed
 // ===========================================================================
-
-const PROJECTS_CONFIG_PATH = 'content/projects.json';
 
 function sanitizeProject(input) {
   const p = {};
   if (typeof input.title === 'string') p.title = input.title.trim();
   if (typeof input.description === 'string') p.description = input.description.trim();
   if (typeof input.url === 'string') p.url = input.url.trim();
-  if (typeof input.repoUrl === 'string') p.repoUrl = input.repoUrl.trim();
+  if (typeof input.repo_url === 'string') p.repo_url = input.repo_url.trim();
+  // Support legacy camelCase field from admin form
+  if (typeof input.repoUrl === 'string' && !input.repo_url) p.repo_url = input.repoUrl.trim();
   if (typeof input.status === 'string') p.status = input.status.trim();
   if (typeof input.featured === 'boolean') p.featured = input.featured;
   if (Array.isArray(input.tags)) {
@@ -913,111 +913,110 @@ function sanitizeProject(input) {
   return p;
 }
 
-function defaultProjectsConfig() {
-  return { projects: [] };
-}
-
 async function routeProjects(req, res) {
   const auth = await requireAllowlistedSession(req, res);
   if (!auth) return;
 
-  const token = process.env.ALLOWLIST_GITHUB_TOKEN;
-
   switch (req.method) {
     case 'GET':
-      return handleProjectsGet(res, token);
+      return handleProjectsGet(res);
     case 'POST':
-      return handleProjectsCreate(req, res, token);
+      return handleProjectsCreate(req, res);
     case 'PUT':
-      return handleProjectsUpdate(req, res, token);
+      return handleProjectsUpdate(req, res);
     case 'DELETE':
-      return handleProjectsDelete(req, res, token);
+      return handleProjectsDelete(req, res);
     default:
       return methodNotAllowed(res, ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
   }
 }
 
-async function handleProjectsGet(res, token) {
+async function handleProjectsGet(res) {
   try {
-    const payload = await fetchFileFromGithub(PROJECTS_CONFIG_PATH, token, { allow404: true, parseJson: true });
-    const data = { ...defaultProjectsConfig(), ...(payload.data || {}) };
-    sendJson(res, 200, { projects: data.projects ?? [], source: payload.source || 'file' });
-  } catch (error) {
-    console.error('Projects fetch failed', error);
+    // getSupabaseAdmin is already imported at the top of this module
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from('projects')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error('Supabase error fetching projects', error);
+      return sendJson(res, 500, { error: 'Failed to fetch projects.' });
+    }
+    sendJson(res, 200, { projects: data ?? [] });
+  } catch (err) {
+    console.error('Projects GET failed', err);
     sendJson(res, 500, { error: 'Failed to load projects.' });
   }
 }
 
-async function handleProjectsCreate(req, res, token) {
-  if (!token) {
-    return sendJson(res, 501, { error: 'Editing not configured. Set ALLOWLIST_GITHUB_TOKEN.' });
-  }
+async function handleProjectsCreate(req, res) {
   try {
     const body = await readJsonBody(req);
     if (!body.title || !String(body.title).trim()) {
       return sendJson(res, 400, { error: 'title is required' });
     }
     const project = sanitizeProject(body);
-    project.id = generateProjectId();
-    project.createdAt = new Date().toISOString();
-
-    const current = await fetchFileFromGithub(PROJECTS_CONFIG_PATH, token, { allow404: true, parseJson: true });
-    const existing = Array.isArray(current.data?.projects) ? current.data.projects : [];
-    const next = { ...defaultProjectsConfig(), ...current.data, projects: [...existing, project] };
-    const updated = await writeFileToGithub(PROJECTS_CONFIG_PATH, next, token, current.sha, `add project: ${project.title}`);
-    sendJson(res, 201, { project, source: updated.source });
-  } catch (error) {
-    const status = error.statusCode || 500;
-    sendJson(res, status, { error: error.message || 'Failed to create project.' });
+    // getSupabaseAdmin is already imported at the top of this module
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from('projects')
+      .insert(project)
+      .select()
+      .single();
+    if (error) {
+      console.error('Supabase error creating project', error);
+      return sendJson(res, 500, { error: error.message || 'Failed to create project.' });
+    }
+    sendJson(res, 201, { project: data });
+  } catch (err) {
+    console.error('Projects POST failed', err);
+    sendJson(res, 500, { error: err.message || 'Failed to create project.' });
   }
 }
 
-async function handleProjectsUpdate(req, res, token) {
-  if (!token) {
-    return sendJson(res, 501, { error: 'Editing not configured. Set ALLOWLIST_GITHUB_TOKEN.' });
-  }
+async function handleProjectsUpdate(req, res) {
   try {
     const body = await readJsonBody(req);
     if (!body.id) return sendJson(res, 400, { error: 'id is required' });
-
-    const current = await fetchFileFromGithub(PROJECTS_CONFIG_PATH, token, { allow404: true, parseJson: true });
-    const existing = Array.isArray(current.data?.projects) ? current.data.projects : [];
-    const idx = existing.findIndex((p) => p.id === body.id);
-    if (idx === -1) return sendJson(res, 404, { error: 'Project not found.' });
-
-    const merged = { ...existing[idx], ...sanitizeProject(body), id: body.id };
-    const projects = [...existing.slice(0, idx), merged, ...existing.slice(idx + 1)];
-    const next = { ...defaultProjectsConfig(), ...current.data, projects };
-    const updated = await writeFileToGithub(PROJECTS_CONFIG_PATH, next, token, current.sha, `update project: ${merged.title}`);
-    sendJson(res, 200, { project: merged, source: updated.source });
-  } catch (error) {
-    const status = error.statusCode || 500;
-    sendJson(res, status, { error: error.message || 'Failed to update project.' });
+    const updates = sanitizeProject(body);
+    // getSupabaseAdmin is already imported at the top of this module
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from('projects')
+      .update(updates)
+      .eq('id', body.id)
+      .select()
+      .single();
+    if (error) {
+      console.error('Supabase error updating project', error);
+      return sendJson(res, error.code === 'PGRST116' ? 404 : 500, { error: error.message || 'Failed to update project.' });
+    }
+    sendJson(res, 200, { project: data });
+  } catch (err) {
+    console.error('Projects PUT failed', err);
+    sendJson(res, 500, { error: err.message || 'Failed to update project.' });
   }
 }
 
-async function handleProjectsDelete(req, res, token) {
-  if (!token) {
-    return sendJson(res, 501, { error: 'Editing not configured. Set ALLOWLIST_GITHUB_TOKEN.' });
-  }
+async function handleProjectsDelete(req, res) {
   try {
     const body = await readJsonBody(req);
     if (!body.id) return sendJson(res, 400, { error: 'id is required' });
-
-    const current = await fetchFileFromGithub(PROJECTS_CONFIG_PATH, token, { allow404: true, parseJson: true });
-    const existing = Array.isArray(current.data?.projects) ? current.data.projects : [];
-    const filtered = existing.filter((p) => p.id !== body.id);
-    if (filtered.length === existing.length) return sendJson(res, 404, { error: 'Project not found.' });
-
-    const next = { ...defaultProjectsConfig(), ...current.data, projects: filtered };
-    const updated = await writeFileToGithub(PROJECTS_CONFIG_PATH, next, token, current.sha, `delete project: ${body.id}`);
-    sendJson(res, 200, { deleted: true, id: body.id, source: updated.source });
-  } catch (error) {
-    const status = error.statusCode || 500;
-    sendJson(res, status, { error: error.message || 'Failed to delete project.' });
+    // getSupabaseAdmin is already imported at the top of this module
+    const supabase = getSupabaseAdmin();
+    const { error, count } = await supabase
+      .from('projects')
+      .delete({ count: 'exact' })
+      .eq('id', body.id);
+    if (error) {
+      console.error('Supabase error deleting project', error);
+      return sendJson(res, 500, { error: error.message || 'Failed to delete project.' });
+    }
+    if (count === 0) return sendJson(res, 404, { error: 'Project not found.' });
+    sendJson(res, 200, { deleted: true, id: body.id });
+  } catch (err) {
+    console.error('Projects DELETE failed', err);
+    sendJson(res, 500, { error: err.message || 'Failed to delete project.' });
   }
-}
-
-function generateProjectId() {
-  return `proj_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 }

@@ -29,7 +29,7 @@
 </head>
 <body class="admin-page">
   <a class="skip-link" href="#mainContent">Skip to main content</a>
-  <div class="top-banner">
+  <div class="top-banner" hidden aria-hidden="true">
     <span>🎉 Website Release!</span>
     <a class="banner-button" href="https://github.com/COOLmanYT/mycoolwebsite" target="_blank" rel="noopener noreferrer">Open Source GitHub Repository</a>
     <a class="banner-button" href="/#release-countdown" data-release-link hidden aria-hidden="true" tabindex="-1">View Countdown</a>
@@ -658,7 +658,7 @@ Body here." data-blog-editor-content></textarea>
           </div>
           <div class="admin-form__field">
             <label for="pmRepoUrl">Repository URL</label>
-            <input type="url" id="pmRepoUrl" name="repoUrl" placeholder="https://github.com/COOLmanYT/...">
+            <input type="url" id="pmRepoUrl" name="repo_url" placeholder="https://github.com/COOLmanYT/...">
           </div>
           <div class="admin-form__field">
             <label for="pmStatus">Status</label>
@@ -685,7 +685,7 @@ Body here." data-blog-editor-content></textarea>
   <footer class="site-footer" role="contentinfo">
     <span>Made with ♥️ by <strong>COOLmanYT</strong></span>
     <span>Website <a data-site-version-link href="https://github.com/COOLmanYT/mycoolwebsite">Version <span data-site-version-number></span><span data-site-version-type></span></a></span>
-    <span>Credits to <a href="https://zinheere.vercel.app">Zinheere</a></span>
+    <span>Credits to <a href="https://zinheere.dev">Zinheere</a></span>
     <span><a href="/privacy">Privacy Policy</a> • <a href="/terms">Terms of Service</a></span>
   </footer>
 
@@ -2201,7 +2201,7 @@ Body here." data-blog-editor-content></textarea>
       pmTitle.value = project.title || '';
       pmDescription.value = project.description || '';
       pmUrl.value = project.url || '';
-      pmRepoUrl.value = project.repoUrl || '';
+      pmRepoUrl.value = project.repo_url || '';
       pmStatusInput.value = project.status || '';
       pmTags.value = Array.isArray(project.tags) ? project.tags.join(', ') : '';
       pmFeatured.checked = Boolean(project.featured);
@@ -2235,7 +2235,7 @@ Body here." data-blog-editor-content></textarea>
         title: pmTitle.value.trim(),
         description: pmDescription.value.trim(),
         url: pmUrl.value.trim(),
-        repoUrl: pmRepoUrl.value.trim(),
+        repo_url: pmRepoUrl.value.trim(),
         status: pmStatusInput.value.trim(),
         tags: tags.length ? tags : [],
         featured: pmFeatured.checked,
