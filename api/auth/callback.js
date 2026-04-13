@@ -42,7 +42,7 @@ export default async function handler(req, res) {
     const sessionCookie = buildSessionCookie(profile);
     res.setHeader('Set-Cookie', [clearStateCookie(), sessionCookie]);
     res.statusCode = 302;
-    res.setHeader('Location', '/admin.html');
+    res.setHeader('Location', '/admin');
     res.end();
   } catch (error) {
     console.error('OAuth callback failed', error);
