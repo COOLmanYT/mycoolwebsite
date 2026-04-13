@@ -12,17 +12,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="style.css">
-  <link rel="canonical" href="https://coolmanyt.com/admin.html">
+  <link rel="canonical" href="https://coolmanyt.com/admin">
   <title>Admin Panel - COOLmanYT</title>
 
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://coolmanyt.com/admin.html">
+  <meta property="og:url" content="https://coolmanyt.com/admin">
   <meta property="og:title" content="COOLmanYT Admin Panel">
   <meta property="og:description" content="Generate markdown front matter, inspect blog stats, and keep content workflows moving.">
   <meta property="og:image" content="https://coolmanyt.com/images/avatar.png">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:url" content="https://coolmanyt.com/admin.html">
+  <meta name="twitter:url" content="https://coolmanyt.com/admin">
   <meta name="twitter:title" content="COOLmanYT Admin Panel">
   <meta name="twitter:description" content="Generate markdown front matter, inspect blog stats, and keep content workflows moving.">
   <meta name="twitter:image" content="https://coolmanyt.com/images/avatar.png">
@@ -32,18 +32,18 @@
   <div class="top-banner">
     <span>🎉 Website Release!</span>
     <a class="banner-button" href="https://github.com/COOLmanYT/mycoolwebsite" target="_blank" rel="noopener noreferrer">Open Source GitHub Repository</a>
-    <a class="banner-button" href="index.html#release-countdown" data-release-link hidden aria-hidden="true" tabindex="-1">View Countdown</a>
+    <a class="banner-button" href="/#release-countdown" data-release-link hidden aria-hidden="true" tabindex="-1">View Countdown</a>
   </div>
 
   <header class="site-header" role="banner">
     <div class="header-bar">
       <div class="nav-wrapper">
         <nav class="nav-links" aria-label="Primary">
-          <a href="index.html" class="nav-pill">Home</a>
-          <a href="about.html" class="nav-pill">About</a>
-          <a href="projects.html" class="nav-pill">Projects</a>
-          <a href="contact.html" class="nav-pill">Contact</a>
-          <a href="blog/index.html" class="nav-pill">Blog</a>
+          <a href="/" class="nav-pill">Home</a>
+          <a href="/about" class="nav-pill">About</a>
+          <a href="/projects" class="nav-pill">Projects</a>
+          <a href="/contact" class="nav-pill">Contact</a>
+          <a href="/blog" class="nav-pill">Blog</a>
         </nav>
       </div>
       <span class="site-logo">COOLmanYT</span>
@@ -109,7 +109,7 @@
         <p>Draft markdown front matter, review manifest stats, and keep the blog pipeline unblocked without touching half a dozen files manually.</p>
       </div>
       <div class="admin-hero__actions">
-        <a href="blog/index.html" class="button">Open Blog</a>
+        <a href="/blog" class="button">Open Blog</a>
         <button type="button" class="button button--ghost" data-copy-build>Copy build command</button>
         <div class="admin-auth-meta" data-auth-meta hidden>
           <img src="images/avatar.png" alt="Signed-in avatar" data-auth-avatar>
@@ -359,7 +359,7 @@ document.getElementById("envCheck").textContent =
         </div>
         <div class="admin-form__field">
           <label for="shareBase">Share Base URL</label>
-          <input type="text" id="shareBase" name="shareBase" value="blog/index.html">
+          <input type="text" id="shareBase" name="shareBase" value="/blog">
         </div>
         <p class="admin-help-text">Store media under <code>images/blog/</code> or paste a full URL.</p>
         <div class="admin-form__field">
@@ -560,7 +560,7 @@ Body here." data-blog-editor-content></textarea>
     <span>Made with ♥️ by <strong>COOLmanYT</strong></span>
     <span>Website <a data-site-version-link href="https://github.com/COOLmanYT/mycoolwebsite">Version <span data-site-version-number></span><span data-site-version-type></span></a></span>
     <span>Credits to <a href="https://zinheere.vercel.app">Zinheere</a></span>
-    <span><a href="/privacy.html">Privacy Policy</a> • <a href="/terms.html">Terms of Service</a></span>
+    <span><a href="/privacy">Privacy Policy</a> • <a href="/terms">Terms of Service</a></span>
   </footer>
 
   <script src="script.js"></script>
@@ -777,7 +777,6 @@ Body here." data-blog-editor-content></textarea>
     loadManifest();
     initAuthFlow();
     initBlogEditor();
-    initWebhookManager();
 
     async function loadManifest() {
       manifestStatus.textContent = 'Loading…';
@@ -1081,6 +1080,7 @@ Body here." data-blog-editor-content></textarea>
       initAllowlistControls(payload);
       initDistributionCard(payload.distribution);
       initSiteSettings();
+      initWebhookManager();
     }
 
     async function handleLogout(event) {
