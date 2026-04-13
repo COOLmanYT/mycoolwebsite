@@ -1,325 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Read COOLmanYT's latest devlogs, content creation notes, and learning recaps.">
-    <link rel="icon" type="image/png" href="/images/avatar.png" />
-    <link rel="icon" href="/images/favicon.ico">
-    <link rel="apple-touch-icon" href="/images/avatar.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="../style.css">
-    <link rel="canonical" href="https://coolmanyt.com/blog/">
-    <link rel="alternate" type="application/rss+xml" title="COOLmanYT Blog" href="feed.xml">
-    <title>Blog - COOLmanYT</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Read COOLmanYT's latest devlogs, content creation notes, and learning recaps.">
+  <meta name="author" content="COOLmanYT">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" type="image/png" href="/images/avatar.png">
+  <link rel="icon" href="/images/favicon.ico">
+  <link rel="apple-touch-icon" href="/images/avatar.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="canonical" href="https://coolmanyt.com/blog">
+  <link rel="alternate" type="application/rss+xml" title="COOLmanYT Blog" href="/blog/feed.xml">
+  <title>Blog — COOLmanYT</title>
 
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://coolmanyt.com/blog/">
-    <meta property="og:title" content="COOLmanYT Blog">
-    <meta property="og:description" content="Devlogs, tutorials, and creator updates from COOLmanYT.">
-    <meta property="og:image" content="https://coolmanyt.com/images/avatar.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://coolmanyt.com/blog">
+  <meta property="og:title" content="COOLmanYT Blog">
+  <meta property="og:description" content="Devlogs, tutorials, and creator updates from COOLmanYT.">
+  <meta property="og:image" content="https://coolmanyt.com/images/avatar.png">
 
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:url" content="https://coolmanyt.com/blog/">
-    <meta name="twitter:title" content="COOLmanYT Blog">
-    <meta name="twitter:description" content="Devlogs, tutorials, and creator updates from COOLmanYT.">
-    <meta name="twitter:image" content="https://coolmanyt.com/images/avatar.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="https://coolmanyt.com/blog">
+  <meta name="twitter:title" content="COOLmanYT Blog">
+  <meta name="twitter:description" content="Devlogs, tutorials, and creator updates from COOLmanYT.">
+  <meta name="twitter:image" content="https://coolmanyt.com/images/avatar.png">
 
-
+  <style>
+    .sb-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; list-style: none; padding: 0; margin: 2rem 0; }
+    .sb-card { background: var(--card-bg, #1a1a2e); border: 1px solid var(--border, #2a2a3e); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .sb-card h2 { margin: 0; font-size: 1.2rem; }
+    .sb-card a { color: inherit; text-decoration: none; }
+    .sb-card a:hover h2 { text-decoration: underline; }
+    .sb-card time { font-size: 0.85rem; opacity: 0.7; }
+    .sb-warning-badge { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.35); border-radius: 6px; padding: 0.2rem 0.5rem; }
+    .sb-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .sb-empty { text-align: center; padding: 3rem; opacity: 0.6; }
+    .sb-loading { text-align: center; padding: 3rem; }
+    .sb-error { color: var(--error, #f87171); padding: 1rem; border: 1px solid currentColor; border-radius: 8px; }
+  </style>
 </head>
 <body class="blog-page">
-    <a class="skip-link" href="#mainContent">Skip to main content</a>
-    <div class="top-banner">
-        <span>🎉 Website Release!</span>
-        <a class="banner-button" href="https://github.com/COOLmanYT/mycoolwebsite" target="_blank" rel="noopener noreferrer">Open Source GitHub Repository</a>
-        <a class="banner-button" href="/#release-countdown" data-release-link hidden>View Countdown</a>
+  <a class="skip-link" href="#mainContent">Skip to main content</a>
+  <div class="top-banner">
+    <span>🎉 Website Release!</span>
+    <a class="banner-button" href="https://github.com/COOLmanYT/mycoolwebsite" target="_blank" rel="noopener noreferrer">Open Source GitHub Repository</a>
+    <a class="banner-button" href="/#release-countdown" data-release-link hidden>View Countdown</a>
+  </div>
+
+  <header class="site-header" role="banner">
+    <div class="header-bar">
+      <div class="nav-wrapper">
+        <nav class="nav-links" aria-label="Primary">
+          <a href="/" class="nav-pill">Home</a>
+          <a href="/about" class="nav-pill">About</a>
+          <a href="/projects" class="nav-pill">Projects</a>
+          <a href="/contact" class="nav-pill">Contact</a>
+          <a href="/blog" class="nav-pill active">Blog</a>
+        </nav>
+      </div>
+      <span class="site-logo">COOLmanYT</span>
+      <button type="button" class="theme-toggle" aria-label="Switch to light mode" aria-pressed="true">
+        <span class="toggle-icon">🌙</span>
+        <span class="toggle-text">Light mode</span>
+      </button>
     </div>
+    <div class="social-links">
+      <a href="https://github.com/COOLmanYT" target="_blank" rel="noopener noreferrer" class="social-button" data-label="GitHub">
+        <img src="../images/github.png" alt="GitHub" width="64" height="64" loading="eager">
+        <span class="social-label">GitHub</span>
+      </a>
+      <a href="https://www.youtube.com/@COOLmanGamer" target="_blank" rel="noopener noreferrer" class="social-button" data-label="YouTube">
+        <img src="../images/youtube.png" alt="YouTube" width="64" height="64" loading="eager">
+        <span class="social-label">YouTube</span>
+      </a>
+      <a href="https://discord.gg/SzHksR3QFj" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Discord">
+        <img src="../images/discord.png" alt="Discord" width="64" height="64" loading="eager">
+        <span class="social-label">Discord</span>
+      </a>
+      <a href="https://www.roblox.com/users/2873599962/profile" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Roblox">
+        <img src="../images/roblox2.png" alt="Roblox" width="64" height="64" loading="eager">
+        <span class="social-label">Roblox</span>
+      </a>
+      <a href="https://open.spotify.com/user/31px5awkcyikvgrfiiqkxem6oxni?si=fd36097626ff454f" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Spotify">
+        <img src="../images/spotify.png" alt="Spotify" width="64" height="64" loading="eager">
+        <span class="social-label">Spotify</span>
+      </a>
+      <a href="https://www.reddit.com/user/COOLman_YT/" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Reddit">
+        <img src="../images/reddit.png" alt="Reddit" width="64" height="64" loading="eager">
+        <span class="social-label">Reddit</span>
+      </a>
+      <a href="https://steamcommunity.com/id/coolmanyt1" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Steam">
+        <img src="../images/steam.png" alt="Steam" width="64" height="64" loading="eager">
+        <span class="social-label">Steam</span>
+      </a>
+    </div>
+  </header>
 
-    <header class="site-header" role="banner">
-        <div class="header-bar">
-            <div class="nav-wrapper">
-                <nav class="nav-links" aria-label="Primary">
-                    <a href="/" class="nav-pill">Home</a>
-                    <a href="/about" class="nav-pill">About</a>
-                    <a href="/projects" class="nav-pill">Projects</a>
-                    <a href="/contact" class="nav-pill">Contact</a>
-                    <a href="/blog" class="nav-pill active">Blog</a>
-                    <a href="/people-first-design" class="nav-pill">People First Design</a>
-                </nav>
-            </div>
-            <span class="site-logo">COOLmanYT</span>
-            <button type="button" class="theme-toggle" aria-label="Switch to light mode" aria-pressed="true">
-                <span class="toggle-icon">🌙</span>
-                <span class="toggle-text">Light mode</span>
-            </button>
-        </div>
-        <div class="social-links">
-            <a href="https://github.com/COOLmanYT" target="_blank" rel="noopener noreferrer" class="social-button" data-label="GitHub">
-                <img src="../images/github.png" alt="GitHub" width="64" height="64" loading="eager">
-                <span class="social-label">GitHub</span>
-            </a>
-            <a href="https://www.youtube.com/@COOLmanGamer" target="_blank" rel="noopener noreferrer" class="social-button" data-label="YouTube">
-                <img src="../images/youtube.png" alt="YouTube" width="64" height="64" loading="eager">
-                <span class="social-label">YouTube</span>
-            </a>
-            <a href="https://discord.gg/SzHksR3QFj" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Discord">
-                <img src="../images/discord.png" alt="Discord" width="64" height="64" loading="eager">
-                <span class="social-label">Discord</span>
-            </a>
-            <a href="https://www.roblox.com/users/2873599962/profile" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Roblox">
-                <img src="../images/roblox2.png" alt="Roblox" width="64" height="64" loading="eager">
-                <span class="social-label">Roblox</span>
-            </a>
-            <a href="https://open.spotify.com/user/31px5awkcyikvgrfiiqkxem6oxni?si=fd36097626ff454f" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Spotify">
-                <img src="../images/spotify.png" alt="Spotify" width="64" height="64" loading="eager">
-                <span class="social-label">Spotify</span>
-            </a>
-            <a href="https://www.reddit.com/user/COOLman_YT/" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Reddit">
-                <img src="../images/reddit.png" alt="Reddit" width="64" height="64" loading="eager">
-                <span class="social-label">Reddit</span>
-            </a>
-            <a href="https://steamcommunity.com/id/coolmanyt1" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Steam">
-                <img src="../images/steam.png" alt="Steam" width="64" height="64" loading="eager">
-                <span class="social-label">Steam</span>
-            </a>
-        </div>
-    </header>
-
-    <main id="mainContent" role="main">
-        <section class="blog-hero">
-            <h1>Blog</h1>
-            <p>Dive into weekly breakdowns of what I am building, testing, and learning across Roblox, content creation, and code.</p>
-            <div class="blog-hero-actions">
-                <a href="/projects" class="button">See Current Projects</a>
-                <a href="/contact" class="button">Request a Topic</a>
-                <a href="feed.xml" class="button button--ghost" target="_blank" rel="noopener">Subscribe via RSS</a>
-            </div>
-        </section>
-
-        <section class="blog-featured">
-            <!-- BLOG_FEATURED_START -->
-            <article class="blog-featured-card" data-blog-id="building-my-website-using-gpt5-codex">
-                
-                <div class="blog-meta">
-                    <span class="tag-pill">Featured</span>
-                    <time datetime="2025-12-18T00:00:00.000Z">December 18, 2025</time>
-                </div>
-                <h2>Building my Website using GPT-5 Codex (and some brains)</h2>
-                <p>I created this entire website with a mix of GitHub Copilot, GPT-5 Codex, and my own stubbornness. Here is how the prototypes evolved into the current release.</p>
-<ul>
-                    <li>How I overcame the worst bugs.</li>
-                    <li>The first commit, the setbacks, and the wins.</li>
-                    <li>My road to the official release of the website</li>
-                </ul>
-                <a href="#blogReader" class="button" data-blog-open="building-my-website-using-gpt5-codex">Read the blog! (wow!)</a>
-            </article>
-<!-- BLOG_FEATURED_END -->
-        </section>
-
-        <section class="blog-grid">
-            <!-- BLOG_GRID_START -->
-            <article class="blog-card" data-blog-id="social-media-ban">
-                
-                <div class="blog-meta">
-                    <span class="tag-pill">Reflection</span>
-                    <time datetime="2025-11-08T00:00:00.000Z">Nov 8, 2025</time>
-                </div>
-                <h3>Social Media Ban</h3>
-                <p>I dive deep into why Australia&#39;s proposed social media ban for under-16s is such a catastrophic mistake and how it affects everyone.</p>
-                <a href="#blogReader" data-blog-open="social-media-ban">Continue reading</a>
-            </article>
-            <article class="blog-card" data-blog-id="balancing-school-and-builds">
-                
-                <div class="blog-meta">
-                    <span class="tag-pill">Planning</span>
-                    <time datetime="2025-08-21T00:00:00.000Z">Aug 21, 2025</time>
-                </div>
-                <h3>Balancing School and Builds (COMING SOON)</h3>
-                <p>The Notion template and sprint rhythm I use to stay focused on class while shipping new game content.</p>
-                <a href="#blogReader" data-blog-open="balancing-school-and-builds">Continue reading</a>
-            </article>
-<!-- BLOG_GRID_END -->
-        </section>
-
-        <section class="newsletter" aria-labelledby="newsletterHeading">
-            <div class="newsletter__meta">
-                <span class="tag-pill">Newsletter</span>
-                <span class="tag-pill">Beta Feature</span>
-                <span class="newsletter__tagline">Get new posts and updates straight to your inbox.</span>
-            </div>
-            <h3 id="newsletterHeading">Stay in the loop</h3>
-            <p class="newsletter__copy">Join the list for behind-the-scenes notes, build breakdowns, and early drops. No spam - unsubscribe anytime. <em>This is a beta feature. For more information about beta features, please read the <a href="/terms">Terms of Service</a>.</em></p>
-            <div class="newsletter__embed" role="form">
-                <div class="ml-embedded" data-form="UpU5i7"></div>
-            </div>
-            <p class="newsletter__hint">Powered by MailerLite. By subscribing, you consent to receive emails about new posts and projects.</p>
-        </section>
-    </main>
-
-    <section class="blog-reader" id="blogReader" data-blog-reader hidden>
-        <div class="blog-reader__toolbar">
-            <h2 class="blog-reader__title" data-reader-title>Selected Post</h2>
-            <button type="button" class="blog-reader__close" data-reader-close aria-label="Close blog post">
-                Close
-            </button>
-        </div>
-        <div class="blog-reader__body">
-            <div class="blog-reader__content" data-modal-content></div>
-            <section class="comments-section comments-section--embedded" aria-labelledby="commentsHeading">
-                <div class="comments-section__header">
-                    <h3 id="commentsHeading">Comments</h3>
-                    <p class="comments-status" data-comment-status data-default-message="Powered by Commento">Powered by Commento</p>
-                </div>
-                <div id="commento"></div>
-                <p class="comments-empty" data-comment-empty hidden>No comments yet. Be the first to share your thoughts.</p>
-                <ul class="comment-list" data-comment-list hidden></ul>
-            </section>
-        </div>
+  <main id="mainContent" role="main">
+    <section class="blog-hero">
+      <h1>Blog</h1>
+      <p>Dive into weekly breakdowns of what I am building, testing, and learning across Roblox, content creation, and code.</p>
+      <div class="blog-hero-actions">
+        <a href="/projects" class="button">See Current Projects</a>
+        <a href="/contact" class="button">Request a Topic</a>
+        <a href="/blog/feed.xml" class="button button--ghost" target="_blank" rel="noopener">Subscribe via RSS</a>
+      </div>
     </section>
 
-    <!-- BLOG_TEMPLATES_START -->
-    <template id="blog-template-building-my-website-using-gpt5-codex">
-        <article class="blog-article-wrapper">
-            <header class="blog-article-header">
-                <div class="blog-article-meta">
-                    <span class="tag-pill">Featured</span>
-                    <time datetime="2025-12-18T00:00:00.000Z">December 18, 2025</time>
-                    <span>13 minute read</span>
-                </div>
-                <h1>Building my Website using GPT-5 Codex (and some brains)</h1>
-                <p class="lead">I created this entire website with a mix of GitHub Copilot, GPT-5 Codex, and my own stubbornness. Here is how the prototypes evolved into the current release.</p>
-            </header>
-            <div class="blog-article-content">
-            <p>It took several months of &quot;hard&quot; work, but I made it. I have officially finished coding my website (for the main part). And now, here is my journey for you.</p>
-            <h2>My First Commit</h2>
-            <p>The first commit began when I saw my friend with his awesome and cool website. It was also directly connected to his discord as well, and I loved the animation when hovering over a button. I started learning some basic HTML and CSS, and made a very, <em>very</em> basic website consisting of just 1 page asking you to subscribe. </p>
-            <h2>My First Pull Request</h2>
-            <p>I left the website for a bit, then I came back after learning some more code. My first pull request was actually just trying to make the button using HTML instead of JS, but all it did was add a href inside of a button. Sounds stupid, right? Because it was.</p>
-            <h2>Everything In Between</h2>
-            <p>After 50 commits and me getting a 30 day free trial of Copilot Pro, the website started coming along. The nice gradient background was relaxing, the dark/light mode button got rid of the need of a dark mode extension and I got a working interactive nav bar! The blog was barebones and only with placeholders, and the gallery was (and still is) just placeholders that the AI got from some place on the internet.</p>
-            <p>But I was still in Beta. There were more things that I wanted to add, I wanted to change, I wanted to get rid of. The website looked and felt complete, but I knew there was more to add</p>
-            <h2>Feature Mania</h2>
-            <p>I wanted a contact form, so I used Formspree to hold the backend. I wanted comments on my blog, I used Commento to hold the backend for that. I wanted social link buttons to expand and say what platform they are from... that kinda broke my website for a bit. Slowly, the additions got more crazy. Then came...</p>
-            <h2>The Biggest Pull Request</h2>
-            <p>I had an idea in my head. There were times where I wanted to update my website, but I didn&#39;t have my laptop with me. I didn&#39;t trust a Copilot that I can&#39;t pick the model of, so I had a bold idea.</p>
-            <blockquote>
-            <p>I should make <strong>an admin panel</strong></p>
-            </blockquote>
-            <p>And so began the grueling task of making one. And a secure one it had to be. I needed to make sure it was only me and my approved members who could access the page, so I thought on how to control that. Aha! Github API! I could connect the website to a GitHub App that does OAuth and verifies my account so I can access the website. Github was also the best option here, as my website code is stored on Github. I was considering Google, Microsoft, etc., but it seemed too complicated. So with Github I went.</p>
-            <p>I also wanted to incorporate RSS into my website as well as a Discord webhook for my discord server (that I&#39;m going to announce in my next YouTube video officially) to ping everyone when I have a new blog post. I mean, I could make a YouTube video instead, but with the admin panel, I could just post without having to make a YouTube video and go through editing and all that <em>boring</em> crap.</p>
-            <p>After a few hours of coding (and asking ChatGPT to code for me), I had done it. I had implemented everything I wanted, along with a countdown to a release. And <strong>I had done it. I had finished my website</strong> (mostly). I went ahead and created a branch, converted it into a pull request, and added it to main. </p>
-            <p>My website still had a few issues, but they were resolved later.</p>
-            <h2>What Now?</h2>
-            <p>I won&#39;t give up on this website. There will be things I want to add and some of those are impossible on this static website. Maybe one day, I&#39;ll change this website from Vercel to another. Maybe I&#39;ll buy the domain coolmanyt.com to make it official. (spoiler: I did) Who knows? But right now, it&#39;s just going to get better from here.</p>
-            </div>
+    <section aria-label="Blog posts" style="max-width:1200px;margin:0 auto;padding:0 1.5rem;">
+      <div id="sbStatus" class="sb-loading" aria-live="polite">Loading posts…</div>
+      <ul id="sbList" class="sb-list" aria-label="Blog post list" hidden></ul>
+    </section>
+  </main>
 
-            <footer class="blog-article-footer">
-                <span>Updated Jan 13, 2026</span>
-                <div class="article-actions">
-                    <button type="button" data-article-share data-share-slug="building-my-website-using-gpt5-codex" data-share-base="blog/index.html" data-share-success="Link copied!">Share</button>
-                    <a href="building-my-website-using-gpt5-codex.html">Open full article</a>
-                </div>
-            </footer>
-        </article>
-    </template>
+  <footer class="site-footer" role="contentinfo">
+    <span>Made with ♥️ by <strong>COOLmanYT</strong></span>
+    <span>Website <a data-site-version-link href="https://github.com/COOLmanYT/mycoolwebsite">Version <span data-site-version-number></span><span data-site-version-type></span></a></span>
+    <span>Credits to <a href="https://zinheere.vercel.app">Zinheere</a></span>
+    <span><a href="/privacy">Privacy Policy</a> • <a href="/terms">Terms of Service</a></span>
+  </footer>
 
-    <template id="blog-template-social-media-ban">
-        <article class="blog-article-wrapper">
-            <header class="blog-article-header">
-                <div class="blog-article-meta">
-                    <span class="tag-pill">Reflection</span>
-                    <time datetime="2025-11-08T00:00:00.000Z">Nov 8, 2025</time>
-                    <span>10 minute read</span>
-                </div>
-                <h1>Social Media Ban</h1>
-                <p class="lead">I dive deep into why Australia&#39;s proposed social media ban for under-16s is such a catastrophic mistake and how it affects everyone.</p>
-            </header>
-            <div class="blog-article-content">
-            <p>The Australian Government has made a very catastrophic mistake by banning social media for Australians under 16. In this blog, I talk about why this is such a catastrophic mistake and why the government needs to rethink ASAP.</p>
-            <p>For those who do not know, the Australian government created a bill that <strong>bans social media platforms from letting children under 16 create or have a social media account</strong>. Most Australians know about the proposal by now.</p>
-            <p>As all of us can clearly see, this is a recipe for catastrophe. We use these platforms <strong>every day</strong> to communicate with not only our friends but also our family, and they are one of the main ways we learn what is going on in the world.</p>
-            <p><strong>Multiple</strong> people, groups, communities, and even companies have tried calling this out but to <em>no avail</em>. The children of Australia deserve freedom of speech, though I do have to say that social media has <strong>gone out of hand for kids.</strong></p>
-            <h2>Why This Is a Catastrophic Mistake</h2>
-            <p>This ban will lead to several negative consequences for young Australians, including:</p>
-            <ul>
-            <li><strong>Social Isolation:</strong> We use social media to talk to our friends and family, to catch up, and to arrange hanging out at the nearest shopping center. Blocking us from doing this will ruin relationships and make it extremely hard to communicate.</li>
-            <li><strong>Educational Disadvantages:</strong> Social media is often used for educational purposes, including group projects and learning about news. This ban could hinder our ability to access resources that we <strong>need</strong> for school. <strong>And because YouTube is on this list, the amount of educational resources will be incredibly limited for students like me.</strong></li>
-            <li><strong>Mental Health Impacts:</strong> While social media can have negative effects, it also provides support networks for lots of us. Removing access could cause severe mental health issues. We will talk more about this later.</li>
-            <li><strong>Digital Literacy:</strong> In today&#39;s world, digital skills are essential. Banning social media could limit opportunities for us to develop these skills.</li>
-            </ul>
-            <p>But I do not think this ban is a good idea—it needs a rethink.</p>
-            <h2>My Idea</h2>
-            <p>Instead of having this ban for under 16s, the target age should change to under 13s. According to the <a href="https://www.esafety.gov.au/newsroom/media-releases/esafety-report-shows-widespread-underage-use-of-social-media-and-minimal-measures-to-prevent-kids-signing-up">eSafety</a>, a solid <strong>80% of Australians aged 8–12 have a social media account,</strong> despite minimum ages being 13 due to COPPA&#39;s data collection regulations.</p>
-            <p>Changing the age to under-13s will not affect as many people, and children that young should not have social media at that age anyway. They could talk to their friends using an alternative such as Messenger Kids or just spend time together in real life.</p>
-            <p>But for teenagers 13–16, they should be allowed to use social media as they are more mature and can handle the responsibilities that come with it. Plus, they need social media to communicate with their friends and family, and banning them from it will only lead to more problems.</p>
-            <h2>The Side We Ignore</h2>
-            <p>While this ban should be for under 13s, there are some things we need to be aware of or we are <strong>going</strong> to develop mental health issues.</p>
-            <ul>
-            <li><strong>Cyberbullying:</strong> Social media can be a breeding ground for cyberbullying, which can have severe mental health impacts. We need to be aware of this and take steps to protect ourselves. According to <a href="https://www.esafety.gov.au/key-topics/cyberbullying">eSafety</a>, 44% of young people experienced cyberbullying within the last six months alone, including 15% receiving threats or abuse online (2021).</li>
-            <li><strong>Addiction:</strong> Social media can be addictive, and we need to be aware of the signs of addiction and take steps to limit our use.</li>
-            <li><strong>Privacy Concerns:</strong> We need to be aware of the privacy concerns associated with social media and take steps to protect our personal information.</li>
-            <li><strong>Letting Parents Guide:</strong> Most social media platforms have parental control settings to protect us online, but some parents neglect these settings or ignore them because &quot;oh my child is a sweetie.&quot; We need to make sure parents can guide children to be safe online. If they do that, then we do not even need this ban in the first place!</li>
-            <li><strong>Online &quot;PDFs&quot;:</strong> If you do not know what a PDF is (not the file format), it is someone above 18 who does incredibly questionable things to children. Social media can also be the best place for these people to lurk around, especially places like Roblox.</li>
-            <li><strong>Screen Time:</strong> We do use a lot of screen time. According to the <a href="https://aifs.gov.au/research/commissioned-reports/childrens-screen-time">Australian Institute of Family Studies</a>, for 12–13 year olds, more than three hours on average per weekday and almost four hours per weekend day are spent on screens. This means that up to 30% of a child’s waking time is spent in front of a screen. We need to be very careful about the time we spend online.</li>
-            </ul>
-            <h2>Conclusion</h2>
-            <p>In conclusion, while the intention behind the social media ban for under 16s may be to protect young Australians, it is a catastrophic mistake that could lead to social isolation, educational disadvantages, mental health impacts, and limited digital literacy. Instead, the government should consider changing the target age to under 13s, while also addressing the issues of cyberbullying, addiction, privacy concerns, parental guidance, online predators, and screen time. By taking these steps, we can ensure that young Australians can safely and responsibly use social media to connect with others and access valuable resources.</p>
-            <h2>But Wait, There Is More</h2>
-            <p>YOU can help change the age limit on social media. There is an online petition you can fill out to help change what happens. Go to the <a href="https://www.aph.gov.au/e-petitions/petition/EN8494/">Australian Parliament House Petitions</a> page to stop the government taking our rights as the future of Australia.</p>
-            <blockquote>
-            <p>Last updated November 8, 2025 2:35PM AEDT</p>
-            </blockquote>
-            </div>
+  <script src="../script.js"></script>
+  <script>
+  (function () {
+    const statusEl = document.getElementById('sbStatus');
+    const listEl = document.getElementById('sbList');
 
-            <footer class="blog-article-footer">
-                <span>Published Nov 8, 2025</span>
-                <div class="article-actions">
-                    <button type="button" data-article-share data-share-slug="social-media-ban" data-share-base="blog/index.html" data-share-success="Link copied!">Share</button>
-                    <a href="social-media-ban.html">Open full article</a>
-                </div>
-            </footer>
-        </article>
-    </template>
+    function formatDate(iso) {
+      try {
+        return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      } catch (_) {
+        return iso;
+      }
+    }
 
-    <template id="blog-template-balancing-school-and-builds">
-        <article class="blog-article-wrapper">
-            <header class="blog-article-header">
-                <div class="blog-article-meta">
-                    <span class="tag-pill">Planning</span>
-                    <time datetime="2025-08-21T00:00:00.000Z">Aug 21, 2025</time>
-                    <span>Draft in progress</span>
-                </div>
-                <h1>Balancing School and Builds</h1>
-                <p class="lead">The Notion template and sprint rhythm I use to stay focused on class while shipping new game content.</p>
-            </header>
-            <div class="blog-article-content">
-            <p>The full article will unpack my weekly sprint board, school assignment tracker, and how I delegate asset polish when finals hit. Bookmark this post or subscribe for the update!</p>
-            </div>
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
 
-            <footer class="blog-article-footer">
-                <span>Published Aug 21, 2025</span>
-                <div class="article-actions">
-                    <button type="button" data-article-share data-share-slug="balancing-school-and-builds" data-share-base="blog/index.html" data-share-success="Link copied!">Share</button>
-                    
-                </div>
-            </footer>
-        </article>
-    </template>
-<!-- BLOG_TEMPLATES_END -->
+    async function loadPosts() {
+      try {
+        const res = await fetch('/api/supabase-blog/posts');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const { posts } = await res.json();
 
-    <footer class="site-footer" role="contentinfo">
-        <span>Made with ♥️ by <strong>COOLmanYT</strong></span>
-        <span>Website <a data-site-version-link href="https://github.com/COOLmanYT/mycoolwebsite">Version <span data-site-version-number></span><span data-site-version-type></span></a></span>
-        <span>Credits to <a href="https://zinheere.vercel.app">Zinheere</a></span>
-        <span><a href="/privacy">Privacy Policy</a> • <a href="/terms">Terms of Service</a></span>
-    </footer>
+        if (!posts || posts.length === 0) {
+          statusEl.innerHTML = '<p class="sb-empty">No posts published yet. Check back soon!</p>';
+          return;
+        }
 
-    <script defer src="https://cdn.commento.io/js/commento.js"></script>
-    <script src="../script.js"></script>
-    <script>
-      window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-    </script>
-    <script defer src="/_vercel/speed-insights/script.js"></script>
+        listEl.innerHTML = posts.map((post) => {
+          const date = formatDate(post.created_at);
+          const warnings = Array.isArray(post.warnings) && post.warnings.length
+            ? `<div class="sb-badges">${post.warnings.map((w) => `<span class="sb-warning-badge">⚠️ ${escapeHtml(w)}</span>`).join('')}</div>`
+            : '';
+          return `<li>
+            <article class="sb-card">
+              <a href="/blog/post?slug=${encodeURIComponent(post.slug)}">
+                <h2>${escapeHtml(post.title)}</h2>
+              </a>
+              ${warnings}
+              <time datetime="${escapeHtml(post.created_at)}">${escapeHtml(date)}</time>
+            </article>
+          </li>`;
+        }).join('');
+
+        statusEl.hidden = true;
+        listEl.hidden = false;
+      } catch (err) {
+        statusEl.innerHTML = `<p class="sb-error">Failed to load posts: ${escapeHtml(err.message)}</p>`;
+      }
+    }
+
+    loadPosts();
+  }());
+  </script>
+  <script>window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };</script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
 </body>
 </html>

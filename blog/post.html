@@ -11,7 +11,7 @@
   <link rel="apple-touch-icon" href="/images/avatar.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="../../style.css">
+  <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
   <title>Blog Post — COOLmanYT</title>
 
@@ -66,31 +66,31 @@
     </div>
     <div class="social-links">
       <a href="https://github.com/COOLmanYT" target="_blank" rel="noopener noreferrer" class="social-button" data-label="GitHub">
-        <img src="../../images/github.png" alt="GitHub" width="64" height="64" loading="eager">
+        <img src="../images/github.png" alt="GitHub" width="64" height="64" loading="eager">
         <span class="social-label">GitHub</span>
       </a>
       <a href="https://www.youtube.com/@COOLmanGamer" target="_blank" rel="noopener noreferrer" class="social-button" data-label="YouTube">
-        <img src="../../images/youtube.png" alt="YouTube" width="64" height="64" loading="eager">
+        <img src="../images/youtube.png" alt="YouTube" width="64" height="64" loading="eager">
         <span class="social-label">YouTube</span>
       </a>
       <a href="https://discord.gg/SzHksR3QFj" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Discord">
-        <img src="../../images/discord.png" alt="Discord" width="64" height="64" loading="eager">
+        <img src="../images/discord.png" alt="Discord" width="64" height="64" loading="eager">
         <span class="social-label">Discord</span>
       </a>
       <a href="https://www.roblox.com/users/2873599962/profile" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Roblox">
-        <img src="../../images/roblox2.png" alt="Roblox" width="64" height="64" loading="eager">
+        <img src="../images/roblox2.png" alt="Roblox" width="64" height="64" loading="eager">
         <span class="social-label">Roblox</span>
       </a>
       <a href="https://open.spotify.com/user/31px5awkcyikvgrfiiqkxem6oxni?si=fd36097626ff454f" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Spotify">
-        <img src="../../images/spotify.png" alt="Spotify" width="64" height="64" loading="eager">
+        <img src="../images/spotify.png" alt="Spotify" width="64" height="64" loading="eager">
         <span class="social-label">Spotify</span>
       </a>
       <a href="https://www.reddit.com/user/COOLman_YT/" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Reddit">
-        <img src="../../images/reddit.png" alt="Reddit" width="64" height="64" loading="eager">
+        <img src="../images/reddit.png" alt="Reddit" width="64" height="64" loading="eager">
         <span class="social-label">Reddit</span>
       </a>
       <a href="https://steamcommunity.com/id/coolmanyt1" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Steam">
-        <img src="../../images/steam.png" alt="Steam" width="64" height="64" loading="eager">
+        <img src="../images/steam.png" alt="Steam" width="64" height="64" loading="eager">
         <span class="social-label">Steam</span>
       </a>
     </div>
@@ -148,7 +148,7 @@
     <span><a href="/privacy">Privacy Policy</a> • <a href="/terms">Terms of Service</a></span>
   </footer>
 
-  <script src="../../script.js"></script>
+  <script src="../script.js"></script>
   <script>
   (function () {
     const loadingEl = document.getElementById('sbPostLoading');
@@ -209,7 +209,7 @@
         dateEl.textContent = dateStr;
         dateEl.setAttribute('datetime', post.created_at);
 
-        // Warnings (rendered ABOVE content)
+        // Warnings rendered ABOVE content
         if (Array.isArray(post.warnings) && post.warnings.length > 0) {
           warningsEl.innerHTML = post.warnings
             .map((w) => `<div class="sb-warning" role="note">⚠️ <span>${escapeHtml(w)}</span></div>`)

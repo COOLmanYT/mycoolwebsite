@@ -180,6 +180,8 @@ export default async function handler(req, res) {
       return routeWebhookTest(req, res);
     case 'webhooks':
       return routeWebhooks(req, res);
+    case 'projects':
+      return routeProjects(req, res);
     default:
       res.statusCode = 404;
       res.end('Not Found');
@@ -889,4 +891,133 @@ async function handleWebhooksUpdate(req, res, token) {
     const status = error.statusCode || 500;
     sendJson(res, status, { error: error.message || 'Failed to update webhooks.' });
   }
+}
+
+// ===========================================================================
+// PROJECTS  (/api/admin/projects)
+// ===========================================================================
+
+const PROJECTS_CONFIG_PATH = 'content/projects.json';
+
+function sanitizeProject(input) {
+  const p = {};
+  if (typeof input.title === 'string') p.title = input.title.trim();
+  if (typeof input.description === 'string') p.description = input.description.trim();
+  if (typeof input.url === 'string') p.url = input.url.trim();
+  if (typeof input.repoUrl === 'string') p.repoUrl = input.repoUrl.trim();
+  if (typeof input.status === 'string') p.status = input.status.trim();
+  if (typeof input.featured === 'boolean') p.featured = input.featured;
+  if (Array.isArray(input.tags)) {
+    p.tags = input.tags.map((t) => String(t).trim()).filter(Boolean);
+  }
+  return p;
+}
+
+function defaultProjectsConfig() {
+  return { projects: [] };
+}
+
+async function routeProjects(req, res) {
+  const auth = await requireAllowlistedSession(req, res);
+  if (!auth) return;
+
+  const token = process.env.ALLOWLIST_GITHUB_TOKEN;
+
+  switch (req.method) {
+    case 'GET':
+      return handleProjectsGet(res, token);
+    case 'POST':
+      return handleProjectsCreate(req, res, token);
+    case 'PUT':
+      return handleProjectsUpdate(req, res, token);
+    case 'DELETE':
+      return handleProjectsDelete(req, res, token);
+    default:
+      return methodNotAllowed(res, ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
+  }
+}
+
+async function handleProjectsGet(res, token) {
+  try {
+    const payload = await fetchFileFromGithub(PROJECTS_CONFIG_PATH, token, { allow404: true, parseJson: true });
+    const data = { ...defaultProjectsConfig(), ...(payload.data || {}) };
+    sendJson(res, 200, { projects: data.projects ?? [], source: payload.source || 'file' });
+  } catch (error) {
+    console.error('Projects fetch failed', error);
+    sendJson(res, 500, { error: 'Failed to load projects.' });
+  }
+}
+
+async function handleProjectsCreate(req, res, token) {
+  if (!token) {
+    return sendJson(res, 501, { error: 'Editing not configured. Set ALLOWLIST_GITHUB_TOKEN.' });
+  }
+  try {
+    const body = await readJsonBody(req);
+    if (!body.title || !String(body.title).trim()) {
+      return sendJson(res, 400, { error: 'title is required' });
+    }
+    const project = sanitizeProject(body);
+    project.id = generateProjectId();
+    project.createdAt = new Date().toISOString();
+
+    const current = await fetchFileFromGithub(PROJECTS_CONFIG_PATH, token, { allow404: true, parseJson: true });
+    const existing = Array.isArray(current.data?.projects) ? current.data.projects : [];
+    const next = { ...defaultProjectsConfig(), ...current.data, projects: [...existing, project] };
+    const updated = await writeFileToGithub(PROJECTS_CONFIG_PATH, next, token, current.sha, `add project: ${project.title}`);
+    sendJson(res, 201, { project, source: updated.source });
+  } catch (error) {
+    const status = error.statusCode || 500;
+    sendJson(res, status, { error: error.message || 'Failed to create project.' });
+  }
+}
+
+async function handleProjectsUpdate(req, res, token) {
+  if (!token) {
+    return sendJson(res, 501, { error: 'Editing not configured. Set ALLOWLIST_GITHUB_TOKEN.' });
+  }
+  try {
+    const body = await readJsonBody(req);
+    if (!body.id) return sendJson(res, 400, { error: 'id is required' });
+
+    const current = await fetchFileFromGithub(PROJECTS_CONFIG_PATH, token, { allow404: true, parseJson: true });
+    const existing = Array.isArray(current.data?.projects) ? current.data.projects : [];
+    const idx = existing.findIndex((p) => p.id === body.id);
+    if (idx === -1) return sendJson(res, 404, { error: 'Project not found.' });
+
+    const merged = { ...existing[idx], ...sanitizeProject(body), id: body.id };
+    const projects = [...existing.slice(0, idx), merged, ...existing.slice(idx + 1)];
+    const next = { ...defaultProjectsConfig(), ...current.data, projects };
+    const updated = await writeFileToGithub(PROJECTS_CONFIG_PATH, next, token, current.sha, `update project: ${merged.title}`);
+    sendJson(res, 200, { project: merged, source: updated.source });
+  } catch (error) {
+    const status = error.statusCode || 500;
+    sendJson(res, status, { error: error.message || 'Failed to update project.' });
+  }
+}
+
+async function handleProjectsDelete(req, res, token) {
+  if (!token) {
+    return sendJson(res, 501, { error: 'Editing not configured. Set ALLOWLIST_GITHUB_TOKEN.' });
+  }
+  try {
+    const body = await readJsonBody(req);
+    if (!body.id) return sendJson(res, 400, { error: 'id is required' });
+
+    const current = await fetchFileFromGithub(PROJECTS_CONFIG_PATH, token, { allow404: true, parseJson: true });
+    const existing = Array.isArray(current.data?.projects) ? current.data.projects : [];
+    const filtered = existing.filter((p) => p.id !== body.id);
+    if (filtered.length === existing.length) return sendJson(res, 404, { error: 'Project not found.' });
+
+    const next = { ...defaultProjectsConfig(), ...current.data, projects: filtered };
+    const updated = await writeFileToGithub(PROJECTS_CONFIG_PATH, next, token, current.sha, `delete project: ${body.id}`);
+    sendJson(res, 200, { deleted: true, id: body.id, source: updated.source });
+  } catch (error) {
+    const status = error.statusCode || 500;
+    sendJson(res, status, { error: error.message || 'Failed to delete project.' });
+  }
+}
+
+function generateProjectId() {
+  return `proj_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 }

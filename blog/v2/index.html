@@ -57,7 +57,6 @@
           <a href="/projects" class="nav-pill">Projects</a>
           <a href="/contact" class="nav-pill">Contact</a>
           <a href="/blog" class="nav-pill active">Blog</a>
-          <a href="/people-first-design" class="nav-pill">People First Design</a>
         </nav>
       </div>
       <span class="site-logo">COOLmanYT</span>
@@ -155,7 +154,7 @@
           const date = formatDate(post.created_at);
           return `<li>
             <article class="sb-card">
-              <a href="/blog/v2/post?slug=${encodeURIComponent(post.slug)}">
+              <a href="/blog/post?slug=${encodeURIComponent(post.slug)}">
                 <h2>${escapeHtml(post.title)}</h2>
               </a>
               <time datetime="${escapeHtml(post.created_at)}">${escapeHtml(date)}</time>
