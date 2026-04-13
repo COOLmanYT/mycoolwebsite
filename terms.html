@@ -180,13 +180,29 @@
         toggle.classList.toggle('legal-mode-toggle--off', !simple);
       }
 
-      var stored = localStorage.getItem(STORAGE_KEY);
-      var isSimple = stored === null ? true : stored !== 'false';
+      function getStoredMode() {
+        try {
+          var stored = localStorage.getItem(STORAGE_KEY);
+          return stored === null ? true : stored !== 'false';
+        } catch (e) {
+          return true;
+        }
+      }
+
+      function setStoredMode(simple) {
+        try {
+          localStorage.setItem(STORAGE_KEY, simple ? 'true' : 'false');
+        } catch (e) {
+          // Ignore storage errors and keep the current UI state.
+        }
+      }
+
+      var isSimple = getStoredMode();
       applyMode(isSimple);
 
       toggle.addEventListener('click', function () {
         isSimple = !isSimple;
-        localStorage.setItem(STORAGE_KEY, isSimple ? 'true' : 'false');
+        setStoredMode(isSimple);
         applyMode(isSimple);
       });
     })();
