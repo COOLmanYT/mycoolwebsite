@@ -565,6 +565,18 @@ function setStoredTheme(theme) {
 	}
 }
 
+function sanitizeRedirectUrl(url) {
+	try {
+		const parsed = new URL(url, window.location.origin);
+		if (parsed.origin === window.location.origin || parsed.protocol === 'https:') {
+			return parsed.href;
+		}
+	} catch (error) {
+		// ignore
+	}
+	return '/contact-thanks';
+}
+
 async function hydrateSiteSettings() {
 	try {
 		const res = await fetch(`${SITE_SETTINGS_PATH}?ts=${Date.now()}`);
@@ -785,7 +797,8 @@ async function enableContactForm(initialAuthState) {
 	const consentCheckbox = document.getElementById('dataConsent');
 	const submitButton = contactForm.querySelector('button[type="submit"]');
 	const redirectInput = contactForm.querySelector('input[name="_redirect"]');
-	const redirectUrl = redirectInput?.value?.trim() || `${window.location.origin}/contact-thanks`;
+	const rawRedirect = redirectInput?.value?.trim() || `/contact-thanks`;
+	const redirectUrl = sanitizeRedirectUrl(rawRedirect);
 	const endpoint = contactForm.getAttribute('action');
 
 	if (statusElement) {
