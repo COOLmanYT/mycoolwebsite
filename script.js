@@ -280,7 +280,6 @@ document.addEventListener('coolmanyt:auth-state', (event) => {
 	renderContactAuthBadge(event.detail);
 });
 
-enforceHtmlExtensionRedirect();
 
 const CHANNEL_ID_CACHE = new Map();
 
@@ -566,25 +565,6 @@ function setStoredTheme(theme) {
 	}
 }
 
-function enforceHtmlExtensionRedirect() {
-	try {
-		const path = window.location.pathname;
-		if (path === '/' || path.endsWith('.html')) {
-			return;
-		}
-		const lastSegment = path.split('/').filter(Boolean).pop() || '';
-		const hasExtension = lastSegment.includes('.');
-		const endsWithSlash = path.endsWith('/');
-		if (hasExtension || endsWithSlash) {
-			return;
-		}
-		const target = `${path}.html${window.location.search}${window.location.hash}`;
-		window.location.replace(target);
-	} catch (error) {
-		console.warn('HTML extension redirect failed', error);
-	}
-}
-
 async function hydrateSiteSettings() {
 	try {
 		const res = await fetch(`${SITE_SETTINGS_PATH}?ts=${Date.now()}`);
@@ -805,7 +785,7 @@ async function enableContactForm(initialAuthState) {
 	const consentCheckbox = document.getElementById('dataConsent');
 	const submitButton = contactForm.querySelector('button[type="submit"]');
 	const redirectInput = contactForm.querySelector('input[name="_redirect"]');
-	const redirectUrl = redirectInput?.value?.trim() || `${window.location.origin}/contact-thanks.html`;
+	const redirectUrl = redirectInput?.value?.trim() || `${window.location.origin}/contact-thanks`;
 	const endpoint = contactForm.getAttribute('action');
 
 	if (statusElement) {
