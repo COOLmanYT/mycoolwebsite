@@ -260,7 +260,7 @@ async function handleAllowlistRemove(req, res, session) {
 }
 
 function sanitizeUsername(value = '') {
-  return String(value).trim().replace(/^@/, '');
+  return value.trim().replace(/^@/, '');
 }
 
 // ===========================================================================
@@ -444,12 +444,13 @@ async function handleSiteSettingsUpdate(req, res, token) {
   }
 }
 
+const SITE_SETTINGS_STRING_FIELDS = ['releaseCountdownTarget', 'bannerText', 'bannerLink', 'bannerButtonText', 'footerText', 'footerHtml', 'countdownHeading', 'countdownNote'];
+const SITE_SETTINGS_BOOL_FIELDS = ['bannerEnabled', 'countdownEnabled'];
+
 function sanitizeSiteSettings(input) {
   const next = {};
-  const stringFields = ['releaseCountdownTarget', 'bannerText', 'bannerLink', 'bannerButtonText', 'footerText', 'footerHtml', 'countdownHeading', 'countdownNote'];
-  const boolFields = ['bannerEnabled', 'countdownEnabled'];
-  stringFields.forEach((key) => { if (typeof input[key] === 'string') next[key] = input[key]; });
-  boolFields.forEach((key) => { if (typeof input[key] === 'boolean') next[key] = input[key]; });
+  SITE_SETTINGS_STRING_FIELDS.forEach((key) => { if (typeof input[key] === 'string') next[key] = input[key]; });
+  SITE_SETTINGS_BOOL_FIELDS.forEach((key) => { if (typeof input[key] === 'boolean') next[key] = input[key]; });
   return next;
 }
 
