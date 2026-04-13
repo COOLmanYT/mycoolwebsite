@@ -195,13 +195,25 @@
         toggle.classList.toggle('legal-mode-toggle--off', !simple);
       }
 
-      var stored = localStorage.getItem(STORAGE_KEY);
-      var isSimple = stored === null ? true : stored !== 'false';
+      var stored = null;
+      var isSimple = true;
+
+      try {
+        stored = localStorage.getItem(STORAGE_KEY);
+        isSimple = stored === null ? true : stored !== 'false';
+      } catch (e) {
+        isSimple = true;
+      }
+
       applyMode(isSimple);
 
       toggle.addEventListener('click', function () {
         isSimple = !isSimple;
-        localStorage.setItem(STORAGE_KEY, isSimple ? 'true' : 'false');
+
+        try {
+          localStorage.setItem(STORAGE_KEY, isSimple ? 'true' : 'false');
+        } catch (e) {
+        }
         applyMode(isSimple);
       });
     })();
