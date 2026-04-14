@@ -306,6 +306,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 	initLazySections();
 	initLazyMailerLite();
 	initLatestBlogCard();
+	initTopProjects();
 	if (document.querySelector('[data-blog-open]')) {
 		initBlogViewer();
 	}
@@ -1354,30 +1355,16 @@ function prepareTopBanner() {
 }
 
 async function initLatestBlogCard() {
-	const card = document.querySelector('[data-latest-blog]');
-	if (!card) {
+	const section = document.querySelector('[data-blog-preview]');
+	if (!section) {
 		return;
 	}
 
-	const titleEl = card.querySelector('[data-blog-title]');
-	const summaryEl = card.querySelector('[data-blog-summary]');
-	const dateEl = card.querySelector('[data-blog-date]');
-	const readingEl = card.querySelector('[data-blog-reading]');
-	const linkEl = card.querySelector('[data-blog-link]');
+	const scroll = section.querySelector('[data-blog-preview-scroll]');
+	const statusEl = section.querySelector('[data-blog-preview-status]');
 
-	const setFallback = (message) => {
-		if (titleEl) titleEl.textContent = message;
-		if (summaryEl) summaryEl.textContent = 'See all posts on the blog page.';
-		if (dateEl) {
-			dateEl.textContent = '';
-			dateEl.hidden = true;
-		}
-		if (readingEl) {
-			readingEl.textContent = '';
-			readingEl.hidden = true;
-		}
-		if (linkEl) linkEl.href = '/blog';
-	};
+	const escHtml = (str) =>
+		String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 	const formatDate = (input) => {
 		const parsed = new Date(input || '');
@@ -1391,30 +1378,78 @@ async function initLatestBlogCard() {
 			throw new Error(`Posts request failed (${res.status})`);
 		}
 		const payload = await res.json();
-		const posts = Array.isArray(payload.posts) ? payload.posts : [];
+		const posts = (Array.isArray(payload.posts) ? payload.posts : []).slice(0, 3);
 
-		const latest = posts[0];
-		if (!latest) {
-			throw new Error('No published posts found');
+		if (!posts.length) {
+			if (statusEl) statusEl.textContent = 'No posts yet.';
+			return;
 		}
 
-		const dateText = formatDate(latest.created_at);
-		const href = latest.slug ? `/blog/post?slug=${encodeURIComponent(latest.slug)}` : '/blog';
+		const cards = posts.map((post) => {
+			const href = post.slug ? `/blog/post?slug=${encodeURIComponent(post.slug)}` : '/blog';
+			const dateText = formatDate(post.created_at);
+			return `<article class="blog-card">
+				<div class="blog-card__meta">
+					<span class="tag-pill">Blog</span>${dateText ? `<span class="blog-card__date">${escHtml(dateText)}</span>` : ''}
+				</div>
+				<h3 class="blog-card__title">${escHtml(post.title || 'Untitled post')}</h3>
+				${post.excerpt ? `<p class="blog-card__excerpt">${escHtml(post.excerpt)}</p>` : ''}
+				<a class="button" href="${escHtml(href)}">Read post</a>
+			</article>`;
+		}).join('');
 
-		if (titleEl) titleEl.textContent = latest.title || 'Latest blog post';
-		if (summaryEl) summaryEl.textContent = 'Read the latest entry on the blog.';
-		if (dateEl) {
-			dateEl.textContent = dateText;
-			dateEl.hidden = !dateText;
-		}
-		if (readingEl) {
-			readingEl.textContent = '';
-			readingEl.hidden = true;
-		}
-		if (linkEl) linkEl.href = href;
+		if (scroll) scroll.innerHTML = cards;
 	} catch (error) {
-		console.warn('Latest blog card failed', error);
-		setFallback('Could not load latest post');
+		console.warn('Blog preview failed', error);
+		if (statusEl) statusEl.textContent = 'Could not load posts.';
+	}
+}
+
+async function initTopProjects() {
+	const section = document.querySelector('[data-projects-preview]');
+	if (!section) {
+		return;
+	}
+
+	const scroll = section.querySelector('[data-projects-preview-scroll]');
+	const statusEl = section.querySelector('[data-projects-preview-status]');
+
+	const escHtml = (str) =>
+		String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+	try {
+		const res = await fetch('/api/projects/list');
+		if (!res.ok) {
+			throw new Error(`Projects request failed (${res.status})`);
+		}
+		const payload = await res.json();
+		const projects = (Array.isArray(payload.projects) ? payload.projects : []).slice(0, 4);
+
+		if (!projects.length) {
+			if (statusEl) statusEl.textContent = 'No projects yet.';
+			return;
+		}
+
+		const cards = projects.map((p) => {
+			const tags = Array.isArray(p.tags) && p.tags.length
+				? `<div class="project-card__tags">${p.tags.map((t) => `<span class="tag-pill tag-pill--small">${escHtml(t)}</span>`).join('')}</div>`
+				: '';
+			const link = p.url
+				? `<a class="button" href="${escHtml(p.url)}">View project</a>`
+				: '';
+			return `<article class="project-card">
+				${p.featured ? '<span class="tag-pill">Featured</span>' : ''}
+				<h3 class="project-card__title">${escHtml(p.title || 'Untitled')}</h3>
+				${p.description ? `<p class="project-card__desc">${escHtml(p.description)}</p>` : ''}
+				${tags}
+				${link ? `<div class="project-card__actions">${link}</div>` : ''}
+			</article>`;
+		}).join('');
+
+		if (scroll) scroll.innerHTML = cards;
+	} catch (error) {
+		console.warn('Projects preview failed', error);
+		if (statusEl) statusEl.textContent = 'Could not load projects.';
 	}
 }
 
