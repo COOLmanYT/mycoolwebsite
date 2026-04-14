@@ -2136,6 +2136,28 @@ body:not(.theme-light) .contact-auth-badge {
   color: #ffb3b3;
 }
 
+.contact-form-note {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 600px;
+  margin: 0.5rem auto 0;
+}
+
+.support-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bmc-button img {
+  height: 60px;
+  width: auto;
+  border-radius: 12px;
+  display: block;
+}
+
 /* About Page Styles */
 .main-content {
   display: flex;
