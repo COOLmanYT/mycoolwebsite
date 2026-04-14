@@ -29,7 +29,7 @@
 </head>
 <body class="admin-page">
   <a class="skip-link" href="#mainContent">Skip to main content</a>
-  <div class="top-banner">
+  <div class="top-banner" hidden aria-hidden="true">
     <span>🎉 Website Release!</span>
     <a class="banner-button" href="https://github.com/COOLmanYT/mycoolwebsite" target="_blank" rel="noopener noreferrer">Open Source GitHub Repository</a>
     <a class="banner-button" href="/#release-countdown" data-release-link hidden aria-hidden="true" tabindex="-1">View Countdown</a>
@@ -44,7 +44,6 @@
           <a href="/projects" class="nav-pill">Projects</a>
           <a href="/contact" class="nav-pill">Contact</a>
           <a href="/blog" class="nav-pill">Blog</a>
-          <a href="/people-first-design" class="nav-pill">People First Design</a>
         </nav>
       </div>
       <span class="site-logo">COOLmanYT</span>
@@ -555,12 +554,138 @@ Body here." data-blog-editor-content></textarea>
         <p>Allow list editing isn’t configured. Set <code>ALLOWLIST_GITHUB_TOKEN</code> (repo scope) so the panel can commit updates automatically.</p>
       </div>
     </section>
+
+    <!-- ======================================================
+         Supabase Blog Manager
+         ====================================================== -->
+    <section class="admin-form-card" id="sbAdmin">
+      <div class="admin-card__header">
+        <div>
+          <p class="tag-pill">Supabase</p>
+          <h2>Blog Manager</h2>
+        </div>
+        <div class="admin-inline-actions">
+          <span class="admin-card__status" id="sbAdminStatus">Idle</span>
+          <button type="button" class="button button--ghost button--small" id="sbRefreshBtn">Refresh list</button>
+          <a href="/blog/v2" class="button button--ghost button--small" target="_blank" rel="noopener">View blog</a>
+        </div>
+      </div>
+
+      <!-- Post list table -->
+      <div class="admin-table" id="sbTable">
+        <p>Loading posts…</p>
+      </div>
+
+      <!-- Create / Edit form -->
+      <div style="margin-top:1.5rem;">
+        <div class="admin-card__header">
+          <h3 id="sbFormTitle">Create new post</h3>
+          <button type="button" class="button button--ghost button--small" id="sbNewBtn">+ New post</button>
+        </div>
+        <form class="admin-form" id="sbForm">
+          <input type="hidden" id="sbPostId" name="id">
+          <div class="admin-form__field">
+            <label for="sbTitle">Title *</label>
+            <input type="text" id="sbTitle" name="title" placeholder="My awesome post" required>
+          </div>
+          <div class="admin-form__field">
+            <label for="sbSlug">Slug *</label>
+            <input type="text" id="sbSlug" name="slug" placeholder="my-awesome-post" pattern="[a-z0-9\-]+" required>
+            <p class="admin-help-text">Lowercase letters, numbers, and hyphens only.</p>
+          </div>
+          <div class="admin-form__field admin-form__field--full">
+            <label for="sbWarnings">Warnings (one per line)</label>
+            <textarea id="sbWarnings" name="warnings" rows="2" placeholder="Contains swearing&#10;Discusses mature topics"></textarea>
+            <p class="admin-help-text">These appear as ⚠️ badges above the post content.</p>
+          </div>
+          <div class="admin-form__field admin-form__field--full">
+            <label for="sbContent">Markdown content *</label>
+            <textarea id="sbContent" name="content_markdown" rows="14" placeholder="## Heading&#10;&#10;Write your post here. GitHub-Flavored Markdown is fully supported.&#10;&#10;> [!INFO]&#10;> You can use alert blocks like this." required></textarea>
+          </div>
+          <div class="admin-form__field admin-form__checkbox">
+            <label><input type="checkbox" id="sbPublished" name="published"> Published</label>
+          </div>
+          <div class="admin-form__actions">
+            <button type="submit" class="button" id="sbSaveBtn">Save post</button>
+            <button type="button" class="button button--ghost" id="sbDeleteBtn" hidden>Delete post</button>
+            <button type="reset" class="button button--ghost">Reset</button>
+            <p class="admin-help-text" id="sbFeedback" aria-live="polite"></p>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         Projects Manager
+         ====================================================== -->
+    <section class="admin-form-card" id="pmAdmin">
+      <div class="admin-card__header">
+        <div>
+          <p class="tag-pill">Projects</p>
+          <h2>Projects Manager</h2>
+        </div>
+        <div class="admin-inline-actions">
+          <span class="admin-card__status" id="pmStatus">Idle</span>
+          <button type="button" class="button button--ghost button--small" id="pmRefreshBtn">Refresh</button>
+          <a href="/projects" class="button button--ghost button--small" target="_blank" rel="noopener">View projects</a>
+        </div>
+      </div>
+
+      <!-- Project list table -->
+      <div class="admin-table" id="pmTable">
+        <p>Loading projects…</p>
+      </div>
+
+      <!-- Create / Edit form -->
+      <div style="margin-top:1.5rem;">
+        <div class="admin-card__header">
+          <h3 id="pmFormTitle">Add new project</h3>
+          <button type="button" class="button button--ghost button--small" id="pmNewBtn">+ New project</button>
+        </div>
+        <form class="admin-form" id="pmForm">
+          <input type="hidden" id="pmProjectId" name="id">
+          <div class="admin-form__field">
+            <label for="pmTitle">Title *</label>
+            <input type="text" id="pmTitle" name="title" placeholder="Aurora Arena" required>
+          </div>
+          <div class="admin-form__field admin-form__field--full">
+            <label for="pmDescription">Description</label>
+            <textarea id="pmDescription" name="description" rows="3" placeholder="A short description of the project."></textarea>
+          </div>
+          <div class="admin-form__field">
+            <label for="pmUrl">Project URL</label>
+            <input type="url" id="pmUrl" name="url" placeholder="https://coolmanyt.com/projects/aurora-arena">
+          </div>
+          <div class="admin-form__field">
+            <label for="pmRepoUrl">Repository URL</label>
+            <input type="url" id="pmRepoUrl" name="repo_url" placeholder="https://github.com/COOLmanYT/...">
+          </div>
+          <div class="admin-form__field">
+            <label for="pmStatus">Status</label>
+            <input type="text" id="pmStatus" name="status" placeholder="Active · In Development · Completed · Archived">
+          </div>
+          <div class="admin-form__field">
+            <label for="pmTags">Tags (comma-separated)</label>
+            <input type="text" id="pmTags" name="tags" placeholder="Roblox, Game, Open Source">
+          </div>
+          <div class="admin-form__field admin-form__checkbox">
+            <label><input type="checkbox" id="pmFeatured" name="featured"> Featured project</label>
+          </div>
+          <div class="admin-form__actions">
+            <button type="submit" class="button" id="pmSaveBtn">Save project</button>
+            <button type="button" class="button button--ghost" id="pmDeleteBtn" hidden>Delete project</button>
+            <button type="reset" class="button button--ghost">Reset</button>
+            <p class="admin-help-text" id="pmFeedback" aria-live="polite"></p>
+          </div>
+        </form>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer" role="contentinfo">
     <span>Made with ♥️ by <strong>COOLmanYT</strong></span>
     <span>Website <a data-site-version-link href="https://github.com/COOLmanYT/mycoolwebsite">Version <span data-site-version-number></span><span data-site-version-type></span></a></span>
-    <span>Credits to <a href="https://zinheere.vercel.app">Zinheere</a></span>
+    <span>Credits to <a href="https://zinheere.dev">Zinheere</a></span>
     <span><a href="/privacy">Privacy Policy</a> • <a href="/terms">Terms of Service</a></span>
   </footer>
 
@@ -1774,6 +1899,397 @@ Body here." data-blog-editor-content></textarea>
       return Math.random().toString(36).slice(2, 10);
     }
   })();
+  </script>
+  <!-- Supabase Blog Manager script -->
+  <script>
+  (function () {
+    const sbAdmin = document.getElementById('sbAdmin');
+    if (!sbAdmin) return;
+
+    const sbStatus = document.getElementById('sbAdminStatus');
+    const sbTable = document.getElementById('sbTable');
+    const sbForm = document.getElementById('sbForm');
+    const sbFormTitle = document.getElementById('sbFormTitle');
+    const sbNewBtn = document.getElementById('sbNewBtn');
+    const sbSaveBtn = document.getElementById('sbSaveBtn');
+    const sbDeleteBtn = document.getElementById('sbDeleteBtn');
+    const sbFeedback = document.getElementById('sbFeedback');
+    const sbPostId = document.getElementById('sbPostId');
+    const sbTitle = document.getElementById('sbTitle');
+    const sbSlug = document.getElementById('sbSlug');
+    const sbWarnings = document.getElementById('sbWarnings');
+    const sbContent = document.getElementById('sbContent');
+    const sbPublished = document.getElementById('sbPublished');
+    const sbRefreshBtn = document.getElementById('sbRefreshBtn');
+
+    let sbPosts = [];
+
+    function escHtml(str) {
+      return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function setStatus(msg) {
+      if (sbStatus) sbStatus.textContent = msg;
+    }
+
+    function setFeedback(msg, isError) {
+      if (!sbFeedback) return;
+      sbFeedback.textContent = msg;
+      sbFeedback.style.color = isError ? 'var(--error,#f87171)' : '';
+    }
+
+    function formatDate(iso) {
+      try { return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); } catch (_) { return iso; }
+    }
+
+    async function loadPosts() {
+      setStatus('Loading…');
+      sbTable.innerHTML = '<p>Loading posts…</p>';
+      try {
+        const res = await fetch('/api/admin/supabase-blog');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const { posts } = await res.json();
+        sbPosts = posts || [];
+        renderTable(sbPosts);
+        setStatus(`${sbPosts.length} post(s) — updated ${new Date().toLocaleTimeString()}`);
+      } catch (err) {
+        sbTable.innerHTML = `<p style="color:var(--error,#f87171)">Failed to load posts: ${escHtml(err.message)}</p>`;
+        setStatus('Error');
+      }
+    }
+
+    function renderTable(posts) {
+      if (!posts.length) {
+        sbTable.innerHTML = '<p>No posts yet. Create one below.</p>';
+        return;
+      }
+      const rows = posts.map((p) => `<tr>
+        <td>${escHtml(p.title)}</td>
+        <td><code>${escHtml(p.slug)}</code></td>
+        <td>${p.published ? '<span class="admin-pill admin-pill--published">Published</span>' : '<span class="admin-pill admin-pill--draft">Draft</span>'}</td>
+        <td>${escHtml(formatDate(p.created_at))}</td>
+        <td class="admin-table__actions">
+          <button type="button" class="button button--tiny" data-sb-edit="${escHtml(p.id)}">Edit</button>
+          <button type="button" class="button button--ghost button--tiny" data-sb-toggle="${escHtml(p.id)}">${p.published ? 'Unpublish' : 'Publish'}</button>
+        </td>
+      </tr>`).join('');
+      sbTable.innerHTML = `<div class="admin-table__scroll"><table>
+        <thead><tr><th>Title</th><th>Slug</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`;
+    }
+
+    function resetForm() {
+      sbForm.reset();
+      sbPostId.value = '';
+      sbFormTitle.textContent = 'Create new post';
+      sbDeleteBtn.hidden = true;
+      sbSaveBtn.textContent = 'Save post';
+      setFeedback('');
+    }
+
+    function populateForm(post) {
+      sbPostId.value = post.id;
+      sbTitle.value = post.title;
+      sbSlug.value = post.slug;
+      sbWarnings.value = Array.isArray(post.warnings) ? post.warnings.join('\n') : '';
+      sbContent.value = post.content_markdown || '';
+      sbPublished.checked = Boolean(post.published);
+      sbFormTitle.textContent = `Editing: ${post.title}`;
+      sbDeleteBtn.hidden = false;
+      sbSaveBtn.textContent = 'Update post';
+      setFeedback('');
+      sbForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    sbTable.addEventListener('click', async (e) => {
+      const editBtn = e.target.closest('[data-sb-edit]');
+      if (editBtn) {
+        const id = editBtn.dataset.sbEdit;
+        const post = sbPosts.find((p) => p.id === id);
+        if (!post) return;
+        // Fetch full post (including content_markdown)
+        try {
+          const res = await fetch(`/api/admin/supabase-blog?slug=${encodeURIComponent(post.slug)}`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const { post: full } = await res.json();
+          populateForm(full);
+        } catch (err) {
+          setFeedback(`Failed to load post: ${err.message}`, true);
+        }
+        return;
+      }
+
+      const toggleBtn = e.target.closest('[data-sb-toggle]');
+      if (toggleBtn) {
+        const id = toggleBtn.dataset.sbToggle;
+        const post = sbPosts.find((p) => p.id === id);
+        if (!post) return;
+        toggleBtn.disabled = true;
+        try {
+          const res = await fetch('/api/admin/supabase-blog', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, published: !post.published }),
+          });
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error || `HTTP ${res.status}`);
+          }
+          await loadPosts();
+        } catch (err) {
+          setFeedback(`Toggle failed: ${err.message}`, true);
+          toggleBtn.disabled = false;
+        }
+      }
+    });
+
+    sbNewBtn.addEventListener('click', resetForm);
+
+    sbForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setFeedback('Saving…');
+      sbSaveBtn.disabled = true;
+
+      const id = sbPostId.value.trim();
+      const warnings = sbWarnings.value.split('\n').map((w) => w.trim()).filter(Boolean);
+      const payload = {
+        title: sbTitle.value.trim(),
+        slug: sbSlug.value.trim(),
+        content_markdown: sbContent.value,
+        warnings: warnings.length ? warnings : null,
+        published: sbPublished.checked,
+      };
+
+      try {
+        const isEdit = Boolean(id);
+        if (isEdit) payload.id = id;
+        const res = await fetch('/api/admin/supabase-blog', {
+          method: isEdit ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        setFeedback(isEdit ? 'Post updated.' : 'Post created.');
+        resetForm();
+        await loadPosts();
+      } catch (err) {
+        setFeedback(`Save failed: ${err.message}`, true);
+      } finally {
+        sbSaveBtn.disabled = false;
+      }
+    });
+
+    sbDeleteBtn.addEventListener('click', async () => {
+      const id = sbPostId.value.trim();
+      if (!id) return;
+      if (!confirm('Delete this post? This cannot be undone.')) return;
+      sbDeleteBtn.disabled = true;
+      try {
+        const res = await fetch('/api/admin/supabase-blog', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        setFeedback('Post deleted.');
+        resetForm();
+        await loadPosts();
+      } catch (err) {
+        setFeedback(`Delete failed: ${err.message}`, true);
+        sbDeleteBtn.disabled = false;
+      }
+    });
+
+    if (sbRefreshBtn) sbRefreshBtn.addEventListener('click', loadPosts);
+
+    // Load posts once auth unlocks the admin shell
+    document.addEventListener('coolmanyt:auth-state', (e) => {
+      if (e.detail?.allowlisted) loadPosts();
+    });
+
+    // Also attempt load immediately in case auth already resolved
+    if (document.querySelector('[data-admin-shell]:not([hidden])')) {
+      loadPosts();
+    }
+  }());
+  </script>
+  <script>
+  // =========================================================
+  // Projects Manager
+  // =========================================================
+  (function () {
+    const pmStatus = document.getElementById('pmStatus');
+    const pmTable = document.getElementById('pmTable');
+    const pmForm = document.getElementById('pmForm');
+    const pmFormTitle = document.getElementById('pmFormTitle');
+    const pmSaveBtn = document.getElementById('pmSaveBtn');
+    const pmDeleteBtn = document.getElementById('pmDeleteBtn');
+    const pmFeedback = document.getElementById('pmFeedback');
+    const pmNewBtn = document.getElementById('pmNewBtn');
+    const pmRefreshBtn = document.getElementById('pmRefreshBtn');
+    const pmProjectId = document.getElementById('pmProjectId');
+    const pmTitle = document.getElementById('pmTitle');
+    const pmDescription = document.getElementById('pmDescription');
+    const pmUrl = document.getElementById('pmUrl');
+    const pmRepoUrl = document.getElementById('pmRepoUrl');
+    const pmStatusInput = document.getElementById('pmStatus');
+    const pmTags = document.getElementById('pmTags');
+    const pmFeatured = document.getElementById('pmFeatured');
+
+    let pmProjects = [];
+
+    function escPm(str) {
+      return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function setStatus(msg) { if (pmStatus) pmStatus.textContent = msg; }
+    function setFeedback(msg, isError) {
+      if (!pmFeedback) return;
+      pmFeedback.textContent = msg;
+      pmFeedback.style.color = isError ? 'var(--error,#f87171)' : '';
+    }
+
+    async function loadProjects() {
+      setStatus('Loading…');
+      pmTable.innerHTML = '<p>Loading projects…</p>';
+      try {
+        const res = await fetch('/api/admin/projects');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const { projects } = await res.json();
+        pmProjects = projects || [];
+        renderTable(pmProjects);
+        setStatus(`${pmProjects.length} project(s) — updated ${new Date().toLocaleTimeString()}`);
+      } catch (err) {
+        pmTable.innerHTML = `<p style="color:var(--error,#f87171)">Failed to load projects: ${escPm(err.message)}</p>`;
+        setStatus('Error');
+      }
+    }
+
+    function renderTable(projects) {
+      if (!projects.length) {
+        pmTable.innerHTML = '<p>No projects yet. Create one below.</p>';
+        return;
+      }
+      const rows = projects.map((p) => `<tr>
+        <td>${escPm(p.title)}</td>
+        <td>${escPm(p.status || '—')}</td>
+        <td>${p.featured ? '⭐ Featured' : '—'}</td>
+        <td class="admin-table__actions">
+          <button type="button" class="button button--tiny" data-pm-edit="${escPm(p.id)}">Edit</button>
+        </td>
+      </tr>`).join('');
+      pmTable.innerHTML = `<div class="admin-table__scroll"><table>
+        <thead><tr><th>Title</th><th>Status</th><th>Featured</th><th>Actions</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`;
+    }
+
+    function resetForm() {
+      pmForm.reset();
+      pmProjectId.value = '';
+      pmFormTitle.textContent = 'Add new project';
+      pmDeleteBtn.hidden = true;
+      pmSaveBtn.textContent = 'Save project';
+      setFeedback('');
+    }
+
+    function populateForm(project) {
+      pmProjectId.value = project.id;
+      pmTitle.value = project.title || '';
+      pmDescription.value = project.description || '';
+      pmUrl.value = project.url || '';
+      pmRepoUrl.value = project.repo_url || '';
+      pmStatusInput.value = project.status || '';
+      pmTags.value = Array.isArray(project.tags) ? project.tags.join(', ') : '';
+      pmFeatured.checked = Boolean(project.featured);
+      pmFormTitle.textContent = `Editing: ${project.title}`;
+      pmDeleteBtn.hidden = false;
+      pmSaveBtn.textContent = 'Update project';
+      setFeedback('');
+      pmForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    pmTable.addEventListener('click', (e) => {
+      const editBtn = e.target.closest('[data-pm-edit]');
+      if (editBtn) {
+        const id = editBtn.dataset.pmEdit;
+        const project = pmProjects.find((p) => p.id === id);
+        if (project) populateForm(project);
+      }
+    });
+
+    pmNewBtn.addEventListener('click', resetForm);
+    if (pmRefreshBtn) pmRefreshBtn.addEventListener('click', loadProjects);
+
+    pmForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setFeedback('Saving…');
+      pmSaveBtn.disabled = true;
+
+      const id = pmProjectId.value.trim();
+      const tags = pmTags.value.split(',').map((t) => t.trim()).filter(Boolean);
+      const payload = {
+        title: pmTitle.value.trim(),
+        description: pmDescription.value.trim(),
+        url: pmUrl.value.trim(),
+        repo_url: pmRepoUrl.value.trim(),
+        status: pmStatusInput.value.trim(),
+        tags: tags.length ? tags : [],
+        featured: pmFeatured.checked,
+      };
+      if (id) payload.id = id;
+
+      try {
+        const res = await fetch('/api/admin/projects', {
+          method: id ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        setFeedback(id ? 'Project updated.' : 'Project created.');
+        resetForm();
+        await loadProjects();
+      } catch (err) {
+        setFeedback(`Save failed: ${err.message}`, true);
+      } finally {
+        pmSaveBtn.disabled = false;
+      }
+    });
+
+    pmDeleteBtn.addEventListener('click', async () => {
+      const id = pmProjectId.value.trim();
+      if (!id) return;
+      if (!confirm('Delete this project? This cannot be undone.')) return;
+      pmDeleteBtn.disabled = true;
+      try {
+        const res = await fetch('/api/admin/projects', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        setFeedback('Project deleted.');
+        resetForm();
+        await loadProjects();
+      } catch (err) {
+        setFeedback(`Delete failed: ${err.message}`, true);
+        pmDeleteBtn.disabled = false;
+      }
+    });
+
+    // Load once auth unlocks the admin shell
+    document.addEventListener('coolmanyt:auth-state', (e) => {
+      if (e.detail?.allowlisted) loadProjects();
+    });
+    if (document.querySelector('[data-admin-shell]:not([hidden])')) {
+      loadProjects();
+    }
+  }());
   </script>
   <script>
     window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };

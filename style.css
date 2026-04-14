@@ -213,6 +213,10 @@ img {
   font-size: 0.96rem;
 }
 
+.top-banner[hidden] {
+  display: none !important;
+}
+
 body.banner-disabled .top-banner {
   display: none !important;
 }
@@ -408,6 +412,7 @@ body.banner-disabled .top-banner {
   border: 1px solid var(--outline);
   background: var(--surface-strong);
   color: var(--text-primary);
+  font-family: inherit;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
@@ -842,7 +847,7 @@ button:focus-visible {
 }
 
 .hero-socials {
-  margin-top: 2.5rem;
+  margin-top: 0;
 }
 
 .playlist-section {
@@ -1815,7 +1820,7 @@ body.theme-light .newsletter__embed {
 }
 
 .site-header .social-links {
-  margin: 1rem auto 0.75rem;
+  margin: 1rem auto 0.5rem;
   justify-content: center;
 }
 
@@ -2129,6 +2134,28 @@ body:not(.theme-light) .contact-auth-badge {
   background: rgba(231, 76, 60, 0.2);
   border-color: rgba(231, 76, 60, 0.35);
   color: #ffb3b3;
+}
+
+.contact-form-note {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 600px;
+  margin: 0.5rem auto 0;
+}
+
+.support-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bmc-button img {
+  height: 60px;
+  width: auto;
+  border-radius: 12px;
+  display: block;
 }
 
 /* About Page Styles */

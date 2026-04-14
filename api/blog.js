@@ -1,0 +1,136 @@
+import { getSupabasePublic } from '../lib/server/supabase.js';
+import { sendJson, methodNotAllowed } from '../lib/server/http.js';
+import { renderMarkdown } from '../lib/server/markdown.js';
+
+export const config = { runtime: 'nodejs' };
+
+/**
+ * Consolidated public content handler — dispatches based on URL path:
+ *
+ *   GET /api/supabase-blog/posts      → list all published blog posts
+ *   GET /api/supabase-blog/post       → single published post by slug (rendered HTML)
+ *   GET /api/projects/list            → list all projects
+ */
+export default async function handler(req, res) {
+  const url = new URL(req.url, 'http://localhost');
+  const pathname = url.pathname.replace(/\/$/, '');
+
+  if (pathname.endsWith('/posts')) {
+    return handlePosts(req, res);
+  }
+  if (pathname.endsWith('/post')) {
+    return handlePost(req, res, url);
+  }
+  if (pathname.endsWith('/list') || pathname.includes('/projects')) {
+    return handleProjectsList(req, res);
+  }
+
+  res.statusCode = 404;
+  res.end('Not Found');
+}
+
+// ---------------------------------------------------------------------------
+// GET /api/supabase-blog/posts
+// ---------------------------------------------------------------------------
+
+async function handlePosts(req, res) {
+  if (req.method !== 'GET') {
+    return methodNotAllowed(res, ['GET']);
+  }
+
+  try {
+    const supabase = getSupabasePublic();
+    const { data, error } = await supabase
+      .from('blogs')
+      .select('id, title, slug, warnings, created_at, updated_at, author_id')
+      .eq('published', true)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error fetching posts', error);
+      return sendJson(res, 500, { error: 'Failed to fetch posts' });
+    }
+
+    sendJson(res, 200, { posts: data ?? [] });
+  } catch (err) {
+    console.error('Unexpected error in handlePosts', err);
+    sendJson(res, 500, { error: 'Internal server error' });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// GET /api/supabase-blog/post?slug=<slug>
+// ---------------------------------------------------------------------------
+
+async function handlePost(req, res, url) {
+  if (req.method !== 'GET') {
+    return methodNotAllowed(res, ['GET']);
+  }
+
+  try {
+    const slug = (url.searchParams.get('slug') || '').trim();
+
+    if (!slug) {
+      return sendJson(res, 400, { error: 'slug query parameter is required' });
+    }
+
+    const supabase = getSupabasePublic();
+    const { data, error } = await supabase
+      .from('blogs')
+      .select('*')
+      .eq('slug', slug)
+      .eq('published', true)
+      .single();
+
+    if (error || !data) {
+      return sendJson(res, 404, { error: 'Post not found' });
+    }
+
+    const contentHtml = await renderMarkdown(data.content_markdown);
+
+    sendJson(res, 200, {
+      post: {
+        id: data.id,
+        title: data.title,
+        slug: data.slug,
+        contentHtml,
+        warnings: data.warnings ?? [],
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+        author_id: data.author_id,
+      },
+    });
+  } catch (err) {
+    console.error('Unexpected error in handlePost', err);
+    sendJson(res, 500, { error: 'Internal server error' });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// GET /api/projects/list
+// ---------------------------------------------------------------------------
+
+async function handleProjectsList(req, res) {
+  if (req.method !== 'GET') {
+    return methodNotAllowed(res, ['GET']);
+  }
+
+  try {
+    const supabase = getSupabasePublic();
+    const { data, error } = await supabase
+      .from('projects')
+      .select('id, title, description, url, repo_url, status, tags, featured, created_at, updated_at')
+      .order('featured', { ascending: false })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error fetching projects', error);
+      return sendJson(res, 500, { error: 'Failed to fetch projects' });
+    }
+
+    sendJson(res, 200, { projects: data ?? [] });
+  } catch (err) {
+    console.error('Unexpected error in handleProjectsList', err);
+    sendJson(res, 500, { error: 'Internal server error' });
+  }
+}

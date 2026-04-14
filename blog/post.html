@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="COOLmanYT Blog Post">
+  <meta name="author" content="COOLmanYT">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" type="image/png" href="/images/avatar.png">
+  <link rel="icon" href="/images/favicon.ico">
+  <link rel="apple-touch-icon" href="/images/avatar.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <title>Blog Post — COOLmanYT</title>
+
+  <style>
+    /* Warnings */
+    .sb-warnings { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .sb-warning { display: flex; align-items: center; gap: 0.5rem; background: var(--warning-bg, rgba(251,191,36,0.1)); border: 1px solid var(--warning-border, rgba(251,191,36,0.4)); border-radius: 8px; padding: 0.6rem 1rem; font-size: 0.9rem; }
+    /* Alert blocks */
+    .alert { border-radius: 8px; padding: 1rem 1.25rem; margin: 1.25rem 0; border-left: 4px solid; }
+    .alert.info, .alert.note, .alert.tip { background: rgba(59,130,246,0.08); border-color: #3b82f6; }
+    .alert.warning, .alert.caution, .alert.important { background: rgba(251,191,36,0.08); border-color: #fbbf24; }
+    .alert.error { background: rgba(239,68,68,0.08); border-color: #ef4444; }
+    /* Loading / error states */
+    .sb-loading { text-align: center; padding: 4rem 1rem; }
+    .sb-error { color: var(--error, #f87171); padding: 1rem; border: 1px solid currentColor; border-radius: 8px; margin: 2rem auto; max-width: 600px; }
+    /* Code highlight adjustments */
+    .blog-article-content pre { border-radius: 8px; overflow-x: auto; }
+    .blog-article-content code:not(pre code) { background: rgba(128,128,128,0.15); padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.9em; }
+    /* GFM tables */
+    .blog-article-content table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+    .blog-article-content th, .blog-article-content td { border: 1px solid var(--border, #2a2a3e); padding: 0.5rem 0.75rem; text-align: left; }
+    .blog-article-content th { background: var(--card-bg, #1a1a2e); font-weight: 600; }
+    /* Task lists */
+    .blog-article-content .task-list-item { list-style: none; }
+    .blog-article-content .task-list-item input { margin-right: 0.4rem; }
+  </style>
+</head>
+<body class="blog-article-page">
+  <a class="skip-link" href="#mainContent">Skip to main content</a>
+  <div class="top-banner" hidden aria-hidden="true">
+    <span>🎉 Website Release!</span>
+    <a class="banner-button" href="https://github.com/COOLmanYT/mycoolwebsite" target="_blank" rel="noopener noreferrer">Open Source GitHub Repository</a>
+    <a class="banner-button" href="/#release-countdown" data-release-link hidden aria-hidden="true" tabindex="-1">View Countdown</a>
+  </div>
+
+  <header class="site-header" role="banner">
+    <div class="header-bar">
+      <div class="nav-wrapper">
+        <nav class="nav-links" aria-label="Primary">
+          <a href="/" class="nav-pill">Home</a>
+          <a href="/about" class="nav-pill">About</a>
+          <a href="/projects" class="nav-pill">Projects</a>
+          <a href="/contact" class="nav-pill">Contact</a>
+          <a href="/blog" class="nav-pill active">Blog</a>
+        </nav>
+      </div>
+      <span class="site-logo">COOLmanYT</span>
+      <button type="button" class="theme-toggle" aria-label="Switch to light mode" aria-pressed="true">
+        <span class="toggle-icon">🌙</span>
+        <span class="toggle-text">Light mode</span>
+      </button>
+    </div>
+    <div class="social-links">
+      <a href="https://github.com/COOLmanYT" target="_blank" rel="noopener noreferrer" class="social-button" data-label="GitHub">
+        <img src="../images/github.png" alt="GitHub" width="64" height="64" loading="eager">
+        <span class="social-label">GitHub</span>
+      </a>
+      <a href="https://www.youtube.com/@COOLmanGamer" target="_blank" rel="noopener noreferrer" class="social-button" data-label="YouTube">
+        <img src="../images/youtube.png" alt="YouTube" width="64" height="64" loading="eager">
+        <span class="social-label">YouTube</span>
+      </a>
+      <a href="https://discord.gg/SzHksR3QFj" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Discord">
+        <img src="../images/discord.png" alt="Discord" width="64" height="64" loading="eager">
+        <span class="social-label">Discord</span>
+      </a>
+      <a href="https://www.roblox.com/users/2873599962/profile" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Roblox">
+        <img src="../images/roblox2.png" alt="Roblox" width="64" height="64" loading="eager">
+        <span class="social-label">Roblox</span>
+      </a>
+      <a href="https://open.spotify.com/user/31px5awkcyikvgrfiiqkxem6oxni?si=fd36097626ff454f" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Spotify">
+        <img src="../images/spotify.png" alt="Spotify" width="64" height="64" loading="eager">
+        <span class="social-label">Spotify</span>
+      </a>
+      <a href="https://www.reddit.com/user/COOLman_YT/" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Reddit">
+        <img src="../images/reddit.png" alt="Reddit" width="64" height="64" loading="eager">
+        <span class="social-label">Reddit</span>
+      </a>
+      <a href="https://steamcommunity.com/id/coolmanyt1" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Steam">
+        <img src="../images/steam.png" alt="Steam" width="64" height="64" loading="eager">
+        <span class="social-label">Steam</span>
+      </a>
+    </div>
+  </header>
+
+  <main id="mainContent" role="main">
+    <div id="sbPostLoading" class="sb-loading" aria-live="polite">Loading post…</div>
+    <div id="sbPostError" class="sb-error" hidden></div>
+
+    <article id="sbPost" class="blog-article-wrapper" hidden>
+      <header class="blog-article-header">
+        <div class="blog-article-meta">
+          <time id="sbPostDate"></time>
+        </div>
+        <h1 id="sbPostTitle"></h1>
+      </header>
+
+      <div id="sbWarnings" class="sb-warnings" hidden aria-label="Content warnings"></div>
+
+      <div id="sbPostContent" class="blog-article-content"></div>
+
+      <footer class="blog-article-footer">
+        <span id="sbPostFooter"></span>
+        <div class="article-actions">
+          <button type="button" id="sbShareBtn">Share</button>
+          <a href="/blog">← Back to Blog</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+
+  <section class="comments" aria-label="Comments">
+    <script src="https://giscus.app/client.js"
+            data-repo="COOLmanYT/mycoolwebsite"
+            data-repo-id="R_kgDOP_C5DA"
+            data-category="giscus comments"
+            data-category-id="DIC_kwDOP_C5DM4C1Twf"
+            data-mapping="og:title"
+            data-strict="1"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="top"
+            data-theme="dark"
+            data-lang="en"
+            data-loading="lazy"
+            crossorigin="anonymous"
+            async>
+    </script>
+  </section>
+
+  <footer class="site-footer" role="contentinfo">
+    <span>Made with ♥️ by <strong>COOLmanYT</strong></span>
+    <span>Website <a data-site-version-link href="https://github.com/COOLmanYT/mycoolwebsite">Version <span data-site-version-number></span><span data-site-version-type></span></a></span>
+    <span>Credits to <a href="https://zinheere.dev">Zinheere</a></span>
+    <span><a href="/privacy">Privacy Policy</a> • <a href="/terms">Terms of Service</a></span>
+  </footer>
+
+  <script src="../script.js"></script>
+  <script>
+  (function () {
+    const loadingEl = document.getElementById('sbPostLoading');
+    const errorEl = document.getElementById('sbPostError');
+    const postEl = document.getElementById('sbPost');
+    const titleEl = document.getElementById('sbPostTitle');
+    const dateEl = document.getElementById('sbPostDate');
+    const warningsEl = document.getElementById('sbWarnings');
+    const contentEl = document.getElementById('sbPostContent');
+    const footerEl = document.getElementById('sbPostFooter');
+    const shareBtn = document.getElementById('sbShareBtn');
+
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function formatDate(iso) {
+      try {
+        return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      } catch (_) {
+        return iso;
+      }
+    }
+
+    function getSlug() {
+      const params = new URLSearchParams(window.location.search);
+      return (params.get('slug') || '').trim();
+    }
+
+    async function loadPost() {
+      const slug = getSlug();
+      if (!slug) {
+        loadingEl.hidden = true;
+        errorEl.textContent = 'No post slug provided. Please navigate from the blog list.';
+        errorEl.hidden = false;
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/supabase-blog/post?slug=${encodeURIComponent(slug)}`);
+        if (res.status === 404) {
+          loadingEl.hidden = true;
+          errorEl.textContent = 'Post not found.';
+          errorEl.hidden = false;
+          return;
+        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const { post } = await res.json();
+
+        // Update page meta
+        document.title = `${post.title} — COOLmanYT`;
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) metaDesc.setAttribute('content', post.title);
+
+        titleEl.textContent = post.title;
+
+        const dateStr = formatDate(post.created_at);
+        dateEl.textContent = dateStr;
+        dateEl.setAttribute('datetime', post.created_at);
+
+        // Warnings rendered above content
+        if (Array.isArray(post.warnings) && post.warnings.length > 0) {
+          warningsEl.innerHTML = post.warnings
+            .map((w) => `<div class="sb-warning" role="note">⚠️ <span>${escapeHtml(w)}</span></div>`)
+            .join('');
+          warningsEl.hidden = false;
+        }
+
+        // Content — already sanitised server-side
+        contentEl.innerHTML = post.contentHtml;
+
+        const updatedStr = post.updated_at !== post.created_at
+          ? `Updated ${formatDate(post.updated_at)}`
+          : `Published ${dateStr}`;
+        footerEl.textContent = updatedStr;
+
+        shareBtn.addEventListener('click', async () => {
+          const url = window.location.href;
+          try {
+            if (navigator.clipboard) {
+              await navigator.clipboard.writeText(url);
+              shareBtn.textContent = 'Link copied!';
+              setTimeout(() => { shareBtn.textContent = 'Share'; }, 2000);
+            }
+          } catch (_) {
+            shareBtn.textContent = 'Share';
+          }
+        });
+
+        loadingEl.hidden = true;
+        postEl.hidden = false;
+      } catch (err) {
+        loadingEl.hidden = true;
+        errorEl.textContent = `Failed to load post: ${escapeHtml(err.message)}`;
+        errorEl.hidden = false;
+      }
+    }
+
+    loadPost();
+  }());
+  </script>
+  <script>window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };</script>
+  <script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>

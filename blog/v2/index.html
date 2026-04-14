@@ -11,19 +11,19 @@
   <link rel="apple-touch-icon" href="/images/avatar.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="../style.css">
-  <link rel="canonical" href="https://coolmanyt.com/blog">
+  <link rel="stylesheet" href="../../style.css">
+  <link rel="canonical" href="https://coolmanyt.com/blog/v2">
   <link rel="alternate" type="application/rss+xml" title="COOLmanYT Blog" href="/blog/feed.xml">
   <title>Blog — COOLmanYT</title>
 
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://coolmanyt.com/blog">
+  <meta property="og:url" content="https://coolmanyt.com/blog/v2">
   <meta property="og:title" content="COOLmanYT Blog">
   <meta property="og:description" content="Devlogs, tutorials, and creator updates from COOLmanYT.">
   <meta property="og:image" content="https://coolmanyt.com/images/avatar.png">
 
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:url" content="https://coolmanyt.com/blog">
+  <meta name="twitter:url" content="https://coolmanyt.com/blog/v2">
   <meta name="twitter:title" content="COOLmanYT Blog">
   <meta name="twitter:description" content="Devlogs, tutorials, and creator updates from COOLmanYT.">
   <meta name="twitter:image" content="https://coolmanyt.com/images/avatar.png">
@@ -35,8 +35,6 @@
     .sb-card a { color: inherit; text-decoration: none; }
     .sb-card a:hover h2 { text-decoration: underline; }
     .sb-card time { font-size: 0.85rem; opacity: 0.7; }
-    .sb-warning-badge { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.35); border-radius: 6px; padding: 0.2rem 0.5rem; }
-    .sb-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; }
     .sb-empty { text-align: center; padding: 3rem; opacity: 0.6; }
     .sb-loading { text-align: center; padding: 3rem; }
     .sb-error { color: var(--error, #f87171); padding: 1rem; border: 1px solid currentColor; border-radius: 8px; }
@@ -69,31 +67,31 @@
     </div>
     <div class="social-links">
       <a href="https://github.com/COOLmanYT" target="_blank" rel="noopener noreferrer" class="social-button" data-label="GitHub">
-        <img src="../images/github.png" alt="GitHub" width="64" height="64" loading="eager">
+        <img src="../../images/github.png" alt="GitHub" width="64" height="64" loading="eager">
         <span class="social-label">GitHub</span>
       </a>
       <a href="https://www.youtube.com/@COOLmanGamer" target="_blank" rel="noopener noreferrer" class="social-button" data-label="YouTube">
-        <img src="../images/youtube.png" alt="YouTube" width="64" height="64" loading="eager">
+        <img src="../../images/youtube.png" alt="YouTube" width="64" height="64" loading="eager">
         <span class="social-label">YouTube</span>
       </a>
       <a href="https://discord.gg/SzHksR3QFj" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Discord">
-        <img src="../images/discord.png" alt="Discord" width="64" height="64" loading="eager">
+        <img src="../../images/discord.png" alt="Discord" width="64" height="64" loading="eager">
         <span class="social-label">Discord</span>
       </a>
       <a href="https://www.roblox.com/users/2873599962/profile" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Roblox">
-        <img src="../images/roblox2.png" alt="Roblox" width="64" height="64" loading="eager">
+        <img src="../../images/roblox2.png" alt="Roblox" width="64" height="64" loading="eager">
         <span class="social-label">Roblox</span>
       </a>
       <a href="https://open.spotify.com/user/31px5awkcyikvgrfiiqkxem6oxni?si=fd36097626ff454f" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Spotify">
-        <img src="../images/spotify.png" alt="Spotify" width="64" height="64" loading="eager">
+        <img src="../../images/spotify.png" alt="Spotify" width="64" height="64" loading="eager">
         <span class="social-label">Spotify</span>
       </a>
       <a href="https://www.reddit.com/user/COOLman_YT/" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Reddit">
-        <img src="../images/reddit.png" alt="Reddit" width="64" height="64" loading="eager">
+        <img src="../../images/reddit.png" alt="Reddit" width="64" height="64" loading="eager">
         <span class="social-label">Reddit</span>
       </a>
       <a href="https://steamcommunity.com/id/coolmanyt1" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Steam">
-        <img src="../images/steam.png" alt="Steam" width="64" height="64" loading="eager">
+        <img src="../../images/steam.png" alt="Steam" width="64" height="64" loading="eager">
         <span class="social-label">Steam</span>
       </a>
     </div>
@@ -123,7 +121,7 @@
     <span><a href="/privacy">Privacy Policy</a> • <a href="/terms">Terms of Service</a></span>
   </footer>
 
-  <script src="../script.js"></script>
+  <script src="../../script.js"></script>
   <script>
   (function () {
     const statusEl = document.getElementById('sbStatus');
@@ -154,15 +152,11 @@
 
         listEl.innerHTML = posts.map((post) => {
           const date = formatDate(post.created_at);
-          const warnings = Array.isArray(post.warnings) && post.warnings.length
-            ? `<div class="sb-badges">${post.warnings.map((w) => `<span class="sb-warning-badge">⚠️ ${escapeHtml(w)}</span>`).join('')}</div>`
-            : '';
           return `<li>
             <article class="sb-card">
               <a href="/blog/post?slug=${encodeURIComponent(post.slug)}">
                 <h2>${escapeHtml(post.title)}</h2>
               </a>
-              ${warnings}
               <time datetime="${escapeHtml(post.created_at)}">${escapeHtml(date)}</time>
             </article>
           </li>`;

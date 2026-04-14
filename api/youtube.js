@@ -1,4 +1,4 @@
-import { sendJson, methodNotAllowed } from '../../lib/server/http.js';
+import { sendJson, methodNotAllowed } from '../lib/server/http.js';
 
 const cache = new Map();
 const CACHE_TTL_MS = 5 * 60 * 1000;

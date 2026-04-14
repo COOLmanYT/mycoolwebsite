@@ -59,7 +59,8 @@ async function main() {
 	await fs.mkdir(GENERATED_DIR, { recursive: true });
 	await fs.mkdir(BLOG_OUTPUT_DIR, { recursive: true });
 
-	await updateBlogPage(posts);
+	// blog/index.html is now Supabase-powered and no longer uses HTML injection markers.
+	// await updateBlogPage(posts);
 	await generateStandalonePages(posts.filter((post) => post.standalone));
 	await generateManifest(posts);
 	await generateFeed(posts.filter((post) => post.isPublished));

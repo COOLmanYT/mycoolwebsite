@@ -1,4 +1,4 @@
-const ver = "Version 1.0.6";
+const ver = "Version 1.5.0";
 const COMMENTS_API_URL = '/api/comments';
 const COMMENTS_STORAGE_KEY = 'coolman-comments';
 const DEFAULT_SITE_SETTINGS = {
@@ -1376,7 +1376,7 @@ async function initLatestBlogCard() {
 			readingEl.textContent = '';
 			readingEl.hidden = true;
 		}
-		if (linkEl) linkEl.href = 'blog/index.html';
+		if (linkEl) linkEl.href = '/blog';
 	};
 
 	const formatDate = (input) => {
@@ -1386,36 +1386,30 @@ async function initLatestBlogCard() {
 	};
 
 	try {
-		const res = await fetch(`blog/.generated/blog-manifest.json?ts=${Date.now()}`);
+		const res = await fetch('/api/supabase-blog/posts');
 		if (!res.ok) {
-			throw new Error(`Manifest request failed (${res.status})`);
+			throw new Error(`Posts request failed (${res.status})`);
 		}
 		const payload = await res.json();
-		const posts = Array.isArray(payload.posts) ? payload.posts : Array.isArray(payload) ? payload : [];
-		const published = posts
-			.filter((post) => (post.status || 'published').toLowerCase() === 'published')
-			.sort((a, b) => new Date(b.datePublished || b.date || 0) - new Date(a.datePublished || a.date || 0));
+		const posts = Array.isArray(payload.posts) ? payload.posts : [];
 
-		const latest = published[0];
+		const latest = posts[0];
 		if (!latest) {
 			throw new Error('No published posts found');
 		}
 
-		const slug = latest.slug || '';
-		const summary = latest.summary || 'New story on the blog.';
-		const reading = latest.readingMinutes ? `${latest.readingMinutes} min read` : '';
-		const dateText = formatDate(latest.datePublished || latest.date);
-		const href = slug ? `blog/${slug}.html` : 'blog/index.html';
+		const dateText = formatDate(latest.created_at);
+		const href = latest.slug ? `/blog/post?slug=${encodeURIComponent(latest.slug)}` : '/blog';
 
-		if (titleEl) titleEl.textContent = latest.title || slug || 'Latest blog post';
-		if (summaryEl) summaryEl.textContent = summary;
+		if (titleEl) titleEl.textContent = latest.title || 'Latest blog post';
+		if (summaryEl) summaryEl.textContent = 'Read the latest entry on the blog.';
 		if (dateEl) {
 			dateEl.textContent = dateText;
 			dateEl.hidden = !dateText;
 		}
 		if (readingEl) {
-			readingEl.textContent = reading;
-			readingEl.hidden = !reading;
+			readingEl.textContent = '';
+			readingEl.hidden = true;
 		}
 		if (linkEl) linkEl.href = href;
 	} catch (error) {
