@@ -1354,6 +1354,10 @@ function prepareTopBanner() {
 	});
 }
 
+function escHtml(str) {
+	return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 async function initLatestBlogCard() {
 	const section = document.querySelector('[data-blog-preview]');
 	if (!section) {
@@ -1362,9 +1366,6 @@ async function initLatestBlogCard() {
 
 	const scroll = section.querySelector('[data-blog-preview-scroll]');
 	const statusEl = section.querySelector('[data-blog-preview-status]');
-
-	const escHtml = (str) =>
-		String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 	const formatDate = (input) => {
 		const parsed = new Date(input || '');
@@ -1413,9 +1414,6 @@ async function initTopProjects() {
 
 	const scroll = section.querySelector('[data-projects-preview-scroll]');
 	const statusEl = section.querySelector('[data-projects-preview-status]');
-
-	const escHtml = (str) =>
-		String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 	try {
 		const res = await fetch('/api/projects/list');
