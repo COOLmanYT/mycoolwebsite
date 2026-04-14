@@ -213,6 +213,10 @@ img {
   font-size: 0.96rem;
 }
 
+.top-banner[hidden] {
+  display: none !important;
+}
+
 body.banner-disabled .top-banner {
   display: none !important;
 }
@@ -843,7 +847,7 @@ button:focus-visible {
 }
 
 .hero-socials {
-  margin-top: 2.5rem;
+  margin-top: 0;
 }
 
 .playlist-section {
@@ -1816,7 +1820,7 @@ body.theme-light .newsletter__embed {
 }
 
 .site-header .social-links {
-  margin: 0.5rem auto 0.25rem;
+  margin: 1rem auto 0.5rem;
   justify-content: center;
 }
 
