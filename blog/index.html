@@ -29,17 +29,68 @@
   <meta name="twitter:image" content="https://coolmanyt.com/images/avatar.png">
 
   <style>
-    .sb-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; list-style: none; padding: 0; margin: 2rem 0; }
-    .sb-card { background: var(--card-bg, #1a1a2e); border: 1px solid var(--border, #2a2a3e); border-radius: 12px; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
-    .sb-card h2 { margin: 0; font-size: 1.2rem; }
+    /* ── Blog listing layout ── */
+    .blog-section { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* Featured post */
+    .sb-featured { margin: 2rem 0 2.5rem; }
+    .sb-featured__card {
+      background: var(--card-bg, #1a1a2e);
+      border: 1px solid var(--accent, #4f46e5);
+      border-radius: 14px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      position: relative;
+    }
+    .sb-featured__badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: var(--accent, #4f46e5);
+      color: #fff;
+      border-radius: 6px;
+      padding: 0.2rem 0.6rem;
+      width: fit-content;
+    }
+    .sb-featured__card h2 { margin: 0; font-size: 1.5rem; }
+    .sb-featured__card a { color: inherit; text-decoration: none; }
+    .sb-featured__card a:hover h2 { text-decoration: underline; }
+    .sb-featured__excerpt { margin: 0; opacity: 0.8; font-size: 0.95rem; line-height: 1.6; }
+    .sb-featured__meta { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .sb-featured__meta time { font-size: 0.85rem; opacity: 0.65; }
+
+    /* Post list */
+    .sb-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; list-style: none; padding: 0; margin: 0 0 2rem; }
+    .sb-card {
+      background: var(--card-bg, #1a1a2e);
+      border: 1px solid var(--border, #2a2a3e);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: border-color 0.15s;
+    }
+    .sb-card:hover { border-color: var(--accent, #4f46e5); }
+    .sb-card h2 { margin: 0; font-size: 1.1rem; }
     .sb-card a { color: inherit; text-decoration: none; }
     .sb-card a:hover h2 { text-decoration: underline; }
-    .sb-card time { font-size: 0.85rem; opacity: 0.7; }
+    .sb-card__excerpt { margin: 0; font-size: 0.88rem; opacity: 0.75; line-height: 1.55; }
+    .sb-card time { font-size: 0.82rem; opacity: 0.6; margin-top: auto; padding-top: 0.25rem; }
     .sb-warning-badge { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.35); border-radius: 6px; padding: 0.2rem 0.5rem; }
     .sb-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+    /* States */
     .sb-empty { text-align: center; padding: 3rem; opacity: 0.6; }
     .sb-loading { text-align: center; padding: 3rem; }
     .sb-error { color: var(--error, #f87171); padding: 1rem; border: 1px solid currentColor; border-radius: 8px; }
+
+    /* Section heading */
+    .sb-section-heading { font-size: 1rem; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; opacity: 0.5; margin: 0 0 1rem; }
   </style>
 </head>
 <body class="blog-page">
@@ -110,8 +161,14 @@
       </div>
     </section>
 
-    <section aria-label="Blog posts" style="max-width:1200px;margin:0 auto;padding:0 1.5rem;">
+    <section aria-label="Blog posts" class="blog-section">
       <div id="sbStatus" class="sb-loading" aria-live="polite">Loading posts…</div>
+
+      <!-- Featured post (populated by JS) -->
+      <div id="sbFeatured" class="sb-featured" hidden></div>
+
+      <!-- All other posts -->
+      <p id="sbAllHeading" class="sb-section-heading" hidden>All posts</p>
       <ul id="sbList" class="sb-list" aria-label="Blog post list" hidden></ul>
     </section>
   </main>
@@ -127,6 +184,8 @@
   <script>
   (function () {
     const statusEl = document.getElementById('sbStatus');
+    const featuredEl = document.getElementById('sbFeatured');
+    const allHeadingEl = document.getElementById('sbAllHeading');
     const listEl = document.getElementById('sbList');
 
     function formatDate(iso) {
@@ -141,37 +200,73 @@
       return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
+    function warningBadges(warnings) {
+      if (!Array.isArray(warnings) || !warnings.length) return '';
+      return `<div class="sb-badges">${warnings.map((w) => `<span class="sb-warning-badge">⚠️ ${escapeHtml(w)}</span>`).join('')}</div>`;
+    }
+
+    function renderFeatured(post) {
+      const date = formatDate(post.created_at);
+      const excerpt = post.excerpt ? `<p class="sb-featured__excerpt">${escapeHtml(post.excerpt)}</p>` : '';
+      featuredEl.innerHTML = `
+        <span class="sb-featured__badge">Latest post</span>
+        <article class="sb-featured__card">
+          <a href="/blog/post?slug=${encodeURIComponent(post.slug)}">
+            <h2>${escapeHtml(post.title)}</h2>
+          </a>
+          ${excerpt}
+          ${warningBadges(post.warnings)}
+          <div class="sb-featured__meta">
+            <time datetime="${escapeHtml(post.created_at)}">${escapeHtml(date)}</time>
+            <a href="/blog/post?slug=${encodeURIComponent(post.slug)}" class="button button--small">Read post →</a>
+          </div>
+        </article>`;
+      featuredEl.hidden = false;
+    }
+
+    function renderList(posts) {
+      if (!posts.length) return;
+      listEl.innerHTML = posts.map((post) => {
+        const date = formatDate(post.created_at);
+        const excerpt = post.excerpt
+          ? `<p class="sb-card__excerpt">${escapeHtml(post.excerpt)}</p>`
+          : '';
+        return `<li>
+          <article class="sb-card">
+            <a href="/blog/post?slug=${encodeURIComponent(post.slug)}">
+              <h2>${escapeHtml(post.title)}</h2>
+            </a>
+            ${excerpt}
+            ${warningBadges(post.warnings)}
+            <time datetime="${escapeHtml(post.created_at)}">${escapeHtml(date)}</time>
+          </article>
+        </li>`;
+      }).join('');
+      allHeadingEl.hidden = false;
+      listEl.hidden = false;
+    }
+
     async function loadPosts() {
       try {
         const res = await fetch('/api/supabase-blog/posts');
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const { posts } = await res.json();
 
+        statusEl.hidden = true;
+
         if (!posts || posts.length === 0) {
           statusEl.innerHTML = '<p class="sb-empty">No posts published yet. Check back soon!</p>';
+          statusEl.hidden = false;
           return;
         }
 
-        listEl.innerHTML = posts.map((post) => {
-          const date = formatDate(post.created_at);
-          const warnings = Array.isArray(post.warnings) && post.warnings.length
-            ? `<div class="sb-badges">${post.warnings.map((w) => `<span class="sb-warning-badge">⚠️ ${escapeHtml(w)}</span>`).join('')}</div>`
-            : '';
-          return `<li>
-            <article class="sb-card">
-              <a href="/blog/post?slug=${encodeURIComponent(post.slug)}">
-                <h2>${escapeHtml(post.title)}</h2>
-              </a>
-              ${warnings}
-              <time datetime="${escapeHtml(post.created_at)}">${escapeHtml(date)}</time>
-            </article>
-          </li>`;
-        }).join('');
-
-        statusEl.hidden = true;
-        listEl.hidden = false;
+        // First post is always the featured/latest; remaining go in the grid
+        const [featured, ...rest] = posts;
+        renderFeatured(featured);
+        renderList(rest);
       } catch (err) {
         statusEl.innerHTML = `<p class="sb-error">Failed to load posts: ${escapeHtml(err.message)}</p>`;
+        statusEl.hidden = false;
       }
     }
 

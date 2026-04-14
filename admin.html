@@ -106,11 +106,11 @@
       <div>
         <p class="tag-pill">Internal Tools</p>
         <h1>Admin Panel</h1>
-        <p>Draft markdown front matter, review manifest stats, and keep the blog pipeline unblocked without touching half a dozen files manually.</p>
+        <p>Manage blog posts and projects, configure site settings, and keep the pipeline running — all from one place.</p>
       </div>
       <div class="admin-hero__actions">
         <a href="/blog" class="button">Open Blog</a>
-        <button type="button" class="button button--ghost" data-copy-build>Copy build command</button>
+        <a href="/projects" class="button button--ghost">Open Projects</a>
         <div class="admin-auth-meta" data-auth-meta hidden>
           <img src="images/avatar.png" alt="Signed-in avatar" data-auth-avatar>
           <div>
@@ -130,97 +130,6 @@ document.getElementById("envCheck").textContent =
 </script>
 
     <section class="admin-grid" aria-label="Quick controls">
-      <article class="admin-card">
-        <div class="admin-card__header">
-          <h2>Post Stats</h2>
-          <span class="admin-card__status" data-manifest-status>Loading…</span>
-        </div>
-        <dl class="admin-stats">
-          <div>
-            <dt>Total</dt>
-            <dd data-stat-total>—</dd>
-          </div>
-          <div>
-            <dt>Published</dt>
-            <dd data-stat-published>—</dd>
-          </div>
-          <div>
-            <dt>Drafts</dt>
-            <dd data-stat-drafts>—</dd>
-          </div>
-          <div>
-            <dt>Standalones</dt>
-            <dd data-stat-standalone>—</dd>
-          </div>
-        </dl>
-      </article>
-
-      <article class="admin-card">
-        <div class="admin-card__header">
-          <h2>Workflow Checklist</h2>
-        </div>
-        <ol class="admin-steps">
-          <li>Write content under <code>blog/content/&lt;slug&gt;.md</code>.</li>
-          <li>Run <code>npm run build:blog</code> to regenerate listings, RSS, and manifests.</li>
-          <li>Review diffs (especially <code>blog/index.html</code>) and commit.</li>
-          <li>Deploy, then bump <code>ver</code> in <code>script.js</code> if needed.</li>
-        </ol>
-        <div class="admin-quick-links">
-          <a href="https://github.com/COOLmanYT/mycoolwebsite/tree/main/blog/content" class="button button--small" target="_blank" rel="noopener noreferrer">Open content folder</a>
-          <a href="README.md" class="button button--ghost button--small">Read workflow docs</a>
-        </div>
-      </article>
-
-      <article class="admin-card">
-        <div class="admin-card__header">
-          <div>
-            <p class="tag-pill">Fallback</p>
-            <h2>Manual Overrides</h2>
-          </div>
-        </div>
-        <p class="admin-help-text">Use these steps if the admin panel is down or GitHub auth is failing.</p>
-
-        <details class="admin-accordion" open>
-          <summary>Blog Creation</summary>
-          <ol class="admin-steps">
-            <li>Create <code>blog/content/&lt;slug&gt;.md</code> with front matter (see README example).</li>
-            <li>Add any card/hero images under <code>images/blog/</code> or reference full URLs.</li>
-            <li>Commit and push; let hosting rebuild, or if blocked, manually extend <code>blog/.generated/blog-manifest.json</code> with a copied entry.</li>
-            <li>Mirror the new card markup in <code>blog/index.html</code> by duplicating the latest card and updating title, slug, dates, tag, and image paths.</li>
-            <li>Sanity-check links and images in a preview, then commit manifest/index edits; optionally bump <code>ver</code> in <code>script.js</code> to bust caches.</li>
-          </ol>
-        </details>
-
-        <details class="admin-accordion">
-          <summary>Blog Deletion</summary>
-          <ol class="admin-steps">
-            <li>Delete <code>blog/content/&lt;slug&gt;.md</code> and any unused images in <code>images/blog/</code>.</li>
-            <li>Remove the matching entry in <code>blog/.generated/blog-manifest.json</code> (or rely on a hosting rebuild after commit).</li>
-            <li>Remove the card/row markup in <code>blog/index.html</code> so it disappears from listings.</li>
-            <li>If there is a standalone HTML page under <code>blog/</code> for this slug, delete it.</li>
-            <li>Commit and push removals; bump <code>ver</code> in <code>script.js</code> if you want clients to refresh.</li>
-          </ol>
-        </details>
-
-        <details class="admin-accordion">
-          <summary>Webhook Setup</summary>
-          <ol class="admin-steps">
-            <li>Set <code>DISCORD_WEBHOOK_URL</code> in your hosting env (Vercel dashboard) so deploys can broadcast.</li>
-            <li>If editing files directly, add your webhook to <code>content/webhooks.json</code> (same shape as the UI list).</li>
-            <li>To pause webhooks, clear <code>DISCORD_WEBHOOK_URL</code> or remove entries from <code>content/webhooks.json</code> and commit.</li>
-          </ol>
-        </details>
-
-        <details class="admin-accordion">
-          <summary>Countdown Visibility</summary>
-          <ol class="admin-steps">
-            <li>Edit <code>content/site-settings.json</code> and set <code>"countdownEnabled": false</code> to hide it.</li>
-            <li>Optionally clear <code>releaseCountdownTarget</code>, <code>countdownHeading</code>, and <code>countdownNote</code> if they should not render.</li>
-            <li>Commit and push so the change is deployed (no local npm needed); bump <code>ver</code> in <code>script.js</code> if the cached UI lingers.</li>
-          </ol>
-        </details>
-      </article>
-
       <article class="admin-card admin-card--distribution">
         <div class="admin-card__header">
           <h2>Distribution</h2>
@@ -298,171 +207,6 @@ document.getElementById("envCheck").textContent =
           </div>
         </div>
       </article>
-    </section>
-
-    <section class="admin-form-card">
-      <div class="admin-card__header">
-        <div>
-          <p class="tag-pill">Generator</p>
-          <h2>Blog Post Builder</h2>
-        </div>
-        <span class="admin-card__status" data-generator-status>Autosaves locally</span>
-      </div>
-      <form class="admin-form" data-blog-form>
-        <div class="admin-form__field">
-          <label for="title">Title *</label>
-          <input type="text" id="title" name="title" placeholder="Lighting Makeover Checklist" required>
-        </div>
-        <div class="admin-form__field">
-          <label for="displayTitle">Display Title</label>
-          <input type="text" id="displayTitle" name="displayTitle" placeholder="Lighting Makeover Checklist (COMING SOON)">
-        </div>
-        <div class="admin-form__field">
-          <label for="slug">Slug *</label>
-          <input type="text" id="slug" name="slug" placeholder="lighting-makeover-checklist" required>
-        </div>
-        <div class="admin-form__field">
-          <label for="tag">Tag</label>
-          <input type="text" id="tag" name="tag" value="Update">
-        </div>
-        <div class="admin-form__field">
-          <label for="cardCta">Card CTA</label>
-          <input type="text" id="cardCta" name="cardCta" value="Continue reading">
-        </div>
-        <div class="admin-form__field">
-          <label for="readingTime">Reading Time</label>
-          <input type="text" id="readingTime" name="readingTime" placeholder="5 minute read">
-        </div>
-        <div class="admin-form__field">
-          <label for="summary">Summary *</label>
-          <textarea id="summary" name="summary" rows="3" placeholder="One or two sentences that appear on the card." required></textarea>
-        </div>
-        <div class="admin-form__field admin-form__field--full">
-          <label for="highlights">Card Highlights (one per line)</label>
-          <textarea id="highlights" name="cardHighlights" rows="3" placeholder="Lighting tricks that instantly add depth"></textarea>
-        </div>
-        <div class="admin-form__field">
-          <label for="date">Published Date *</label>
-          <input type="date" id="date" name="date" required>
-        </div>
-        <div class="admin-form__field">
-          <label for="updated">Updated Date</label>
-          <input type="date" id="updated" name="updated">
-        </div>
-        <div class="admin-form__field">
-          <label for="status">Status</label>
-          <select id="status" name="status">
-            <option value="published">Published</option>
-            <option value="draft">Draft</option>
-            <option value="Coming Soon">Coming Soon</option>
-          </select>
-        </div>
-        <div class="admin-form__field">
-          <label for="shareBase">Share Base URL</label>
-          <input type="text" id="shareBase" name="shareBase" value="/blog">
-        </div>
-        <p class="admin-help-text">Store media under <code>images/blog/</code> or paste a full URL.</p>
-        <div class="admin-form__field">
-          <label for="cardImage">Card Image</label>
-          <input type="text" id="cardImage" name="cardImage" placeholder="images/blog/lighting-card.jpg">
-        </div>
-        <div class="admin-form__field">
-          <label for="cardImageAlt">Card Image Alt Text</label>
-          <input type="text" id="cardImageAlt" name="cardImageAlt" placeholder="Lighting setup preview thumbnail">
-        </div>
-        <div class="admin-form__field">
-          <label for="heroImage">Hero Image</label>
-          <input type="text" id="heroImage" name="heroImage" placeholder="images/blog/lighting-hero.jpg">
-        </div>
-        <div class="admin-form__field">
-          <label for="heroImageAlt">Hero Image Alt Text</label>
-          <input type="text" id="heroImageAlt" name="heroImageAlt" placeholder="Volumetric fog drifting across skyline">
-        </div>
-        <div class="admin-form__field admin-form__field--full">
-          <label for="ogImage">Open Graph Image</label>
-          <input type="text" id="ogImage" name="ogImage" placeholder="https://cdn.example.com/lighting-og.png">
-          <p class="admin-help-text">Leave blank to reuse the hero or card image.</p>
-        </div>
-        <div class="admin-form__field admin-form__checkbox">
-          <label><input type="checkbox" name="featured"> Featured</label>
-        </div>
-        <div class="admin-form__field admin-form__checkbox">
-          <label><input type="checkbox" name="standalone"> Generate standalone page</label>
-        </div>
-        <div class="admin-form__field">
-          <label for="standaloneNote">Standalone footer note</label>
-          <input type="text" id="standaloneNote" name="standaloneNote" placeholder="Updated Nov 3, 2025">
-        </div>
-        <div class="admin-form__field">
-          <label for="secondaryActionLabel">Secondary Action Label</label>
-          <input type="text" id="secondaryActionLabel" name="secondaryActionLabel" placeholder="View Source">
-        </div>
-        <div class="admin-form__field">
-          <label for="secondaryActionUrl">Secondary Action URL</label>
-          <input type="url" id="secondaryActionUrl" name="secondaryActionUrl" placeholder="https://github.com/...">
-        </div>
-        <div class="admin-form__field admin-form__field--full">
-          <label for="body">Markdown body (optional)</label>
-          <textarea id="body" name="body" rows="6" placeholder="## Headline\n\nStart writing here..."></textarea>
-        </div>
-        <div class="admin-form__actions">
-          <button type="reset" class="button button--ghost">Reset</button>
-        </div>
-      </form>
-      <div class="admin-preview">
-        <div class="admin-card__header">
-          <h3>Front Matter Preview</h3>
-          <button type="button" class="button button--small" data-copy-frontmatter>Copy snippet</button>
-        </div>
-        <pre aria-live="polite"><code data-frontmatter-preview>Fill out the form to generate front matter…</code></pre>
-        <p class="admin-help-text">Save this as <code>blog/content/&lt;slug&gt;.md</code>, then run <code>npm run build:blog</code>.</p>
-        <p class="admin-help-text" data-copy-feedback></p>
-      </div>
-    </section>
-
-    <section class="admin-table-card" aria-live="polite">
-      <div class="admin-card__header">
-        <div>
-          <p class="tag-pill">Manifest</p>
-          <h2>Existing Posts</h2>
-        </div>
-        <button type="button" class="button button--ghost button--small" data-refresh-manifest>Refresh</button>
-      </div>
-      <div class="admin-table" data-post-table>
-        <p>Loading manifest…</p>
-      </div>
-    </section>
-
-    <section class="admin-form-card" data-blog-editor hidden>
-      <div class="admin-card__header">
-        <div>
-          <p class="tag-pill">Editor</p>
-          <h2>Blog Edit / Delete</h2>
-        </div>
-        <span class="admin-card__status" data-blog-editor-status>Idle</span>
-      </div>
-      <form class="admin-form" data-blog-editor-form>
-        <div class="admin-form__field">
-          <label for="blogEditorSlug">Slug</label>
-          <input type="text" id="blogEditorSlug" name="slug" placeholder="lighting-makeover-checklist" data-blog-editor-slug required>
-        </div>
-        <div class="admin-form__field admin-form__field--full">
-          <label for="blogEditorContent">Markdown</label>
-          <textarea id="blogEditorContent" name="content" rows="12" placeholder="---
-slug: example
-title: Example Post
----
-
-Body here." data-blog-editor-content></textarea>
-          <p class="admin-help-text">Edits commit directly to <code>blog/content/&lt;slug&gt;.md</code> via GitHub.</p>
-        </div>
-        <div class="admin-form__actions">
-          <button type="button" class="button button--ghost" data-blog-editor-load>Load</button>
-          <button type="button" class="button" data-blog-editor-save>Save</button>
-          <button type="button" class="button button--ghost" data-blog-editor-delete>Delete</button>
-          <p class="admin-help-text" data-blog-editor-feedback></p>
-        </div>
-      </form>
     </section>
 
     <section class="admin-form-card" data-site-settings hidden>
@@ -556,6 +300,45 @@ Body here." data-blog-editor-content></textarea>
     </section>
 
     <!-- ======================================================
+         Markdown Formatting Guide
+         ====================================================== -->
+    <section class="admin-form-card" id="mdGuide">
+      <div class="admin-card__header">
+        <div>
+          <p class="tag-pill">Reference</p>
+          <h2>Markdown Formatting Guide</h2>
+        </div>
+      </div>
+      <p class="admin-help-text">Use these custom extensions in your blog posts in addition to standard <a href="https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax" target="_blank" rel="noopener">GitHub-Flavored Markdown</a>.</p>
+      <div class="admin-guide">
+        <details class="admin-accordion" open>
+          <summary>CTA Button</summary>
+          <p class="admin-help-text">Renders a styled call-to-action button link.</p>
+          <pre class="admin-guide__code"><code>![CTA-BUTTON]{Button Text}[https://example.com]</code></pre>
+        </details>
+        <details class="admin-accordion">
+          <summary>Image with Caption</summary>
+          <p class="admin-help-text">Renders a full-width image with an italic caption below it.</p>
+          <pre class="admin-guide__code"><code>![IMAGE-Caption text here][https://example.com/image.png]</code></pre>
+        </details>
+        <details class="admin-accordion">
+          <summary>Image Carousel</summary>
+          <p class="admin-help-text">Renders a horizontally scrollable carousel. Click links are optional (use empty <code>{}</code> to skip one). Alts and links must match image count.</p>
+          <pre class="admin-guide__code"><code>!![IMAGE-CAR]{Alt for image 1}{Alt for image 2}[https://url1.com/img.png][https://url2.com/img.png]{https://optional-link1.com}{}</code></pre>
+        </details>
+        <details class="admin-accordion">
+          <summary>Alert / Callout Blocks</summary>
+          <p class="admin-help-text">GitHub-style alert blocks. Supported types: <code>INFO</code>, <code>WARNING</code>, <code>ERROR</code>, <code>NOTE</code>, <code>TIP</code>, <code>IMPORTANT</code>, <code>CAUTION</code>.</p>
+          <pre class="admin-guide__code"><code>&gt; [!INFO]
+&gt; This is an info block.
+
+&gt; [!WARNING]
+&gt; This is a warning.</code></pre>
+        </details>
+      </div>
+    </section>
+
+    <!-- ======================================================
          Supabase Blog Manager
          ====================================================== -->
     <section class="admin-form-card" id="sbAdmin">
@@ -567,7 +350,7 @@ Body here." data-blog-editor-content></textarea>
         <div class="admin-inline-actions">
           <span class="admin-card__status" id="sbAdminStatus">Idle</span>
           <button type="button" class="button button--ghost button--small" id="sbRefreshBtn">Refresh list</button>
-          <a href="/blog/v2" class="button button--ghost button--small" target="_blank" rel="noopener">View blog</a>
+          <a href="/blog" class="button button--ghost button--small" target="_blank" rel="noopener">View blog</a>
         </div>
       </div>
 
@@ -692,20 +475,7 @@ Body here." data-blog-editor-content></textarea>
   <script src="script.js"></script>
   <script>
   (function() {
-    const form = document.querySelector('[data-blog-form]');
-    const preview = document.querySelector('[data-frontmatter-preview]');
-    const copyBtn = document.querySelector('[data-copy-frontmatter]');
-    const copyFeedback = document.querySelector('[data-copy-feedback]');
-    const manifestStatus = document.querySelector('[data-manifest-status]');
-    const statsEls = {
-      total: document.querySelector('[data-stat-total]'),
-      published: document.querySelector('[data-stat-published]'),
-      drafts: document.querySelector('[data-stat-drafts]'),
-      standalone: document.querySelector('[data-stat-standalone]'),
-    };
-    const table = document.querySelector('[data-post-table]');
-    const refreshBtn = document.querySelector('[data-refresh-manifest]');
-    const buildBtn = document.querySelector('[data-copy-build]');
+
     const distributionCard = document.querySelector('[data-distribution]');
     const distributionStatus = document.querySelector('[data-distribution-status]');
     const distributionFeedback = document.querySelector('[data-distribution-feedback]');
@@ -734,16 +504,7 @@ Body here." data-blog-editor-content></textarea>
     const siteSettingsSaveBtn = document.querySelector('[data-site-settings-save]');
     const siteSettingsFeedback = document.querySelector('[data-site-settings-feedback]');
     const siteSettingsWarning = document.querySelector('[data-site-settings-warning]');
-    const blogEditorSection = document.querySelector('[data-blog-editor]');
-    const blogEditorForm = document.querySelector('[data-blog-editor-form]');
-    const blogEditorSlug = document.querySelector('[data-blog-editor-slug]');
-    const blogEditorContent = document.querySelector('[data-blog-editor-content]');
-    const blogEditorStatus = document.querySelector('[data-blog-editor-status]');
-    const blogEditorFeedback = document.querySelector('[data-blog-editor-feedback]');
-    const blogEditorLoadBtn = document.querySelector('[data-blog-editor-load]');
-    const blogEditorSaveBtn = document.querySelector('[data-blog-editor-save]');
-    const blogEditorDeleteBtn = document.querySelector('[data-blog-editor-delete]');
-    let blogEditorSha = null;
+
     const webhookCard = document.querySelector('[data-webhook-card]');
     const webhookStatus = document.querySelector('[data-webhook-config-status]');
     const webhookMessage = document.querySelector('[data-webhook-message]');
@@ -833,59 +594,6 @@ Body here." data-blog-editor-content></textarea>
       }
     }
 
-    if (!form) return;
-
-    const titleInput = form.querySelector('[name="title"]');
-    const slugInput = form.querySelector('[name="slug"]');
-    const dateInput = form.querySelector('[name="date"]');
-    let userEditedSlug = false;
-
-    if (dateInput) {
-      dateInput.value = new Date().toISOString().slice(0, 10);
-    }
-
-    titleInput.addEventListener('input', () => {
-      if (!userEditedSlug) {
-        slugInput.value = slugify(titleInput.value);
-      }
-      updatePreview();
-    });
-
-    slugInput.addEventListener('input', () => {
-      userEditedSlug = true;
-      slugInput.value = slugify(slugInput.value);
-      updatePreview();
-    });
-
-    form.addEventListener('input', updatePreview);
-
-    form.addEventListener('reset', () => {
-      userEditedSlug = false;
-      setTimeout(() => {
-        if (dateInput) {
-          dateInput.value = new Date().toISOString().slice(0, 10);
-        }
-        preview.textContent = 'Fill out the form to generate front matter…';
-        copyFeedback.textContent = '';
-      }, 0);
-    });
-
-    copyBtn.addEventListener('click', () => {
-      const text = preview.textContent.trim();
-      if (!text) return;
-      copyToClipboard(text, copyFeedback);
-    });
-
-    if (buildBtn) {
-      buildBtn.addEventListener('click', () => {
-        copyToClipboard('npm run build:blog', copyFeedback, 'Build command copied!');
-      });
-    }
-
-    if (refreshBtn) refreshBtn.addEventListener('click', loadManifest);
-    if (table) {
-      table.addEventListener('click', handleManifestAction);
-    }
     if (loginBtn) {
       loginBtn.addEventListener('click', () => {
         window.location.href = '/api/auth/login';
@@ -899,185 +607,7 @@ Body here." data-blog-editor-content></textarea>
     }
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
 
-    updatePreview();
-    loadManifest();
     initAuthFlow();
-    initBlogEditor();
-
-    async function loadManifest() {
-      manifestStatus.textContent = 'Loading…';
-      table.innerHTML = '<p>Loading manifest…</p>';
-      try {
-        const res = await fetch(`blog/.generated/blog-manifest.json?ts=${Date.now()}`);
-        if (!res.ok) throw new Error(`Request failed (${res.status})`);
-        const payload = await res.json();
-        const posts = Array.isArray(payload) ? payload : (payload.posts || []);
-        renderManifest(posts);
-        manifestStatus.textContent = `Synced ${new Date().toLocaleTimeString()}`;
-      } catch (error) {
-        console.warn('Manifest load failed', error);
-        manifestStatus.textContent = 'Failed to load';
-        table.innerHTML = `<p class="admin-error">Could not read blog/.generated/blog-manifest.json. Run <code>npm run build:blog</code> and refresh.</p>`;
-        Object.values(statsEls).forEach((el) => (el.textContent = '—'));
-      }
-    }
-
-    function renderManifest(posts) {
-      if (!posts.length) {
-        table.innerHTML = '<p>No posts found. Add markdown files under blog/content/ and rebuild.</p>';
-        Object.values(statsEls).forEach((el) => (el.textContent = '0'));
-        return;
-      }
-
-      const publishedCount = posts.filter((post) => (post.status || '').toLowerCase() === 'published').length;
-      const draftCount = posts.length - publishedCount;
-      const standaloneCount = posts.filter((post) => post.standalone).length;
-
-      statsEls.total.textContent = posts.length;
-      statsEls.published.textContent = publishedCount;
-      statsEls.drafts.textContent = draftCount;
-      statsEls.standalone.textContent = standaloneCount;
-
-      const rows = posts
-        .sort((a, b) => new Date(b.date || b.datePublished || 0) - new Date(a.date || a.datePublished || 0))
-        .map((post) => {
-          const status = (post.status || '').toLowerCase();
-          const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Published';
-          return `<tr>
-            <td data-label="Title">${escapeHtml(post.title || post.slug)}</td>
-            <td data-label="Slug"><code>${escapeHtml(post.slug)}</code></td>
-            <td data-label="Status"><span class="admin-pill admin-pill--${status || 'published'}">${escapeHtml(label)}</span></td>
-            <td data-label="Date">${escapeHtml(formatDate(post.date || post.datePublished))}</td>
-            <td data-label="Standalone">${post.standalone ? 'Yes' : 'No'}</td>
-            <td data-label="Actions" class="admin-table__actions">
-              <button type="button" class="button button--tiny" data-edit-post="${escapeHtml(post.slug)}">Edit</button>
-              <button type="button" class="button button--ghost button--tiny" data-delete-post="${escapeHtml(post.slug)}">Delete</button>
-            </td>
-          </tr>`;
-        })
-        .join('');
-
-      table.innerHTML = `<div class="admin-table__scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Slug</th>
-              <th>Status</th>
-              <th>Date</th>
-              <th>Standalone</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>`;
-    }
-
-    function updatePreview() {
-      const data = collectFormData(new FormData(form));
-      preview.textContent = buildFrontMatter(data);
-    }
-
-    function collectFormData(formData) {
-      const highlights = (formData.get('cardHighlights') || '')
-        .split('\n')
-        .map((item) => item.trim())
-        .filter(Boolean);
-
-      return {
-        title: (formData.get('title') || '').trim(),
-        displayTitle: (formData.get('displayTitle') || '').trim(),
-        slug: (formData.get('slug') || '').trim() || slugify(formData.get('title') || ''),
-        tag: (formData.get('tag') || 'Update').trim(),
-        cardCta: (formData.get('cardCta') || 'Continue reading').trim(),
-        readingTime: (formData.get('readingTime') || '').trim(),
-        summary: (formData.get('summary') || '').trim(),
-        highlights,
-        date: formData.get('date') || new Date().toISOString().slice(0, 10),
-        updated: formData.get('updated') || '',
-        status: (formData.get('status') || 'published').trim(),
-        shareBase: (formData.get('shareBase') || 'blog/index.html').trim(),
-        cardImage: (formData.get('cardImage') || '').trim(),
-        cardImageAlt: (formData.get('cardImageAlt') || '').trim(),
-        heroImage: (formData.get('heroImage') || '').trim(),
-        heroImageAlt: (formData.get('heroImageAlt') || '').trim(),
-        ogImage: (formData.get('ogImage') || formData.get('heroImage') || formData.get('cardImage') || '').toString().trim(),
-        featured: formData.get('featured') === 'on',
-        standalone: formData.get('standalone') === 'on',
-        standaloneNote: (formData.get('standaloneNote') || '').trim(),
-        secondaryActionLabel: (formData.get('secondaryActionLabel') || '').trim(),
-        secondaryActionUrl: (formData.get('secondaryActionUrl') || '').trim(),
-        body: (formData.get('body') || '').toString().trim() || '## New Section\n\nWrite your update here.\n',
-      };
-    }
-
-    function buildFrontMatter(data) {
-      if (!data.title || !data.slug) {
-        return 'Fill out the title and slug to generate front matter…';
-      }
-
-      const lines = ['---'];
-      lines.push(`slug: ${data.slug}`);
-      lines.push(`title: ${escapeYaml(data.title)}`);
-      if (data.displayTitle) {
-        lines.push(`displayTitle: ${escapeYaml(data.displayTitle)}`);
-      }
-      lines.push(`tag: ${escapeYaml(data.tag)}`);
-      lines.push(`date: ${data.date}`);
-      if (data.updated) {
-        lines.push(`updated: ${data.updated}`);
-      }
-      if (data.readingTime) {
-        lines.push(`readingTime: ${escapeYaml(data.readingTime)}`);
-      }
-      lines.push(`summary: ${escapeMultiline(data.summary)}`);
-      if (data.highlights.length) {
-        lines.push('cardHighlights:');
-        data.highlights.forEach((item) => lines.push(`  - ${escapeYaml(item)}`));
-      }
-      lines.push(`cardCta: ${escapeYaml(data.cardCta)}`);
-      lines.push(`featured: ${data.featured}`);
-      lines.push(`standalone: ${data.standalone}`);
-      lines.push(`shareBase: ${data.shareBase}`);
-      if (data.cardImage) {
-        lines.push(`cardImage: ${escapeYaml(data.cardImage)}`);
-        if (data.cardImageAlt) {
-          lines.push(`cardImageAlt: ${escapeYaml(data.cardImageAlt)}`);
-        }
-      }
-      if (data.heroImage) {
-        lines.push(`heroImage: ${escapeYaml(data.heroImage)}`);
-        if (data.heroImageAlt) {
-          lines.push(`heroImageAlt: ${escapeYaml(data.heroImageAlt)}`);
-        }
-      }
-      if (data.ogImage) {
-        lines.push(`ogImage: ${escapeYaml(data.ogImage)}`);
-      }
-      lines.push(`status: ${escapeYaml(data.status)}`);
-      if (data.secondaryActionLabel && data.secondaryActionUrl) {
-        lines.push(`secondaryActionLabel: ${escapeYaml(data.secondaryActionLabel)}`);
-        lines.push(`secondaryActionUrl: ${escapeYaml(data.secondaryActionUrl)}`);
-      }
-      if (data.standaloneNote) {
-        lines.push(`standaloneNote: ${escapeMultiline(data.standaloneNote)}`);
-      }
-      lines.push('---');
-      lines.push('');
-      lines.push(data.body);
-      return lines.join('\n');
-    }
-
-    function slugify(value = '') {
-      return value
-        .toString()
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9-]+/g, '-')
-        .replace(/--+/g, '-')
-        .replace(/^-+|-+$/g, '');
-    }
 
     function formatDate(value) {
       if (!value) return '—';
@@ -1351,142 +881,6 @@ Body here." data-blog-editor-content></textarea>
             return `<li><span>${escapeHtml(user)}</span>${removeButton}</li>`;
           })
           .join('');
-      }
-    }
-
-    function handleManifestAction(event) {
-      const editBtn = event.target.closest('[data-edit-post]');
-      const deleteBtn = event.target.closest('[data-delete-post]');
-      if (editBtn) {
-        event.preventDefault();
-        const slug = editBtn.dataset.editPost;
-        if (blogEditorSlug) blogEditorSlug.value = slug;
-        loadBlogPost(slug);
-      }
-      if (deleteBtn) {
-        event.preventDefault();
-        const slug = deleteBtn.dataset.deletePost;
-        if (blogEditorSlug) blogEditorSlug.value = slug;
-        deleteBlogPost(slug);
-      }
-    }
-
-    function initBlogEditor() {
-      if (!blogEditorSection || !blogEditorForm || !blogEditorSlug || !blogEditorContent) return;
-      blogEditorSection.removeAttribute('hidden');
-
-      const bindBtn = (button, handler) => {
-        if (button) button.addEventListener('click', (event) => { event.preventDefault(); handler(); });
-      };
-
-      bindBtn(blogEditorLoadBtn, () => loadBlogPost(blogEditorSlug.value));
-      bindBtn(blogEditorSaveBtn, () => saveBlogPost(blogEditorSlug.value, blogEditorContent.value));
-      bindBtn(blogEditorDeleteBtn, () => deleteBlogPost(blogEditorSlug.value));
-    }
-
-    function setBlogEditorStatus(text) {
-      if (blogEditorStatus) blogEditorStatus.textContent = text;
-    }
-
-    function setBlogEditorFeedback(text) {
-      if (blogEditorFeedback) blogEditorFeedback.textContent = text || '';
-    }
-
-    function sanitizeSlug(slug) {
-      return (slug || '').toString().trim();
-    }
-
-    async function loadBlogPost(slug) {
-      const cleanSlug = sanitizeSlug(slug);
-      if (!cleanSlug) {
-        setBlogEditorFeedback('Enter a slug to load.');
-        return;
-      }
-      setBlogEditorStatus('Loading…');
-      setBlogEditorFeedback('');
-      blogEditorSha = null;
-      try {
-        const res = await fetch(`/api/admin/blog?slug=${encodeURIComponent(cleanSlug)}`);
-        const payload = await res.json();
-        if (!res.ok) {
-          throw new Error(payload.error || `Load failed (${res.status})`);
-        }
-        blogEditorContent.value = payload.content || '';
-        blogEditorSha = payload.sha || null;
-        setBlogEditorStatus('Loaded');
-        setBlogEditorFeedback(`Loaded ${cleanSlug}`);
-      } catch (error) {
-        setBlogEditorStatus('Load failed');
-        setBlogEditorFeedback(error.message || 'Could not load post');
-      }
-    }
-
-    async function saveBlogPost(slug, content) {
-      const cleanSlug = sanitizeSlug(slug);
-      if (!cleanSlug) {
-        setBlogEditorFeedback('Enter a slug before saving.');
-        return;
-      }
-      const body = (content || '').toString();
-      if (!body.trim()) {
-        setBlogEditorFeedback('Content cannot be empty.');
-        return;
-      }
-      setBlogEditorStatus('Saving…');
-      setBlogEditorFeedback('');
-      try {
-        const res = await fetch('/api/admin/blog', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ slug: cleanSlug, content: body, sha: blogEditorSha || undefined }),
-        });
-        const payload = await res.json();
-        if (!res.ok) {
-          const error = new Error(payload.error || `Save failed (${res.status})`);
-          error.statusCode = res.status;
-          throw error;
-        }
-        blogEditorSha = payload.sha || null;
-        setBlogEditorStatus('Saved');
-        setBlogEditorFeedback(`Saved ${cleanSlug}`);
-        loadManifest();
-      } catch (error) {
-        setBlogEditorStatus('Save failed');
-        setBlogEditorFeedback(error.message || 'Could not save post');
-      }
-    }
-
-    async function deleteBlogPost(slug) {
-      const cleanSlug = sanitizeSlug(slug);
-      if (!cleanSlug) {
-        setBlogEditorFeedback('Enter a slug before deleting.');
-        return;
-      }
-      if (!window.confirm(`Delete ${cleanSlug}? This cannot be undone.`)) {
-        return;
-      }
-      setBlogEditorStatus('Deleting…');
-      setBlogEditorFeedback('');
-      try {
-        const res = await fetch('/api/admin/blog', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ slug: cleanSlug }),
-        });
-        const payload = await res.json();
-        if (!res.ok) {
-          const error = new Error(payload.error || `Delete failed (${res.status})`);
-          error.statusCode = res.status;
-          throw error;
-        }
-        blogEditorContent.value = '';
-        blogEditorSha = null;
-        setBlogEditorStatus('Deleted');
-        setBlogEditorFeedback(`Deleted ${cleanSlug}`);
-        loadManifest();
-      } catch (error) {
-        setBlogEditorStatus('Delete failed');
-        setBlogEditorFeedback(error.message || 'Could not delete post');
       }
     }
 

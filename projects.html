@@ -26,6 +26,52 @@
     <meta name="twitter:image" content="https://coolmanyt.com/images/avatar.png">
 
 
+  <style>
+    .pm-status { text-align: center; padding: 3rem 1rem; opacity: 0.7; }
+    .pm-empty { text-align: center; padding: 3rem 1rem; opacity: 0.6; }
+    .pm-card {
+      background: var(--card-bg, #1a1a2e);
+      border: 1px solid var(--border, #2a2a3e);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: border-color 0.15s;
+    }
+    .pm-card:hover { border-color: var(--accent, #4f46e5); }
+    .pm-card h3 { margin: 0; font-size: 1.1rem; }
+    .pm-card p { margin: 0; font-size: 0.9rem; opacity: 0.8; line-height: 1.55; }
+    .pm-card__meta { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: auto; }
+    .pm-tag {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      background: rgba(79,70,229,0.12);
+      border: 1px solid rgba(79,70,229,0.25);
+    }
+    .pm-status-badge {
+      font-size: 0.78rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      background: rgba(34,197,94,0.1);
+      border: 1px solid rgba(34,197,94,0.3);
+    }
+    .pm-card__actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    .pm-featured-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--accent, #4f46e5);
+      border: 1px solid currentColor;
+      border-radius: 6px;
+      padding: 0.15rem 0.5rem;
+      width: fit-content;
+    }
+    .pm-error { color: var(--error, #f87171); padding: 1rem; border: 1px solid currentColor; border-radius: 8px; margin: 1rem 0; }
+  </style>
 </head>
 <body class="projects-page">
     <a class="skip-link" href="#mainContent">Skip to main content</a>
@@ -86,82 +132,34 @@
 
     <main id="mainContent" role="main">
         <h1>My Projects</h1>
-        <p>I'm currently working on some exciting projects.<br>From HTML headaches to Python problems, all my projects (including the most infuriating) is here. <br>
-        And yes, this website counts as a project.</p>
+        <p>From HTML headaches to Roblox builds — all my projects live here. Yes, this website counts too.</p>
 
         <section class="project-collection" aria-labelledby="projectSpotlightHeading">
             <div class="project-collection__intro">
-                <h2 id="projectSpotlightHeading">Project Spotlights</h2>
-                <p>A few in-progress builds and experiments I am iterating on. Expect plenty of polish passes and changelog entries as they evolve.</p>
+                <h2 id="projectSpotlightHeading">Projects</h2>
+                <p>Builds and experiments I'm currently iterating on — straight from Supabase.</p>
             </div>
-            <div class="project-grid">
-                <article class="project-card project-card--arena">
-                    <div class="project-card__preview" aria-hidden="true"></div>
-                    <div class="project-card__body">
-                    <h3>placeholder lol</h3>
-                    <p>A competitive Roblox experience focused on timing-based combat, reactive VFX, and live balance patches rolled out through player feedback sessions.</p>
-                    <ul class="project-card__meta">
-                        <li><strong>Status:</strong> Private playtests underway</li>
-                        <li><strong>Stack:</strong> Roblox Studio · Lua · Blender</li>
-                    </ul>
-                    <div class="project-card__actions">
-                        <a href="projects/project-aurora-arena.html" class="button">View case study</a>
-                        <a href="https://www.roblox.com/users/2873599962/profile" target="_blank" rel="noopener noreferrer" class="button button--ghost">Join the playtest list</a>
-                    </div>
-                    </div>
-                </article>
-                <article class="project-card project-card--command">
-                    <div class="project-card__preview" aria-hidden="true"></div>
-                    <div class="project-card__body">
-                    <h3>My Personal Website</h3>
-                    <p>A website that I can use to reach out to my audience more and in different formats, as well as flexing how I know HTML and CSS, as well as having this website linked to my Discord User. All using GitHub, Vercel, VS Code and my brain!</p>
-                    <ul class="project-card__meta">
-                        <li><strong>Status:</strong> <a data-site-version-link href="https://github.com/COOLmanYT/mycoolwebsite">Version <span data-site-version-number></span><span data-site-version-type></span></a> </li>
-                        <li><strong>Stack:</strong> HTML · CSS · JavaScript</li>
-                    </ul>
-                    <div class="project-card__actions">
-                        <a href="projects/project-personal-website.html" class="button">Read build notes</a>
-                        <a href="https://github.com/COOLmanYT/mycoolwebsite" target="_blank" rel="noopener noreferrer" class="button button--ghost">View repository</a>
-                    </div>
-                    </div>
-                </article>
-                <article class="project-card project-card--toolkit">
-                    <div class="project-card__preview" aria-hidden="true"></div>
-                    <div class="project-card__body">
-                    <h3>People First Design</h3>
-                    <p>A set of guidelines for developers made the internet a better and safer place for all. No fake clicks or tricks. It's time we make a change against Big Tech.</p>
-                    <ul class="project-card__meta">
-                        <li><strong>Status:</strong> Early Developemnt</li>
-                        <li><strong>Stack:</strong> Vercel · GitHub · VS Code</li>
-                    </ul>
-                    <div class="project-card__actions">
-                        <a href="projects/project-people-first-design.html" class="button">Check it out</a>
-                        <a href="https://www.youtube.com/@COOLmanGamer?sub_confirmation=1" target="_blank" rel="noopener noreferrer" class="button button--ghost">Read the docs</a>
-                    </div>
-                    </div>
-                </article>
-            </div>
+
+            <div id="pmStatus" class="pm-status" aria-live="polite">Loading projects…</div>
+            <div id="pmGrid" class="project-grid" hidden></div>
+            <div id="pmEmpty" class="pm-empty" hidden>No projects added yet. Check back soon!</div>
         </section>
 
-        <br>
-
-        <p>Bored of that crap? Check out some of this crap! Different HTMLs, same quality!</p>
-
         <section class="highlight-cards">
-            <article>
-                <h2>Featured Build</h2>
-                <p>A Roblox world I am polishing with new mechanics, particle effects, and narrative quests.</p>
-                <a href="projects/project-aurora-arena.html" class="button">View Screenshots</a>
-            </article>
             <article>
                 <h2>My Cool GitHub Profile</h2>
                 <p>Check out my GitHub profile, where I make cool projects and repositories (like this!) with cooler code.</p>
                 <a href="https://github.com/COOLmanYT" target="_blank" rel="noopener noreferrer" class="button">See GitHub</a>
             </article>
             <article>
-                <h2>Learning Series</h2>
-                <p>A page where I post <s>weekly</s> occasional blogs for everyone to read! From new projects to updates-but-not-in-a-video, it has (almost) everything! </p>
-                <a href="/blog" class="button">Read the Blogs</a>
+                <h2>Blog</h2>
+                <p>Occasional devlogs, build updates, and creator notes — everything that doesn't fit in a video.</p>
+                <a href="/blog" class="button">Read the Blog</a>
+            </article>
+            <article>
+                <h2>Contact Me</h2>
+                <p>Have a question, collaboration idea, or just want to say hi? My inbox is open.</p>
+                <a href="/contact" class="button">Get in Touch</a>
             </article>
         </section>
     </main>
@@ -174,6 +172,65 @@
     </footer>
 
     <script src="script.js"></script>
+  <script>
+  (function () {
+    const statusEl = document.getElementById('pmStatus');
+    const gridEl = document.getElementById('pmGrid');
+    const emptyEl = document.getElementById('pmEmpty');
+
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    async function loadProjects() {
+      try {
+        const res = await fetch('/api/projects/list');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const { projects } = await res.json();
+
+        statusEl.hidden = true;
+
+        if (!projects || projects.length === 0) {
+          emptyEl.hidden = false;
+          return;
+        }
+
+        gridEl.innerHTML = projects.map((p) => {
+          const tags = Array.isArray(p.tags) && p.tags.length
+            ? p.tags.map((t) => '<span class="pm-tag">' + escapeHtml(t) + '</span>').join('')
+            : '';
+          const status = p.status
+            ? '<span class="pm-status-badge">' + escapeHtml(p.status) + '</span>'
+            : '';
+          const desc = p.description
+            ? '<p>' + escapeHtml(p.description) + '</p>'
+            : '';
+          const featured = p.featured
+            ? '<span class="pm-featured-badge">Featured</span>'
+            : '';
+          const actions = [];
+          if (p.url) actions.push('<a href="' + escapeHtml(p.url) + '" class="button button--small" rel="noopener noreferrer">View project</a>');
+          if (p.repo_url) actions.push('<a href="' + escapeHtml(p.repo_url) + '" class="button button--ghost button--small" target="_blank" rel="noopener noreferrer">Repository</a>');
+          const actionsHtml = actions.length ? '<div class="pm-card__actions">' + actions.join('') + '</div>' : '';
+          return '<article class="pm-card">' +
+            featured +
+            '<h3>' + escapeHtml(p.title) + '</h3>' +
+            desc +
+            (tags || status ? '<div class="pm-card__meta">' + status + tags + '</div>' : '') +
+            actionsHtml +
+            '</article>';
+        }).join('');
+
+        gridEl.hidden = false;
+      } catch (err) {
+        statusEl.innerHTML = '<p class="pm-error">Failed to load projects: ' + escapeHtml(err.message) + '</p>';
+        statusEl.hidden = false;
+      }
+    }
+
+    loadProjects();
+  }());
+  </script>
     <script>
       window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
     </script>

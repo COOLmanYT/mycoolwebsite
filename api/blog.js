@@ -5,6 +5,32 @@ import { renderMarkdown } from '../lib/server/markdown.js';
 export const config = { runtime: 'nodejs' };
 
 /**
+ * Generates a plain-text excerpt from a markdown string.
+ * Strips common markdown syntax and returns the first ~150 characters.
+ *
+ * @param {string} markdown
+ * @returns {string}
+ */
+function generateExcerpt(markdown) {
+  if (!markdown) return '';
+  const stripped = String(markdown)
+    .replace(/^---[\s\S]*?---\n?/, '')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/[*_]{1,3}([^*_]+)[*_]{1,3}/g, '$1')
+    .replace(/`[^`]+`/g, '')
+    .replace(/^>\s*/gm, '')
+    .replace(/^[-*_]{3,}\s*$/gm, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (stripped.length <= 150) return stripped;
+  const truncated = stripped.slice(0, 150);
+  const lastSpace = truncated.lastIndexOf(' ');
+  return (lastSpace > 100 ? truncated.slice(0, lastSpace) : truncated) + '\u2026';
+}
+
+/**
  * Consolidated public content handler — dispatches based on URL path:
  *
  *   GET /api/supabase-blog/posts      → list all published blog posts
@@ -42,7 +68,7 @@ async function handlePosts(req, res) {
     const supabase = getSupabasePublic();
     const { data, error } = await supabase
       .from('blogs')
-      .select('id, title, slug, warnings, created_at, updated_at, author_id')
+      .select('id, title, slug, warnings, content_markdown, created_at, updated_at, author_id')
       .eq('published', true)
       .order('created_at', { ascending: false });
 
@@ -51,7 +77,19 @@ async function handlePosts(req, res) {
       return sendJson(res, 500, { error: 'Failed to fetch posts' });
     }
 
-    sendJson(res, 200, { posts: data ?? [] });
+    const posts = (data ?? []).map((post, index) => ({
+      id: post.id,
+      title: post.title,
+      slug: post.slug,
+      warnings: post.warnings ?? [],
+      excerpt: generateExcerpt(post.content_markdown),
+      featured: index === 0,
+      created_at: post.created_at,
+      updated_at: post.updated_at,
+      author_id: post.author_id,
+    }));
+
+    sendJson(res, 200, { posts });
   } catch (err) {
     console.error('Unexpected error in handlePosts', err);
     sendJson(res, 500, { error: 'Internal server error' });
@@ -95,6 +133,7 @@ async function handlePost(req, res, url) {
         slug: data.slug,
         contentHtml,
         warnings: data.warnings ?? [],
+        excerpt: generateExcerpt(data.content_markdown),
         created_at: data.created_at,
         updated_at: data.updated_at,
         author_id: data.author_id,
