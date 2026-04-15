@@ -210,14 +210,14 @@
       featuredEl.innerHTML = `
         <span class="sb-featured__badge">Latest post</span>
         <article class="sb-featured__card">
-          <a href="/blog/post?slug=${encodeURIComponent(post.slug)}">
+          <a href="/blog/post/${encodeURIComponent(post.slug)}">
             <h2>${escapeHtml(post.title)}</h2>
           </a>
           ${excerpt}
           ${warningBadges(post.warnings)}
           <div class="sb-featured__meta">
             <time datetime="${escapeHtml(post.created_at)}">${escapeHtml(date)}</time>
-            <a href="/blog/post?slug=${encodeURIComponent(post.slug)}" class="button button--small">Read post →</a>
+            <a href="/blog/post/${encodeURIComponent(post.slug)}" class="button button--small">Read post →</a>
           </div>
         </article>`;
       featuredEl.hidden = false;
@@ -232,7 +232,7 @@
           : '';
         return `<li>
           <article class="sb-card">
-            <a href="/blog/post?slug=${encodeURIComponent(post.slug)}">
+            <a href="/blog/post/${encodeURIComponent(post.slug)}">
               <h2>${escapeHtml(post.title)}</h2>
             </a>
             ${excerpt}

@@ -1408,7 +1408,7 @@ async function initLatestBlogCard() {
 		}
 
 		const cards = posts.map((post) => {
-			const href = post.slug ? `/blog/post?slug=${encodeURIComponent(post.slug)}` : '/blog';
+			const href = post.slug ? `/blog/post/${encodeURIComponent(post.slug)}` : '/blog';
 			const dateText = formatDate(post.created_at);
 			return `<article class="blog-card">
 				<div class="blog-card__meta">
