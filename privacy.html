@@ -41,7 +41,7 @@
         <span class="legal-mode-toggle-track">
           <span class="legal-mode-toggle-thumb"></span>
         </span>
-        <span class="legal-mode-toggle-text" id="simpleModeToggleText">On</span>
+        <span class="legal-mode-toggle-text" id="simpleModeToggleText">Simple Mode On</span>
       </button>
     </div>
 
@@ -189,7 +189,7 @@
         simpleEl.hidden = !simple;
         fullEl.hidden = simple;
         toggle.setAttribute('aria-pressed', simple ? 'true' : 'false');
-        toggleText.textContent = simple ? 'On' : 'Off';
+        toggleText.textContent = simple ? 'Simple Mode On' : 'Simple Mode Off';
         toggle.classList.toggle('legal-mode-toggle--off', !simple);
       }
 

@@ -546,8 +546,7 @@ body.theme-light .nav-pill:focus-visible {
 }
 
 .theme-toggle .toggle-text {
-  font-size: 0.85rem;
-  letter-spacing: 0.02em;
+  display: none;
 }
 
 main {
@@ -562,7 +561,7 @@ main {
 }
 
 body.home-page main {
-  margin-top: clamp(2rem, 5vw, 3rem);
+  margin-top: clamp(0.75rem, 2vw, 1.25rem);
 }
 
 body:not(.home-page) main {
@@ -1577,6 +1576,7 @@ body.theme-light .blog-card {
 
 .blog-card__excerpt {
   margin: 0;
+  flex: 1;
   color: var(--text-secondary);
   font-size: clamp(0.9rem, 2vw, 1rem);
   line-height: 1.6;
@@ -1589,6 +1589,7 @@ body.theme-light .blog-card {
 .blog-card .button {
   margin-top: auto;
   align-self: flex-start;
+  color: #fff;
 }
 
 /* Project preview card */
@@ -1620,6 +1621,7 @@ body.theme-light .project-card {
 
 .project-card__desc {
   margin: 0;
+  flex: 1;
   color: var(--text-secondary);
   font-size: clamp(0.9rem, 2vw, 1rem);
   line-height: 1.6;
@@ -1646,6 +1648,7 @@ body.theme-light .project-card {
 
 .project-card__actions .button {
   margin: 0;
+  color: #fff;
 }
 
 .newsletter {
@@ -1998,7 +2001,7 @@ body.theme-light .newsletter__embed {
 }
 
 .site-header .social-links {
-  margin: 1.25rem auto 0.75rem;
+  margin: 2rem auto 2rem;
   justify-content: center;
 }
 
@@ -3816,7 +3819,7 @@ body.modal-open {
 .legal-mode-toggle-text {
   font-size: 0.85rem;
   color: var(--text-secondary);
-  min-width: 2ch;
+  min-width: 10ch;
 }
 
 .legal-mode-badge {
