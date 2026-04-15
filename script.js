@@ -1358,6 +1358,27 @@ function escHtml(str) {
 	return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+/**
+ * Returns a URL string only when it uses an allowed scheme (http/https or same-origin
+ * relative paths). Returns null for javascript:, data:, and other unsafe schemes.
+ *
+ * @param {string|null|undefined} raw
+ * @returns {string|null}
+ */
+function sanitizeUrl(raw) {
+	const str = String(raw ?? '').trim();
+	if (!str) return null;
+	try {
+		const parsed = new URL(str, window.location.origin);
+		if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+			return str;
+		}
+		return null;
+	} catch {
+		return null;
+	}
+}
+
 async function initLatestBlogCard() {
 	const section = document.querySelector('[data-blog-preview]');
 	if (!section) {
@@ -1432,9 +1453,8 @@ async function initTopProjects() {
 			const tags = Array.isArray(p.tags) && p.tags.length
 				? `<div class="project-card__tags">${p.tags.map((t) => `<span class="tag-pill tag-pill--small">${escHtml(t)}</span>`).join('')}</div>`
 				: '';
-			const link = p.url
-				? `<a class="button" href="${escHtml(p.url)}">View project</a>`
-				: '';
+			const safeUrl = sanitizeUrl(p.url);
+			const link = safeUrl ? `<a class="button" href="${escHtml(safeUrl)}">View project</a>` : '';
 			return `<article class="project-card">
 				${p.featured ? '<span class="tag-pill">Featured</span>' : ''}
 				<h3 class="project-card__title">${escHtml(p.title || 'Untitled')}</h3>
