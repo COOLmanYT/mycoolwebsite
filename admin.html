@@ -6,8 +6,8 @@
   <meta name="description" content="Internal admin tools for COOLmanYT: generate blog posts, review manifest stats, and keep the content pipeline tidy.">
   <meta name="author" content="COOLmanYT">
   <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" href="/images/avatar.png">
-  <link rel="icon" href="/images/favicon.ico">
   <link rel="apple-touch-icon" href="/images/avatar.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -51,36 +51,6 @@
         <span class="toggle-icon">🌙</span>
         <span class="toggle-text">Light mode</span>
       </button>
-    </div>
-    <div class="social-links">
-      <a href="https://github.com/COOLmanYT" target="_blank" rel="noopener noreferrer" class="social-button" data-label="GitHub">
-        <img src="images/github.png" alt="GitHub" width="64" height="64" loading="eager">
-        <span class="social-label">GitHub</span>
-      </a>
-      <a href="https://www.youtube.com/@COOLmanGamer" target="_blank" rel="noopener noreferrer" class="social-button" data-label="YouTube">
-        <img src="images/youtube.png" alt="YouTube" width="64" height="64" loading="eager">
-        <span class="social-label">YouTube</span>
-      </a>
-      <a href="https://discord.gg/SzHksR3QFj" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Discord">
-        <img src="images/discord.png" alt="Discord" width="64" height="64" loading="eager">
-        <span class="social-label">Discord</span>
-      </a>
-      <a href="https://www.roblox.com/users/2873599962/profile" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Roblox">
-        <img src="images/roblox2.png" alt="Roblox" width="64" height="64" loading="eager">
-        <span class="social-label">Roblox</span>
-      </a>
-      <a href="https://open.spotify.com/user/31px5awkcyikvgrfiiqkxem6oxni?si=fd36097626ff454f" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Spotify">
-        <img src="images/spotify.png" alt="Spotify" width="64" height="64" loading="eager">
-        <span class="social-label">Spotify</span>
-      </a>
-      <a href="https://www.reddit.com/user/COOLman_YT/" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Reddit">
-        <img src="images/reddit.png" alt="Reddit" width="64" height="64" loading="eager">
-        <span class="social-label">Reddit</span>
-      </a>
-      <a href="https://steamcommunity.com/id/coolmanyt1" target="_blank" rel="noopener noreferrer" class="social-button" data-label="Steam">
-        <img src="images/steam.png" alt="Steam" width="64" height="64" loading="eager">
-        <span class="social-label">Steam</span>
-      </a>
     </div>
   </header>
 
@@ -408,7 +378,7 @@ document.getElementById("envCheck").textContent =
           <h2>Projects Manager</h2>
         </div>
         <div class="admin-inline-actions">
-          <span class="admin-card__status" id="pmStatus">Idle</span>
+          <span class="admin-card__status" id="pmStatusBar">Idle</span>
           <button type="button" class="button button--ghost button--small" id="pmRefreshBtn">Refresh</button>
           <a href="/projects" class="button button--ghost button--small" target="_blank" rel="noopener">View projects</a>
         </div>
@@ -444,8 +414,8 @@ document.getElementById("envCheck").textContent =
             <input type="url" id="pmRepoUrl" name="repo_url" placeholder="https://github.com/COOLmanYT/...">
           </div>
           <div class="admin-form__field">
-            <label for="pmStatus">Status</label>
-            <input type="text" id="pmStatus" name="status" placeholder="Active · In Development · Completed · Archived">
+            <label for="pmStatusField">Status</label>
+            <input type="text" id="pmStatusField" name="status" placeholder="Active · In Development · Completed · Archived">
           </div>
           <div class="admin-form__field">
             <label for="pmTags">Tags (comma-separated)</label>
@@ -468,7 +438,6 @@ document.getElementById("envCheck").textContent =
   <footer class="site-footer" role="contentinfo">
     <span>Made with ♥️ by <strong>COOLmanYT</strong></span>
     <span>Website <a data-site-version-link href="https://github.com/COOLmanYT/mycoolwebsite">Version <span data-site-version-number></span><span data-site-version-type></span></a></span>
-    <span>Credits to <a href="https://zinheere.dev">Zinheere</a></span>
     <span><a href="/privacy">Privacy Policy</a> • <a href="/terms">Terms of Service</a></span>
   </footer>
 
@@ -1515,7 +1484,7 @@ document.getElementById("envCheck").textContent =
   // Projects Manager
   // =========================================================
   (function () {
-    const pmStatus = document.getElementById('pmStatus');
+    const pmStatus = document.getElementById('pmStatusBar');
     const pmTable = document.getElementById('pmTable');
     const pmForm = document.getElementById('pmForm');
     const pmFormTitle = document.getElementById('pmFormTitle');
@@ -1529,7 +1498,7 @@ document.getElementById("envCheck").textContent =
     const pmDescription = document.getElementById('pmDescription');
     const pmUrl = document.getElementById('pmUrl');
     const pmRepoUrl = document.getElementById('pmRepoUrl');
-    const pmStatusInput = document.getElementById('pmStatus');
+    const pmStatusInput = document.getElementById('pmStatusField');
     const pmTags = document.getElementById('pmTags');
     const pmFeatured = document.getElementById('pmFeatured');
 

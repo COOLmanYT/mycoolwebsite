@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Terms of Service | COOLmanYT</title>
-  <link rel="icon" type="image/png" href="/images/avatar.png" />
-  <link rel="icon" href="/images/favicon.ico" />
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="/images/avatar.png">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="legal-page">
@@ -43,17 +43,16 @@
 
   <main id="mainContent" class="page-content" role="main">
     <div class="legal-mode-bar">
-      <span class="legal-mode-label">Simple Mode</span>
       <button type="button" class="legal-mode-toggle" id="simpleModeToggle" aria-pressed="true" aria-label="Toggle Simple Mode">
         <span class="legal-mode-toggle-track">
           <span class="legal-mode-toggle-thumb"></span>
         </span>
-        <span class="legal-mode-toggle-text" id="simpleModeToggleText">On</span>
+        <span class="legal-mode-toggle-text" id="simpleModeToggleText">Simple Mode On</span>
       </button>
     </div>
 
     <div id="legalSimple">
-      <h1>Terms of Service <span class="legal-mode-badge">Simple Mode</span></h1>
+      <h1>Terms of Service</h1>
       <p>Last updated: January 15, 2026</p>
       <section class="legal-summary" aria-label="Key points">
         <p><strong>Quick read:</strong> Use the site respectfully, no abuse or scraping, embeds and APIs follow their own terms, admin is restricted, and disputes follow Australian law.</p>
@@ -175,7 +174,7 @@
         simpleEl.hidden = !simple;
         fullEl.hidden = simple;
         toggle.setAttribute('aria-pressed', simple ? 'true' : 'false');
-        toggleText.textContent = simple ? 'On' : 'Off';
+        toggleText.textContent = simple ? 'Simple Mode On' : 'Simple Mode Off';
         toggle.classList.toggle('legal-mode-toggle--off', !simple);
       }
 
@@ -210,7 +209,6 @@
   <footer role="contentinfo" class="site-footer">
     <span>Made with ♥️ by <strong>COOLmanYT</strong></span>
     <span>Website <a data-site-version-link href="https://github.com/COOLmanYT/mycoolwebsite">Version <span data-site-version-number></span><span data-site-version-type></span></a></span>
-    <span>Credits to <a href="https://zinheere.dev">Zinheere</a></span>
     <span><a href="/privacy">Privacy Policy</a> • <a href="/terms">Terms of Service</a></span>
   </footer>
   <script>

@@ -6,8 +6,8 @@
   <meta name="description" content="COOLmanYT Blog Post">
   <meta name="author" content="COOLmanYT">
   <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" href="/images/avatar.png">
-  <link rel="icon" href="/images/favicon.ico">
   <link rel="apple-touch-icon" href="/images/avatar.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -182,28 +182,31 @@
   </main>
 
   <section class="comments" aria-label="Comments">
-    <script src="https://giscus.app/client.js"
-            data-repo="COOLmanYT/mycoolwebsite"
-            data-repo-id="R_kgDOP_C5DA"
-            data-category="giscus comments"
-            data-category-id="DIC_kwDOP_C5DM4C1Twf"
-            data-mapping="og:title"
-            data-strict="1"
-            data-reactions-enabled="1"
-            data-emit-metadata="0"
-            data-input-position="top"
-            data-theme="dark"
-            data-lang="en"
-            data-loading="lazy"
-            crossorigin="anonymous"
-            async>
-    </script>
+    <script>(function () {
+      var theme = 'dark';
+      try { var s = localStorage.getItem('coolman-theme'); if (s === 'light') theme = 'light'; } catch (e) {}
+      var el = document.createElement('script');
+      el.src = 'https://giscus.app/client.js'; el.async = true;
+      el.setAttribute('crossorigin', 'anonymous');
+      el.setAttribute('data-repo', 'COOLmanYT/mycoolwebsite');
+      el.setAttribute('data-repo-id', 'R_kgDOP_C5DA');
+      el.setAttribute('data-category', 'giscus comments');
+      el.setAttribute('data-category-id', 'DIC_kwDOP_C5DM4C1Twf');
+      el.setAttribute('data-mapping', 'pathname');
+      el.setAttribute('data-strict', '1');
+      el.setAttribute('data-reactions-enabled', '1');
+      el.setAttribute('data-emit-metadata', '0');
+      el.setAttribute('data-input-position', 'top');
+      el.setAttribute('data-theme', theme);
+      el.setAttribute('data-lang', 'en');
+      el.setAttribute('data-loading', 'lazy');
+      document.currentScript.replaceWith(el);
+    }());</script>
   </section>
 
   <footer class="site-footer" role="contentinfo">
     <span>Made with ♥️ by <strong>COOLmanYT</strong></span>
     <span>Website <a data-site-version-link href="https://github.com/COOLmanYT/mycoolwebsite">Version <span data-site-version-number></span><span data-site-version-type></span></a></span>
-    <span>Credits to <a href="https://zinheere.dev">Zinheere</a></span>
     <span><a href="/privacy">Privacy Policy</a> • <a href="/terms">Terms of Service</a></span>
   </footer>
 
@@ -233,6 +236,11 @@
     }
 
     function getSlug() {
+      // Clean URL: /blog/post/my-slug  (last non-empty path segment)
+      const parts = window.location.pathname.split('/').filter(Boolean);
+      const last = parts[parts.length - 1] || '';
+      // Fall back to legacy ?slug= query param for backward compatibility
+      if (last && last !== 'post') return last;
       const params = new URLSearchParams(window.location.search);
       return (params.get('slug') || '').trim();
     }
@@ -260,7 +268,21 @@
         // Update page meta
         document.title = `${post.title} — COOLmanYT`;
         const metaDesc = document.querySelector('meta[name="description"]');
-        if (metaDesc) metaDesc.setAttribute('content', post.title);
+        if (metaDesc) metaDesc.setAttribute('content', post.excerpt || post.title);
+        let ogTitle = document.querySelector('meta[property="og:title"]');
+        if (!ogTitle) {
+          ogTitle = document.createElement('meta');
+          ogTitle.setAttribute('property', 'og:title');
+          document.head.appendChild(ogTitle);
+        }
+        ogTitle.setAttribute('content', `${post.title} — COOLmanYT`);
+        let ogUrl = document.querySelector('meta[property="og:url"]');
+        if (!ogUrl) {
+          ogUrl = document.createElement('meta');
+          ogUrl.setAttribute('property', 'og:url');
+          document.head.appendChild(ogUrl);
+        }
+        ogUrl.setAttribute('content', window.location.href);
 
         titleEl.textContent = post.title;
 

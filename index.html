@@ -6,8 +6,8 @@
   <meta name="description" content="COOLman is cool, man.">
   <meta name="author" content="COOLmanYT">
   <meta name="color-scheme" content="dark light">
-  <link rel="icon" type="image/png" href="/images/avatar.png" />
-  <link rel="icon" href="/images/favicon.ico">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="/images/avatar.png">
   <link rel="apple-touch-icon" href="/images/avatar.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -145,16 +145,23 @@
       <p class="release-countdown__note" data-countdown-note>Counting down to 13 December 2025 at 2:00 PM AEDT.</p>
     </section> <!-- other way to hide countdown is to make it a comment -->
 
-    <section class="latest-blog" data-latest-blog>
-      <div class="latest-blog__meta">
-        <span class="tag-pill">Blog</span>
-        <span class="latest-blog__date" data-blog-date>—</span>
+    <section class="blog-preview" aria-labelledby="blogPreviewHeading" data-blog-preview>
+      <div class="blog-preview__header">
+        <h2 id="blogPreviewHeading">Latest Posts</h2>
+        <a href="/blog" class="button button--ghost">View all</a>
       </div>
-      <h3 class="latest-blog__title" data-blog-title>Loading latest post…</h3>
-      <p class="latest-blog__summary" data-blog-summary>Fetching the newest blog entry.</p>
-      <div class="latest-blog__footer">
-        <span class="latest-blog__reading" data-blog-reading>—</span>
-        <a class="button" data-blog-link href="/blog">Read post</a>
+      <div class="blog-preview__scroll" data-blog-preview-scroll>
+        <p class="blog-preview__status" data-blog-preview-status>Loading posts…</p>
+      </div>
+    </section>
+
+    <section class="projects-preview" aria-labelledby="projectsPreviewHeading" data-projects-preview>
+      <div class="projects-preview__header">
+        <h2 id="projectsPreviewHeading">Top Projects</h2>
+        <a href="/projects" class="button button--ghost">View all</a>
+      </div>
+      <div class="projects-preview__scroll" data-projects-preview-scroll>
+        <p class="projects-preview__status" data-projects-preview-status>Loading projects…</p>
       </div>
     </section>
 
@@ -179,7 +186,6 @@
   <footer class="site-footer" role="contentinfo">
     <span>Made with ♥️ by <strong>COOLmanYT</strong></span>
     <span>Website <a data-site-version-link href="https://github.com/COOLmanYT/mycoolwebsite">Version <span data-site-version-number></span><span data-site-version-type></span></a></span>
-    <span>Credits to <a href="https://zinheere.dev">Zinheere</a></span>
     <span><a href="/privacy">Privacy Policy</a> • <a href="/terms">Terms of Service</a></span>
   </footer>
 
