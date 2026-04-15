@@ -133,7 +133,7 @@
       el.setAttribute('data-repo-id', 'R_kgDOP_C5DA');
       el.setAttribute('data-category', 'giscus comments');
       el.setAttribute('data-category-id', 'DIC_kwDOP_C5DM4C1Twf');
-      el.setAttribute('data-mapping', 'og:title');
+      el.setAttribute('data-mapping', 'pathname');
       el.setAttribute('data-strict', '1');
       el.setAttribute('data-reactions-enabled', '1');
       el.setAttribute('data-emit-metadata', '0');
@@ -177,6 +177,11 @@
     }
 
     function getSlug() {
+      // Clean URL: /blog/post/my-slug  (last non-empty path segment)
+      const parts = window.location.pathname.split('/').filter(Boolean);
+      const last = parts[parts.length - 1] || '';
+      // Fall back to legacy ?slug= query param for backward compatibility
+      if (last && last !== 'post') return last;
       const params = new URLSearchParams(window.location.search);
       return (params.get('slug') || '').trim();
     }
