@@ -1038,7 +1038,7 @@ function decorateExternalLinks() {
 			return;
 		}
 
-		if (anchor.closest('.site-footer') || anchor.closest('.social-links')) {
+		if (anchor.closest('.social-links')) {
 			return;
 		}
 
