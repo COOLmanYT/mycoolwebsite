@@ -1774,7 +1774,7 @@ async function initLatestUploadCard() {
 	};
 
 	const attemptApiLatest = async () => {
-		const API_TIMEOUT_MS = 3500;
+		const API_TIMEOUT_MS = 9000;
 		const params = new URLSearchParams();
 		if (resolvedChannelId) {
 			params.set('channelId', resolvedChannelId);
@@ -1831,10 +1831,6 @@ async function initLatestUploadCard() {
 		return;
 	}
 
-	if (await attemptPipedLatest()) {
-		return;
-	}
-
 	const buildChannelFeedUrl = (id) => `https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(id)}`;
 	const buildUserFeedUrl = (user) => `https://www.youtube.com/feeds/videos.xml?user=${encodeURIComponent(user)}`;
 
@@ -1858,7 +1854,8 @@ async function initLatestUploadCard() {
 		}
 	};
 
-async function attemptPipedLatest() {
+	async function attemptPipedLatest() {
+		const PIPED_TIMEOUT_MS = 3500;
 		const identifierPool = [];
 		if (resolvedChannelId) {
 			identifierPool.push(resolvedChannelId);
@@ -1889,9 +1886,14 @@ async function attemptPipedLatest() {
 				const sanitizedBase = base.endsWith('/') ? base : `${base}/`;
 				const attemptUrl = `${sanitizedBase}${encodedIdentifier}`;
 				try {
+					const controller = new AbortController();
+					const timeoutId = window.setTimeout(() => controller.abort(), PIPED_TIMEOUT_MS);
 					const response = await fetch(attemptUrl, {
 						headers: { Accept: 'application/json' },
 						cache: 'no-store',
+						signal: controller.signal,
+					}).finally(() => {
+						window.clearTimeout(timeoutId);
 					});
 					if (!response.ok) {
 						continue;
