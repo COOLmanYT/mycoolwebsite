@@ -1476,6 +1476,10 @@ async function initLatestUploadCard() {
 	if (!card) {
 		return;
 	}
+	// Keep in sync with `/api/youtube/latest` backend fallbacks (multiple upstream attempts).
+	const LATEST_VIDEO_API_TIMEOUT_MS = 9000;
+	// Limit direct Piped fallback latency per request so UI cannot stall for too long.
+	const LATEST_VIDEO_PIPED_TIMEOUT_MS = 3500;
 
 	const channelIdAttr = card.getAttribute('data-channel-id')?.trim() || '';
 	const channelUserRaw = card.getAttribute('data-channel-user')?.trim() || '';
@@ -1774,7 +1778,6 @@ async function initLatestUploadCard() {
 	};
 
 	const attemptApiLatest = async () => {
-		const API_TIMEOUT_MS = 9000;
 		const params = new URLSearchParams();
 		if (resolvedChannelId) {
 			params.set('channelId', resolvedChannelId);
@@ -1787,7 +1790,7 @@ async function initLatestUploadCard() {
 		const query = params.toString();
 		const endpoint = `/api/youtube/latest${query ? `?${query}` : ''}`;
 		const controller = new AbortController();
-		const timeoutId = window.setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+		const timeoutId = window.setTimeout(() => controller.abort(), LATEST_VIDEO_API_TIMEOUT_MS);
 		try {
 			const response = await fetch(endpoint, {
 				headers: { Accept: 'application/json' },
@@ -1855,7 +1858,6 @@ async function initLatestUploadCard() {
 	};
 
 	async function attemptPipedLatest() {
-		const PIPED_TIMEOUT_MS = 3500;
 		const identifierPool = [];
 		if (resolvedChannelId) {
 			identifierPool.push(resolvedChannelId);
@@ -1887,7 +1889,7 @@ async function initLatestUploadCard() {
 				const attemptUrl = `${sanitizedBase}${encodedIdentifier}`;
 				try {
 					const controller = new AbortController();
-					const timeoutId = window.setTimeout(() => controller.abort(), PIPED_TIMEOUT_MS);
+					const timeoutId = window.setTimeout(() => controller.abort(), LATEST_VIDEO_PIPED_TIMEOUT_MS);
 					const response = await fetch(attemptUrl, {
 						headers: { Accept: 'application/json' },
 						cache: 'no-store',
