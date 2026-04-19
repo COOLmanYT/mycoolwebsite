@@ -1477,7 +1477,7 @@ async function initLatestUploadCard() {
 		return;
 	}
 	// Keep in sync with `/api/youtube/latest` backend fallbacks (multiple upstream attempts).
-	const LATEST_VIDEO_API_TIMEOUT_MS = 9000;
+	const API_LATEST_TIMEOUT_MS = 9000;
 	// Limit direct Piped fallback latency per request so UI cannot stall for too long.
 	const LATEST_VIDEO_PIPED_TIMEOUT_MS = 3500;
 
@@ -1790,7 +1790,7 @@ async function initLatestUploadCard() {
 		const query = params.toString();
 		const endpoint = `/api/youtube/latest${query ? `?${query}` : ''}`;
 		const controller = new AbortController();
-		const timeoutId = window.setTimeout(() => controller.abort(), LATEST_VIDEO_API_TIMEOUT_MS);
+		const timeoutId = window.setTimeout(() => controller.abort(), API_LATEST_TIMEOUT_MS);
 		try {
 			const response = await fetch(endpoint, {
 				headers: { Accept: 'application/json' },
