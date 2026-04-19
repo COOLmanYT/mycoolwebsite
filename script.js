@@ -16,6 +16,10 @@ let siteSettings = { ...DEFAULT_SITE_SETTINGS };
 const ANALYTICS_MODULE_URL = 'https://v.vercel-scripts.com/v1/script.js';
 const VERCEL_ANALYTICS_MODULE_ESM = 'https://unpkg.com/@vercel/analytics@latest/dist/analytics.mjs';
 const MAILERLITE_ACCOUNT_ID = '2039610';
+// Keep in sync with `/api/youtube/latest` backend fallbacks (multiple upstream attempts).
+const API_LATEST_TIMEOUT_MS = 9000;
+// Limit direct Piped fallback latency per request so UI cannot stall for too long.
+const LATEST_VIDEO_PIPED_TIMEOUT_MS = 3500;
 let mailerLiteQueued = false;
 let slowConnectionDetected = false;
 const blogViewerState = {
@@ -1476,11 +1480,6 @@ async function initLatestUploadCard() {
 	if (!card) {
 		return;
 	}
-	// Keep in sync with `/api/youtube/latest` backend fallbacks (multiple upstream attempts).
-	const API_LATEST_TIMEOUT_MS = 9000;
-	// Limit direct Piped fallback latency per request so UI cannot stall for too long.
-	const LATEST_VIDEO_PIPED_TIMEOUT_MS = 3500;
-
 	const channelIdAttr = card.getAttribute('data-channel-id')?.trim() || '';
 	const channelUserRaw = card.getAttribute('data-channel-user')?.trim() || '';
 	const { handle: normalizedHandle, legacyUser } = parseChannelUserInput(channelUserRaw);
