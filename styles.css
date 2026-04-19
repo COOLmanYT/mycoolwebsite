@@ -1,54 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_outward,open_in_new');
-
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 1em;
-  line-height: 1;
-  letter-spacing: normal;
-  text-transform: none;
-  display: inline-block;
-  white-space: nowrap;
-  word-wrap: normal;
-  direction: ltr;
-  font-variation-settings:
-    'FILL' 0,
-    'wght' 400,
-    'GRAD' 0,
-    'opsz' 24;
-}
-
-.external-icon {
-  margin-left: 0.35em;
-  vertical-align: -0.15em;
-  opacity: 0.82;
-}
-
-.playlist-placeholder {
-  border: 1px dashed var(--outline);
-  border-radius: 12px;
-  padding: 1rem;
-  background: var(--surface);
-  color: var(--text-secondary);
-  display: grid;
-  gap: 0.75rem;
-  align-items: center;
-  justify-items: center;
-}
-
-.playlist-placeholder .button {
-  width: auto;
-}
-
-.hero-outro {
-  margin: 0 auto clamp(1.5rem, 5vw, 2.5rem);
-  max-width: min(70ch, 90%);
-  text-align: center;
-  color: var(--text-secondary);
-}
-
+/* Compatibility wrapper: use the canonical root stylesheet to avoid duplication. */
+@import url('/style.css');
 :root {
   color-scheme: dark;
 }
