@@ -16,6 +16,10 @@ let siteSettings = { ...DEFAULT_SITE_SETTINGS };
 const ANALYTICS_MODULE_URL = 'https://v.vercel-scripts.com/v1/script.js';
 const VERCEL_ANALYTICS_MODULE_ESM = 'https://unpkg.com/@vercel/analytics@latest/dist/analytics.mjs';
 const MAILERLITE_ACCOUNT_ID = '2039610';
+// Keep in sync with `/api/youtube/latest` backend fallbacks (multiple upstream attempts).
+const API_LATEST_TIMEOUT_MS = 9000;
+// Limit direct Piped fallback latency per request so UI cannot stall for too long.
+const LATEST_VIDEO_PIPED_TIMEOUT_MS = 3500;
 let mailerLiteQueued = false;
 let slowConnectionDetected = false;
 const blogViewerState = {
@@ -1476,7 +1480,6 @@ async function initLatestUploadCard() {
 	if (!card) {
 		return;
 	}
-
 	const channelIdAttr = card.getAttribute('data-channel-id')?.trim() || '';
 	const channelUserRaw = card.getAttribute('data-channel-user')?.trim() || '';
 	const { handle: normalizedHandle, legacyUser } = parseChannelUserInput(channelUserRaw);
@@ -1774,7 +1777,6 @@ async function initLatestUploadCard() {
 	};
 
 	const attemptApiLatest = async () => {
-		const API_TIMEOUT_MS = 3500;
 		const params = new URLSearchParams();
 		if (resolvedChannelId) {
 			params.set('channelId', resolvedChannelId);
@@ -1787,7 +1789,7 @@ async function initLatestUploadCard() {
 		const query = params.toString();
 		const endpoint = `/api/youtube/latest${query ? `?${query}` : ''}`;
 		const controller = new AbortController();
-		const timeoutId = window.setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+		const timeoutId = window.setTimeout(() => controller.abort(), API_LATEST_TIMEOUT_MS);
 		try {
 			const response = await fetch(endpoint, {
 				headers: { Accept: 'application/json' },
@@ -1831,10 +1833,6 @@ async function initLatestUploadCard() {
 		return;
 	}
 
-	if (await attemptPipedLatest()) {
-		return;
-	}
-
 	const buildChannelFeedUrl = (id) => `https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(id)}`;
 	const buildUserFeedUrl = (user) => `https://www.youtube.com/feeds/videos.xml?user=${encodeURIComponent(user)}`;
 
@@ -1858,7 +1856,7 @@ async function initLatestUploadCard() {
 		}
 	};
 
-async function attemptPipedLatest() {
+	async function attemptPipedLatest() {
 		const identifierPool = [];
 		if (resolvedChannelId) {
 			identifierPool.push(resolvedChannelId);
@@ -1889,9 +1887,14 @@ async function attemptPipedLatest() {
 				const sanitizedBase = base.endsWith('/') ? base : `${base}/`;
 				const attemptUrl = `${sanitizedBase}${encodedIdentifier}`;
 				try {
+					const controller = new AbortController();
+					const timeoutId = window.setTimeout(() => controller.abort(), LATEST_VIDEO_PIPED_TIMEOUT_MS);
 					const response = await fetch(attemptUrl, {
 						headers: { Accept: 'application/json' },
 						cache: 'no-store',
+						signal: controller.signal,
+					}).finally(() => {
+						window.clearTimeout(timeoutId);
 					});
 					if (!response.ok) {
 						continue;
