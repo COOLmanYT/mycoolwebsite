@@ -1475,6 +1475,23 @@ async function initTopProjects() {
 	}
 }
 
+function sanitizeNavigationUrl(candidate, fallback = 'https://www.youtube.com/') {
+	try {
+		const parsed = new URL(candidate, 'https://www.youtube.com');
+		if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+			return parsed.href;
+		}
+	} catch (error) {
+		// Ignore parse errors and fall through to fallback.
+	}
+	try {
+		const safeFallback = new URL(fallback, 'https://www.youtube.com');
+		return safeFallback.href;
+	} catch (error) {
+		return 'https://www.youtube.com/';
+	}
+}
+
 async function initLatestUploadCard() {
 	const card = document.querySelector('[data-latest-video]');
 	if (!card) {
@@ -1685,7 +1702,7 @@ async function initLatestUploadCard() {
 			}
 		}
 		if (linkEl) {
-			linkEl.href = resolvedLink;
+			linkEl.href = sanitizeNavigationUrl(resolvedLink, channelUrl);
 		}
 
 		const derivedVideoId = videoId || extractVideoId(resolvedLink);
