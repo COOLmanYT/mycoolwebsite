@@ -596,13 +596,13 @@ document.getElementById("envCheck").textContent =
 
     function escapeYaml(value = '') {
       if (!value) return '""';
-      const safe = value.replace(/"/g, '\\"');
+      const safe = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
       return `"${safe}"`;
     }
 
     function escapeMultiline(value = '') {
       if (!value) return '""';
-      const sanitized = value.replace(/"/g, '\\"');
+      const sanitized = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
       if (sanitized.includes('\n')) {
         const lines = sanitized.split('\n').map((line) => line.trimEnd());
         return `|\n  ${lines.join('\n  ')}`;
