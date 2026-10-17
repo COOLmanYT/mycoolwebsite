@@ -1,0 +1,160 @@
+/* Preserve the blog cascade without duplicating the canonical stylesheet. */
+body {
+  --background: linear-gradient(180deg, #0a0a0a 0%, #111111 50%, #0d0d0d 100%);
+  --surface: rgba(20, 20, 20, 0.78);
+  --surface-strong: rgba(28, 28, 28, 0.9);
+  --accent: #ff3044;
+  --accent-hover: #ff5162;
+  --status-success-bg: rgba(46, 204, 113, 0.18);
+  --status-success-border: rgba(46, 204, 113, 0.35);
+  --status-success-text: #b6ffd6;
+  --status-error-bg: rgba(255, 75, 110, 0.22);
+  --status-error-border: rgba(255, 75, 110, 0.45);
+  --status-error-text: #ffd2dc;
+}
+
+body.theme-light {
+  --accent: #ff3044;
+  --accent-hover: #e52a3b;
+  --status-success-bg: rgba(46, 204, 113, 0.12);
+  --status-success-border: rgba(46, 204, 113, 0.25);
+  --status-success-text: #1f6f43;
+  --status-error-bg: rgba(255, 75, 110, 0.12);
+  --status-error-border: rgba(255, 75, 110, 0.28);
+  --status-error-text: #c1213b;
+}
+
+.contact-auth-badge, .auth-inline-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.nav-pill.active {
+  box-shadow: rgba(255, 48, 68, 0.32) 0px 14px 28px;
+}
+
+.button--subscribe {
+  background-image: linear-gradient(135deg, rgb(255, 48, 68), rgb(255, 107, 107));
+  box-shadow: rgba(255, 72, 96, 0.35) 0px 14px 28px;
+  --sub-glow-color-1: hsla(355, 92%, 62%, 0.65);
+  --sub-glow-color-2: hsla(12, 94%, 58%, 0.45);
+}
+
+.button--subscribe:hover, .button--subscribe:focus-visible {
+  background-image: linear-gradient(135deg, rgb(255, 75, 95), rgb(255, 123, 123));
+  box-shadow: rgba(255, 72, 96, 0.42) 0px 18px 36px;
+}
+
+.project-card__actions {
+  margin-top: 1.25rem;
+}
+
+.now-playing::after {
+  background-image: radial-gradient(circle, rgba(255, 48, 68, 0.18), transparent 55%);
+}
+
+.blog-card {
+  row-gap: 0.6rem;
+  column-gap: 0.6rem;
+  padding-top: clamp(1rem, 3vw, 1.5rem);
+  padding-right: clamp(1rem, 3vw, 1.5rem);
+  padding-bottom: clamp(1rem, 3vw, 1.5rem);
+  padding-left: clamp(1rem, 3vw, 1.5rem);
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  border-bottom-right-radius: 18px;
+  border-bottom-left-radius: 18px;
+}
+
+.project-card {
+  row-gap: 0.6rem;
+  column-gap: 0.6rem;
+  padding-top: clamp(1rem, 3vw, 1.5rem);
+  padding-right: clamp(1rem, 3vw, 1.5rem);
+  padding-bottom: clamp(1rem, 3vw, 1.5rem);
+  padding-left: clamp(1rem, 3vw, 1.5rem);
+}
+
+.project-card--arena {
+  --card-preview: linear-gradient(135deg, #ff3044 0%, rgba(150, 150, 150, 0.5) 100%);
+}
+
+.contact-form input:focus, .contact-form textarea:focus {
+  box-shadow: rgba(255, 48, 68, 0.25) 0px 0px 0px 3px;
+}
+
+.form-message.error, #formStatus.error {
+  background-color: rgba(231, 76, 60, 0.2);
+  border-top-color: rgba(231, 76, 60, 0.35);
+  border-right-color: rgba(231, 76, 60, 0.35);
+  border-bottom-color: rgba(231, 76, 60, 0.35);
+  border-left-color: rgba(231, 76, 60, 0.35);
+  color: rgb(255, 179, 179);
+}
+
+.blog-featured-card::after {
+  background-image: radial-gradient(circle, rgba(255, 48, 68, 0.15) 0%, transparent 65%);
+}
+
+.blog-card .tag-pill {
+  background-color: rgba(255, 48, 68, 0.12);
+  border-top-color: rgba(255, 48, 68, 0.28);
+  border-right-color: rgba(255, 48, 68, 0.28);
+  border-bottom-color: rgba(255, 48, 68, 0.28);
+  border-left-color: rgba(255, 48, 68, 0.28);
+}
+
+.blog-article-content h2 {
+  font-size: clamp(1.4rem, 4vw, 1.9rem);
+}
+
+.blog-article-footer .article-actions a, .blog-article-footer .article-actions button {
+  font-weight: 600;
+}
+
+.comment-form input:focus, .comment-form textarea:focus {
+  box-shadow: rgba(255, 48, 68, 0.25) 0px 0px 0px 3px;
+}
+
+@media (max-width: 768px) {
+.header-bar {
+  row-gap: 0.5rem;
+  column-gap: 0.5rem;
+}
+}
+
+.admin-card, .admin-form-card, .admin-table-card, .admin-preview {
+  background-color: rgba(17, 22, 39, 0.65);
+}
+
+.admin-form input, .admin-form textarea, .admin-form select {
+  background-color: rgba(17, 22, 39, 0.6);
+}
+
+.admin-pill--draft {
+  background-color: rgba(255, 196, 87, 0.25);
+}
+
+.admin-pill--coming, .admin-pill--coming\ soon {
+  background-color: rgba(84, 153, 255, 0.25);
+}
+
+.admin-pill--published {
+  background-color: rgba(99, 255, 155, 0.25);
+}
+
+.admin-error {
+  color: rgb(255, 107, 129);
+}
+
+.admin-lock__card {
+  background-color: rgba(15, 18, 32, 0.8);
+}
+
+.admin-alert {
+  background-color: rgba(255, 196, 87, 0.15);
+  border-top-color: rgba(255, 196, 87, 0.4);
+  border-right-color: rgba(255, 196, 87, 0.4);
+  border-bottom-color: rgba(255, 196, 87, 0.4);
+  border-left-color: rgba(255, 196, 87, 0.4);
+}
